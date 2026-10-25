@@ -1,0 +1,231 @@
+@import 'tailwindcss' source('../');
+
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+body {
+  @apply m-0;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: var(--font-mono-rp);
+}
+
+:root {
+  --font-body:
+    'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI',
+    Roboto, sans-serif;
+  --font-heading: 'Oxanium', 'Inter', system-ui, sans-serif;
+  --font-mono-rp: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  --content-width: 75rem;
+  --reading-width: 42rem;
+
+  /* Light theme (Himalayan daylight) */
+  --background: #e6e4dc;
+  --foreground: #111719;
+  --card: #f8f6ef;
+  --card-foreground: #111719;
+  --popover: #ffffff;
+  --popover-foreground: #111719;
+  --raised: #ffffff;
+  --primary: #eb5b38;
+  --primary-foreground: #111719;
+  --secondary: #ffffff;
+  --secondary-foreground: #111719;
+  --muted: #dcd9cf;
+  --muted-foreground: #4b5558;
+  --accent: #efece3;
+  --accent-foreground: #111719;
+  --destructive: #b83232;
+  --destructive-foreground: #ffffff;
+  --border: #bcc2be;
+  --input: #bcc2be;
+  --ring: #245c98;
+  --link: #245c98;
+  --brand-orange: #eb5b38;
+  --brand-blue: #347ccb;
+  --action-blue: #2767ab;
+  --radius: 0.875rem;
+
+  /* Semantic advisory states (never used for brand) */
+  --status-clear: #2e9e5b;
+  --status-caution: #f5a623;
+  --status-avoid: #f07a00;
+  --status-dnt: #d64545;
+  --status-unknown: #8a97a6;
+  --status-official: #347ccb;
+
+  --chart-1: #2e9e5b;
+  --chart-2: #f5a623;
+  --chart-3: #f07a00;
+  --chart-4: #d64545;
+  --chart-5: #8a97a6;
+  --sidebar: #f8f6ef;
+  --sidebar-foreground: #111719;
+  --sidebar-primary: #eb5b38;
+  --sidebar-primary-foreground: #111719;
+  --sidebar-accent: #efece3;
+  --sidebar-accent-foreground: #111719;
+  --sidebar-border: #bcc2be;
+  --sidebar-ring: #245c98;
+}
+
+.dark {
+  --background: #111719;
+  --foreground: #e6e4dc;
+  --card: #272a2d;
+  --card-foreground: #e6e4dc;
+  --popover: #30363a;
+  --popover-foreground: #e6e4dc;
+  --raised: #30363a;
+  --primary: #eb5b38;
+  --primary-foreground: #111719;
+  --secondary: #30363a;
+  --secondary-foreground: #e6e4dc;
+  --muted: #30363a;
+  --muted-foreground: #b7bcb9;
+  --accent: #30363a;
+  --accent-foreground: #e6e4dc;
+  --destructive: #d64545;
+  --destructive-foreground: #ffffff;
+  --border: #465056;
+  --input: #465056;
+  --ring: #f4d6a6;
+  --link: #92c5ff;
+  --sidebar: #272a2d;
+  --sidebar-foreground: #e6e4dc;
+  --sidebar-primary: #eb5b38;
+  --sidebar-primary-foreground: #111719;
+  --sidebar-accent: #30363a;
+  --sidebar-accent-foreground: #e6e4dc;
+  --sidebar-border: #465056;
+  --sidebar-ring: #f4d6a6;
+}
+
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-display: var(--font-heading);
+  --font-mono: var(--font-mono-rp);
+  --color-raised: var(--raised);
+  --color-link: var(--link);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-blue: var(--brand-blue);
+  --color-action-blue: var(--action-blue);
+  --color-status-clear: var(--status-clear);
+  --color-status-caution: var(--status-caution);
+  --color-status-avoid: var(--status-avoid);
+  --color-status-dnt: var(--status-dnt);
+  --color-status-unknown: var(--status-unknown);
+  --color-status-official: var(--status-official);
+  --container-content: var(--content-width);
+  --container-reading: var(--reading-width);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer base {
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+  }
+  h1,
+  h2,
+  .font-display {
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+  }
+  :lang(hi) h1,
+  :lang(hi) h2,
+  :lang(hi) .font-display {
+    font-family: 'Noto Sans Devanagari', var(--font-heading);
+    letter-spacing: 0;
+  }
+  a.rp-link {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+.rp-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--content-width);
+  padding-inline: 1.25rem;
+}
+@media (min-width: 768px) {
+  .rp-container {
+    padding-inline: 2rem;
+  }
+}
+@media (min-width: 1280px) {
+  .rp-container {
+    padding-inline: 3rem;
+  }
+}
+
+/* Subtle technical grid used behind cards — static, no animation */
+.rp-grid-bg {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--border) 35%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--border) 35%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

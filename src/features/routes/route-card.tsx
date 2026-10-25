@@ -1,0 +1,127 @@
+import { Link } from '@tanstack/react-router'
+import { Bookmark, BookmarkCheck, Info, List, Map as MapIcon, TriangleAlert } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { AdvisoryBadge, LEVEL_META } from '@/components/advisory'
+import { usePrefs } from '@/i18n/preferences'
+import { advisoryFor } from '@/lib/data'
+import type { RouteAdvisorySummary } from '@/lib/advisory'
+import type { RouteOption } from '@/features/routes/routing'
+import { routeLabel } from '@/features/routes/routing'
+import { cn } from '@/lib/utils'
+
+function Metric({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
+  return (
+    <div>
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className={cn('mt-0.5 font-semibold', mono && 'font-mono text-sm')}>{value}</dd>
+    </div>
+  )
+}
+
+export function RouteCard({
+  route,
+  summary,
+  index,
+  selected,
+  saved,
+  onSelect,
+  onCompare,
+  onDetails,
+  onToggleSave,
+}: {
+  route: RouteOption
+  summary: RouteAdvisorySummary
+  index: number
+  selected: boolean
+  saved: boolean
+  onSelect: () => void
+  onCompare: () => void
+  onDetails: () => void
+  onToggleSave: () => void
+}) {
+  const { t, lang, ago, duration } = usePrefs()
+  const letter = String.fromCharCode(65 + index)
+  return (
+    <article
+      className={cn(
+        'flex flex-col rounded-2xl border bg-card p-5 transition-colors',
+        selected ? 'border-foreground/60 ring-1 ring-foreground/30' : 'border-border',
+      )}
+      aria-label={`Route ${letter}`}
+    >
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-pressed={selected}
+        className="-m-2 rounded-xl p-2 text-left"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <span className="font-mono text-xs text-muted-foreground">ROUTE {letter}</span>
+            <p className="mt-0.5 font-display text-lg leading-snug font-semibold">
+              {t('results.via')} {routeLabel(route, lang)}
+            </p>
+          </div>
+          <AdvisoryBadge level={summary.level} />
+        </div>
+        {/* Per-section strip, proportional to distance */}
+        <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-muted" aria-hidden>
+          {route.segments.map((s) => {
+            const l = advisoryFor(s.id)?.level ?? 'unknown'
+            return (
+              <span
+                key={s.id}
+                className={cn('h-full border-r border-card last:border-0', LEVEL_META[l].bar, l === 'unknown' && 'opacity-50')}
+                style={{ width: `${(s.distanceKm / route.distanceKm) * 100}%` }}
+              />
+            )
+          })}
+        </div>
+      </button>
+
+      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+        <Metric label={t('results.distance')} value={`${route.distanceKm} ${t('common.km')}`} />
+        <Metric label={t('results.duration')} value={duration(route.typicalMinutes)} />
+        <Metric label={t('results.coverage')} value={`${Math.round(summary.coverage * 100)}%`} />
+        <Metric label={t('results.latest')} value={summary.latestObservationAt ? ago(summary.latestObservationAt) : '—'} />
+        <Metric label={t('results.hazards')} value={summary.hazardCount} />
+        <Metric label={t('results.restrictions')} value={summary.restrictionCount} />
+        <Metric label={t('results.unknownKm')} value={`${summary.unknownKm} ${t('common.km')}`} />
+      </dl>
+      <p className="mt-2 text-xs text-muted-foreground">{t('results.typical')}</p>
+
+      {summary.awaitingClearance && (
+        <p className="mt-3 rounded-lg border border-dashed border-status-official px-3 py-2 text-sm">
+          {t('copy.awaitingClearance')}
+        </p>
+      )}
+      {summary.poorCoverage && (
+        <p className="mt-3 flex gap-2 rounded-lg bg-accent px-3 py-2.5 text-sm">
+          <Info aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          {t('copy.poorCoverage')}
+        </p>
+      )}
+
+      <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
+        <Button variant="secondary" className="h-auto min-h-11 rounded-xl py-2 whitespace-normal" onClick={onCompare}>
+          <MapIcon />
+          {t('results.compare')}
+        </Button>
+        <Button variant="secondary" className="h-auto min-h-11 rounded-xl py-2 whitespace-normal" onClick={onDetails}>
+          <List />
+          {t('results.details')}
+        </Button>
+        <Button variant="outline" className="h-auto min-h-11 rounded-xl py-2 whitespace-normal" onClick={onToggleSave} aria-pressed={saved}>
+          {saved ? <BookmarkCheck /> : <Bookmark />}
+          {saved ? t('results.saved') : t('results.save')}
+        </Button>
+        <Button asChild variant="outline" className="h-auto min-h-11 rounded-xl py-2 whitespace-normal">
+          <Link to="/report" search={{ segment: route.segments[0]?.id }}>
+            <TriangleAlert />
+            {t('results.reportHere')}
+          </Link>
+        </Button>
+      </div>
+    </article>
+  )
+}

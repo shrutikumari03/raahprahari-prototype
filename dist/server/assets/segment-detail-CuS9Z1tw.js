@@ -1,8 +1,8 @@
 import { a as cn } from "./storage-wbzgXpjQ.js";
 import { t as Button } from "./button-DxFltwjo.js";
 import { c as QUICK_PICKS, d as SEGMENTS, f as corridorById, m as segmentById, p as placeById, r as usePrefs, s as PLACES } from "./preferences-Bu-IUfe0.js";
-import { c as FreshnessChip, d as RoadCode, l as LEVEL_META, p as getAdvisorySourceTimestamp, s as AdvisoryBadge, u as OfficialBadge } from "./router-BQGkn71w.js";
-import { n as getAdvisories, t as advisoryFor } from "./data-XPBf3mGf.js";
+import { c as FreshnessChip, d as RoadCode, l as LEVEL_META, p as getAdvisorySourceTimestamp, s as AdvisoryBadge, u as OfficialBadge } from "./router-BV9_Jy_b.js";
+import { n as getAdvisories, t as advisoryFor } from "./data-DcVb_IFo.js";
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { jsx, jsxs } from "react/jsx-runtime";

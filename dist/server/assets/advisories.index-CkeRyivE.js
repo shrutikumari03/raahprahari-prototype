@@ -1,10 +1,10 @@
 import { a as cn } from "./storage-wbzgXpjQ.js";
 import { t as Button } from "./button-DxFltwjo.js";
 import { d as SEGMENTS, r as usePrefs } from "./preferences-Bu-IUfe0.js";
-import { h as EmptyState } from "./router-BQGkn71w.js";
+import { h as EmptyState } from "./router-BV9_Jy_b.js";
 import { t as MountainBanner } from "./mountain-banner-DWXJ4Pvl.js";
-import { t as advisoryFor } from "./data-XPBf3mGf.js";
-import { t as AdvisoryCard } from "./advisory-card-B9t2S9W5.js";
+import { t as advisoryFor } from "./data-DcVb_IFo.js";
+import { t as AdvisoryCard } from "./advisory-card-BvGHbWIS.js";
 import { useState } from "react";
 import { jsx, jsxs } from "react/jsx-runtime";
 // src/routes/advisories.index.tsx?tsr-split=component

@@ -1,7 +1,7 @@
 import { r as usePrefs } from "./preferences-Bu-IUfe0.js";
-import { n as Route } from "./router-BQGkn71w.js";
+import { n as Route } from "./router-BV9_Jy_b.js";
 import { t as MountainBanner } from "./mountain-banner-DWXJ4Pvl.js";
-import { n as MapLegend, r as SchematicMap, t as SegmentDetail } from "./segment-detail-Bwx2yPrs.js";
+import { n as MapLegend, r as SchematicMap, t as SegmentDetail } from "./segment-detail-CuS9Z1tw.js";
 import { jsx, jsxs } from "react/jsx-runtime";
 // src/routes/advisories.$segmentId.tsx?tsr-split=component
 function SegmentPage() {

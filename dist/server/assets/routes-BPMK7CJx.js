@@ -1,6 +1,6 @@
 import { m as segmentById, r as usePrefs } from "./preferences-Bu-IUfe0.js";
-import "./router-BQGkn71w.js";
-import { t as AdvisoryCard } from "./advisory-card-B9t2S9W5.js";
+import "./router-BV9_Jy_b.js";
+import { t as AdvisoryCard } from "./advisory-card-BvGHbWIS.js";
 import { Link } from "@tanstack/react-router";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { ArrowRight, CloudDownload, MapPin, Search, ShieldCheck, TriangleAlert, UsersRound } from "lucide-react";
@@ -16,7 +16,7 @@ function Home() {
 			className: "home-hero",
 			children: [
 				/* @__PURE__ */ jsx("img", {
-					src: "/img/hero%20mountain.png",
+					src: "/img/hero-mountain.png",
 					alt: "",
 					fetchPriority: "high",
 					className: "home-hero-image"

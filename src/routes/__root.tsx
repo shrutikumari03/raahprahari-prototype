@@ -63,7 +63,12 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const isHome = useRouterState({ select: (state) => state.location.pathname === '/' })
+  const { isHome, isTraveller } = useRouterState({
+    select: (state) => ({
+      isHome: state.location.pathname === '/',
+      isTraveller: state.location.pathname === '/traveller',
+    }),
+  })
 
   return (
     <html lang="en" className="dark" style={{ colorScheme: 'dark' }} suppressHydrationWarning>
@@ -79,13 +84,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               <SiteHeader />
               <main
                 id="main"
-                className={isHome ? 'flex-1' : 'flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0'}
+                className={isHome || isTraveller ? 'flex-1' : 'flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0'}
               >
                 {children}
               </main>
-              {!isHome && <SiteFooter />}
+              {!isHome && !isTraveller && <SiteFooter />}
             </div>
-            {!isHome && (
+            {!isHome && !isTraveller && (
               <div className="pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
                 <DemoBadge />
               </div>

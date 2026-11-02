@@ -18,7 +18,7 @@ function Home() {
     <div className="home-page">
       <section aria-labelledby="hero-title" className="home-hero">
         <img
-          src="/img/hero%20mountain.png"
+          src="/img/hero-mountain.png"
           alt=""
           fetchPriority="high"
           className="home-hero-image"

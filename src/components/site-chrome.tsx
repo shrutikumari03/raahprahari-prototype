@@ -133,6 +133,7 @@ export function SiteHeader() {
   const isMap = pathname === '/map' || (pathname === '/check' && view !== 'list')
   const isList = pathname === '/advisories' || pathname === '/advisories/' || pathname.startsWith('/advisories/') || (pathname === '/check' && view === 'list')
   const isHome = pathname === '/'
+  const isTraveller = pathname === '/traveller'
 
   const navLinks = (onClick?: () => void) => (
     <>
@@ -145,7 +146,7 @@ export function SiteHeader() {
       <Link to="/advisories" onClick={onClick} aria-current={current(isList)} className={linkClass(isList)}>
         {t('nav.advisories')}
       </Link>
-      {isHome ? (
+      {isHome || isTraveller ? (
         <Link to="/about" onClick={onClick} className={linkClass(false)}>
           {t('nav.about')}
         </Link>
@@ -164,14 +165,18 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className={cn('sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md', isHome && 'home-header')}>
+      <header className={cn(
+        'sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md',
+        isHome && 'home-header',
+        isTraveller && 'traveller-header',
+      )}>
         <div className="rp-container flex h-16 items-center gap-3">
           <Link to="/" className="mr-2 rounded-md" aria-label="RaahPrahari — home">
-            <span className={cn('home-brand', !isHome && 'hidden')}>
+            <span className={cn('home-brand', isTraveller && 'traveller-brand', !isHome && !isTraveller && 'hidden')}>
               <Logo />
               <span lang="hi">सफ़र से पहले सुरक्षा की ख़बर</span>
             </span>
-            <span className={cn(isHome && 'hidden')}>
+            <span className={cn((isHome || isTraveller) && 'hidden')}>
               <Logo />
             </span>
           </Link>
@@ -180,8 +185,8 @@ export function SiteHeader() {
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <div className="hidden items-center gap-1.5 md:flex">
-              {isHome ? <HomeLanguageSelect /> : <LangSwitch />}
-              {!isHome && <ThemeSwitch />}
+              {isHome || isTraveller ? <HomeLanguageSelect /> : <LangSwitch />}
+              {!isHome && !isTraveller && <ThemeSwitch />}
               <Button
                 variant={isHome ? 'outline' : 'ghost'}
                 className={cn('h-10 rounded-full', isHome && 'home-login-button')}
@@ -191,7 +196,7 @@ export function SiteHeader() {
                 {t('nav.login')}
               </Button>
             </div>
-            {!isHome && (
+            {!isHome && !isTraveller && (
               <Button asChild className="h-10 rounded-full px-4 font-semibold">
                 <Link to="/report" search={{ segment: undefined }}>
                   <TriangleAlert />
@@ -217,8 +222,8 @@ export function SiteHeader() {
                   {navLinks(() => setMenuOpen(false))}
                 </nav>
                 <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border px-4 pt-4">
-                  {isHome ? <HomeLanguageSelect /> : <LangSwitch />}
-                  {!isHome && <ThemeSwitch />}
+                  {isHome || isTraveller ? <HomeLanguageSelect /> : <LangSwitch />}
+                  {!isHome && !isTraveller && <ThemeSwitch />}
                   <Button
                     variant="outline"
                     className="h-11 w-full rounded-full"
@@ -248,7 +253,7 @@ export function SiteHeader() {
         aria-label={t('nav.primary')}
         className={cn(
           'fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md lg:hidden',
-          isHome && 'hidden',
+          (isHome || isTraveller) && 'hidden',
         )}
       >
         {([

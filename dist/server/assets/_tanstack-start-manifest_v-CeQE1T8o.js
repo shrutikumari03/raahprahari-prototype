@@ -14,66 +14,71 @@ var tsrStartManifest = () => ({ routes: {
 			"/advisories/$segmentId",
 			"/advisories/"
 		],
-		css: ["/assets/index-2AbEjS6h.css"],
+		css: ["/assets/index-CYCZbdAD.css"],
 		preloads: [
-			"/assets/index-BWZ4PUyw.js",
+			"/assets/index-BclhQ-cO.js",
 			"/assets/storage-D0tHhFkW.js",
 			"/assets/link-DV54VQBI.js"
 		],
 		scripts: [{ attrs: {
 			type: "module",
 			async: !0,
-			src: "/assets/index-BWZ4PUyw.js"
+			src: "/assets/index-BclhQ-cO.js"
 		} }]
 	},
 	"/": {
 		filePath: "C:/Users/ACER/OneDrive/Desktop/RaahPrahari2/raahprahari-prototype/src/routes/index.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/routes-uTZInzKE.js",
+			"/assets/routes-CfPnlzQh.js",
 			"/assets/arrow-right-D95MXQG-.js",
 			"/assets/map-pin-CgQNanPN.js",
-			"/assets/advisory-card-A9vWqlj1.js",
+			"/assets/users-round-C59-SBVz.js",
+			"/assets/advisory-card-BUHovpVy.js",
 			"/assets/clock-3-CFOM9XR_.js",
-			"/assets/data-0-FX65Uy.js"
+			"/assets/data-Iw9n62bb.js"
 		]
 	},
 	"/about": {
 		filePath: "C:/Users/ACER/OneDrive/Desktop/RaahPrahari2/raahprahari-prototype/src/routes/about.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/about-BEX1VxOT.js",
+			"/assets/about-DyGCAuAK.js",
 			"/assets/arrow-right-D95MXQG-.js",
 			"/assets/route-AXkc9cVt.js",
-			"/assets/mountain-banner-BL5OXbPw.js"
+			"/assets/mountain-banner-dwirbJ5q.js"
 		]
 	},
 	"/check": {
 		filePath: "C:/Users/ACER/OneDrive/Desktop/RaahPrahari2/raahprahari-prototype/src/routes/check.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/check-C6_-Q10b.js",
+			"/assets/check-KxwAO-IZ.js",
 			"/assets/arrow-right-D95MXQG-.js",
-			"/assets/routing-DaCnH4sb.js",
+			"/assets/segment-detail-shWnvzui.js",
 			"/assets/map-pin-CgQNanPN.js",
-			"/assets/segment-detail-B6kjDVJc.js",
-			"/assets/data-0-FX65Uy.js",
+			"/assets/data-Iw9n62bb.js",
 			"/assets/list-CjWr1K1r.js",
+			"/assets/routing-Ct0AgLFO.js",
 			"/assets/route-AXkc9cVt.js"
 		]
 	},
 	"/contact": {
 		filePath: "C:/Users/ACER/OneDrive/Desktop/RaahPrahari2/raahprahari-prototype/src/routes/contact.tsx",
 		children: void 0,
-		preloads: ["/assets/contact-X0eb1xPv.js", "/assets/mountain-banner-BL5OXbPw.js"]
+		preloads: [
+			"/assets/contact-_j82jfmj.js",
+			"/assets/arrow-left-DofagL2O.js",
+			"/assets/mountain-banner-dwirbJ5q.js"
+		]
 	},
 	"/help": {
 		filePath: "C:/Users/ACER/OneDrive/Desktop/RaahPrahari2/raahprahari-prototype/src/routes/help.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/help-lTn78NAY.js",
+			"/assets/help-mg4MeecN.js",
 			"/assets/clock-3-CFOM9XR_.js",
-			"/assets/mountain-banner-BL5OXbPw.js",
+			"/assets/mountain-banner-dwirbJ5q.js",
 			"/assets/input-DHyfmyaP.js"
 		]
 	},
@@ -81,59 +86,60 @@ var tsrStartManifest = () => ({ routes: {
 		filePath: "C:/Users/ACER/OneDrive/Desktop/RaahPrahari2/raahprahari-prototype/src/routes/map.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/map-DJljhXCK.js",
-			"/assets/segment-detail-B6kjDVJc.js",
+			"/assets/map-BqmBY-7S.js",
+			"/assets/segment-detail-shWnvzui.js",
 			"/assets/map-pin-CgQNanPN.js",
-			"/assets/data-0-FX65Uy.js",
+			"/assets/data-Iw9n62bb.js",
 			"/assets/list-CjWr1K1r.js",
-			"/assets/advisory-card-A9vWqlj1.js",
+			"/assets/mountain-banner-dwirbJ5q.js",
+			"/assets/advisory-card-BUHovpVy.js",
 			"/assets/arrow-right-D95MXQG-.js",
 			"/assets/clock-3-CFOM9XR_.js",
-			"/assets/mountain-banner-BL5OXbPw.js"
+			"/assets/users-round-C59-SBVz.js"
 		]
 	},
 	"/report": {
 		filePath: "C:/Users/ACER/OneDrive/Desktop/RaahPrahari2/raahprahari-prototype/src/routes/report.tsx",
 		children: void 0,
-		preloads: ["/assets/report-Olv47A_x.js", "/assets/input-DHyfmyaP.js"]
+		preloads: ["/assets/report-CuwkdZGp.js", "/assets/input-DHyfmyaP.js"]
 	},
 	"/traveller": {
 		filePath: "C:/Users/ACER/OneDrive/Desktop/RaahPrahari2/raahprahari-prototype/src/routes/traveller.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/traveller-96_Y0O2L.js",
-			"/assets/routing-DaCnH4sb.js",
-			"/assets/map-pin-CgQNanPN.js",
-			"/assets/segment-detail-B6kjDVJc.js",
-			"/assets/data-0-FX65Uy.js",
-			"/assets/list-CjWr1K1r.js",
-			"/assets/advisory-card-A9vWqlj1.js",
+			"/assets/traveller-DI2J3Q40.js",
+			"/assets/arrow-left-DofagL2O.js",
 			"/assets/arrow-right-D95MXQG-.js",
 			"/assets/clock-3-CFOM9XR_.js",
-			"/assets/mountain-banner-BL5OXbPw.js"
+			"/assets/list-CjWr1K1r.js",
+			"/assets/routing-Ct0AgLFO.js",
+			"/assets/map-pin-CgQNanPN.js",
+			"/assets/users-round-C59-SBVz.js",
+			"/assets/data-Iw9n62bb.js"
 		]
 	},
 	"/advisories/$segmentId": {
 		filePath: "C:/Users/ACER/OneDrive/Desktop/RaahPrahari2/raahprahari-prototype/src/routes/advisories.$segmentId.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/advisories._segmentId-DosUrv24.js",
-			"/assets/segment-detail-B6kjDVJc.js",
+			"/assets/advisories._segmentId-CdPeKlVv.js",
+			"/assets/segment-detail-shWnvzui.js",
 			"/assets/map-pin-CgQNanPN.js",
-			"/assets/data-0-FX65Uy.js",
-			"/assets/mountain-banner-BL5OXbPw.js"
+			"/assets/data-Iw9n62bb.js",
+			"/assets/mountain-banner-dwirbJ5q.js"
 		]
 	},
 	"/advisories/": {
 		filePath: "C:/Users/ACER/OneDrive/Desktop/RaahPrahari2/raahprahari-prototype/src/routes/advisories.index.tsx",
 		children: void 0,
 		preloads: [
-			"/assets/advisories.index-DGWp9Ctu.js",
-			"/assets/advisory-card-A9vWqlj1.js",
+			"/assets/advisories.index-JVy2EGDZ.js",
+			"/assets/mountain-banner-dwirbJ5q.js",
+			"/assets/data-Iw9n62bb.js",
+			"/assets/advisory-card-BUHovpVy.js",
 			"/assets/arrow-right-D95MXQG-.js",
 			"/assets/clock-3-CFOM9XR_.js",
-			"/assets/data-0-FX65Uy.js",
-			"/assets/mountain-banner-BL5OXbPw.js"
+			"/assets/users-round-C59-SBVz.js"
 		]
 	}
 } });

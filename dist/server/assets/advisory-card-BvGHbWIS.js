@@ -1,7 +1,7 @@
 import { a as cn } from "./storage-wbzgXpjQ.js";
 import { r as usePrefs } from "./preferences-Bu-IUfe0.js";
-import { c as FreshnessChip, d as RoadCode, o as ActionBadge, p as getAdvisorySourceTimestamp, u as OfficialBadge } from "./router-BQGkn71w.js";
-import { t as advisoryFor } from "./data-XPBf3mGf.js";
+import { c as FreshnessChip, d as RoadCode, o as ActionBadge, p as getAdvisorySourceTimestamp, u as OfficialBadge } from "./router-BV9_Jy_b.js";
+import { t as advisoryFor } from "./data-DcVb_IFo.js";
 import { Link } from "@tanstack/react-router";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { ArrowRight, Clock3, ShieldCheck, TriangleAlert, UsersRound } from "lucide-react";
@@ -38,7 +38,8 @@ function AdvisoryCard({ segment, className, variant = "default" }) {
 						className: "home-advisory-status",
 						children: [/* @__PURE__ */ jsx(ActionBadge, {
 							level: advisory.level,
-							size: "lg"
+							size: "lg",
+							className: "home-avoid-badge"
 						}), /* @__PURE__ */ jsx(RoadCode, {
 							className: "home-advisory-road",
 							children: "B-12 · Km 42–48"

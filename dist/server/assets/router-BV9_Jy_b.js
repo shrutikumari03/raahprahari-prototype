@@ -392,6 +392,7 @@ function SiteHeader() {
 	const isMap = pathname === "/map" || pathname === "/check" && view !== "list";
 	const isList = pathname === "/advisories" || pathname === "/advisories/" || pathname.startsWith("/advisories/") || pathname === "/check" && view === "list";
 	const isHome = pathname === "/";
+	const isTraveller = pathname === "/traveller";
 	const navLinks = (onClick) => /* @__PURE__ */ jsxs(Fragment, { children: [
 		/* @__PURE__ */ jsx(Link, {
 			to: "/",
@@ -414,7 +415,7 @@ function SiteHeader() {
 			className: linkClass(isList),
 			children: t("nav.advisories")
 		}),
-		isHome ? /* @__PURE__ */ jsx(Link, {
+		isHome || isTraveller ? /* @__PURE__ */ jsx(Link, {
 			to: "/about",
 			onClick,
 			className: linkClass(false),
@@ -435,7 +436,7 @@ function SiteHeader() {
 	] });
 	return /* @__PURE__ */ jsxs(Fragment, { children: [
 		/* @__PURE__ */ jsxs("header", {
-			className: cn("sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md", isHome && "home-header"),
+			className: cn("sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md", isHome && "home-header", isTraveller && "traveller-header"),
 			children: [/* @__PURE__ */ jsxs("div", {
 				className: "rp-container flex h-16 items-center gap-3",
 				children: [
@@ -444,13 +445,13 @@ function SiteHeader() {
 						className: "mr-2 rounded-md",
 						"aria-label": "RaahPrahari — home",
 						children: [/* @__PURE__ */ jsxs("span", {
-							className: cn("home-brand", !isHome && "hidden"),
+							className: cn("home-brand", isTraveller && "traveller-brand", !isHome && !isTraveller && "hidden"),
 							children: [/* @__PURE__ */ jsx(Logo, {}), /* @__PURE__ */ jsx("span", {
 								lang: "hi",
 								children: "सफ़र से पहले सुरक्षा की ख़बर"
 							})]
 						}), /* @__PURE__ */ jsx("span", {
-							className: cn(isHome && "hidden"),
+							className: cn((isHome || isTraveller) && "hidden"),
 							children: /* @__PURE__ */ jsx(Logo, {})
 						})]
 					}),
@@ -465,8 +466,8 @@ function SiteHeader() {
 							/* @__PURE__ */ jsxs("div", {
 								className: "hidden items-center gap-1.5 md:flex",
 								children: [
-									isHome ? /* @__PURE__ */ jsx(HomeLanguageSelect, {}) : /* @__PURE__ */ jsx(LangSwitch, {}),
-									!isHome && /* @__PURE__ */ jsx(ThemeSwitch, {}),
+									isHome || isTraveller ? /* @__PURE__ */ jsx(HomeLanguageSelect, {}) : /* @__PURE__ */ jsx(LangSwitch, {}),
+									!isHome && !isTraveller && /* @__PURE__ */ jsx(ThemeSwitch, {}),
 									/* @__PURE__ */ jsxs(Button, {
 										variant: isHome ? "outline" : "ghost",
 										className: cn("h-10 rounded-full", isHome && "home-login-button"),
@@ -475,7 +476,7 @@ function SiteHeader() {
 									})
 								]
 							}),
-							!isHome && /* @__PURE__ */ jsx(Button, {
+							!isHome && !isTraveller && /* @__PURE__ */ jsx(Button, {
 								asChild: true,
 								className: "h-10 rounded-full px-4 font-semibold",
 								children: /* @__PURE__ */ jsxs(Link, {
@@ -522,8 +523,8 @@ function SiteHeader() {
 										/* @__PURE__ */ jsxs("div", {
 											className: "mt-4 flex flex-wrap items-center gap-2 border-t border-border px-4 pt-4",
 											children: [
-												isHome ? /* @__PURE__ */ jsx(HomeLanguageSelect, {}) : /* @__PURE__ */ jsx(LangSwitch, {}),
-												!isHome && /* @__PURE__ */ jsx(ThemeSwitch, {}),
+												isHome || isTraveller ? /* @__PURE__ */ jsx(HomeLanguageSelect, {}) : /* @__PURE__ */ jsx(LangSwitch, {}),
+												!isHome && !isTraveller && /* @__PURE__ */ jsx(ThemeSwitch, {}),
 												/* @__PURE__ */ jsxs(Button, {
 													variant: "outline",
 													className: "h-11 w-full rounded-full",
@@ -555,7 +556,7 @@ function SiteHeader() {
 		}),
 		/* @__PURE__ */ jsx("nav", {
 			"aria-label": t("nav.primary"),
-			className: cn("fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md lg:hidden", isHome && "hidden"),
+			className: cn("fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md lg:hidden", (isHome || isTraveller) && "hidden"),
 			children: [
 				{
 					to: "/",
@@ -949,7 +950,10 @@ var Route$11 = createRootRoute({
 	notFoundComponent: NotFoundPage
 });
 function RootDocument({ children }) {
-	const isHome = useRouterState({ select: (state) => state.location.pathname === "/" });
+	const { isHome, isTraveller } = useRouterState({ select: (state) => ({
+		isHome: state.location.pathname === "/",
+		isTraveller: state.location.pathname === "/traveller"
+	}) });
 	return /* @__PURE__ */ jsxs("html", {
 		lang: "en",
 		className: "dark",
@@ -964,13 +968,13 @@ function RootDocument({ children }) {
 						/* @__PURE__ */ jsx(SiteHeader, {}),
 						/* @__PURE__ */ jsx("main", {
 							id: "main",
-							className: isHome ? "flex-1" : "flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0",
+							className: isHome || isTraveller ? "flex-1" : "flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0",
 							children
 						}),
-						!isHome && /* @__PURE__ */ jsx(SiteFooter, {})
+						!isHome && !isTraveller && /* @__PURE__ */ jsx(SiteFooter, {})
 					]
 				}),
-				!isHome && /* @__PURE__ */ jsx("div", {
+				!isHome && !isTraveller && /* @__PURE__ */ jsx("div", {
 					className: "pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2",
 					children: /* @__PURE__ */ jsx(DemoBadge, {})
 				})
@@ -981,7 +985,7 @@ function RootDocument({ children }) {
 	});
 }
 // src/routes/index.tsx
-var $$splitComponentImporter$9 = () => import("./routes-B5m_mY35.js");
+var $$splitComponentImporter$9 = () => import("./routes-BPMK7CJx.js");
 var Route$10 = createFileRoute("/")({ component: lazyRouteComponent($$splitComponentImporter$9, "component") });
 // src/routes/about.tsx
 var $$splitComponentImporter$8 = () => import("./about-LH57kE70.js");
@@ -990,7 +994,7 @@ var Route$9 = createFileRoute("/about")({
 	component: lazyRouteComponent($$splitComponentImporter$8, "component")
 });
 // src/routes/check.tsx
-var $$splitComponentImporter$7 = () => import("./check-CNJh2Yf8.js");
+var $$splitComponentImporter$7 = () => import("./check-BMdp_A9r.js");
 var Route$8 = createFileRoute("/check")({
 	validateSearch: (s) => ({
 		from: typeof s.from === "string" ? s.from : void 0,
@@ -1014,7 +1018,7 @@ var Route$6 = createFileRoute("/help")({
 	component: lazyRouteComponent($$splitComponentImporter$5, "component")
 });
 // src/routes/map.tsx
-var $$splitComponentImporter$4 = () => import("./map-Cq5LBqdQ.js");
+var $$splitComponentImporter$4 = () => import("./map-CP_jaCqH.js");
 var Route$5 = createFileRoute("/map")({
 	validateSearch: (search) => ({
 		seg: typeof search.seg === "string" ? search.seg : void 0,
@@ -1030,9 +1034,10 @@ var Route$4 = createFileRoute("/report")({
 	component: lazyRouteComponent($$splitComponentImporter$3, "component")
 });
 // src/routes/traveller.tsx
-var $$splitComponentImporter$2 = () => import("./traveller-CnyH9K2z.js");
+var $$splitComponentImporter$2 = () => import("./traveller-B52o0iKx.js");
 var Route$3 = createFileRoute("/traveller")({
 	validateSearch: (search) => ({
+		q: typeof search.q === "string" ? search.q : void 0,
 		from: typeof search.from === "string" ? search.from : void 0,
 		to: typeof search.to === "string" ? search.to : void 0,
 		view: search.view === "list" ? "list" : search.view === "map" ? "map" : void 0,
@@ -1042,13 +1047,13 @@ var Route$3 = createFileRoute("/traveller")({
 	component: lazyRouteComponent($$splitComponentImporter$2, "component")
 });
 // src/routes/advisories.index.tsx
-var $$splitComponentImporter$1 = () => import("./advisories.index-DR1FJ3eO.js");
+var $$splitComponentImporter$1 = () => import("./advisories.index-CkeRyivE.js");
 var Route$2 = createFileRoute("/advisories/")({
 	head: () => ({ meta: [{ title: "Road advisories · RaahPrahari" }] }),
 	component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
 // src/routes/advisories.$segmentId.tsx
-var $$splitComponentImporter = () => import("./advisories._segmentId-CgHa4E-s.js");
+var $$splitComponentImporter = () => import("./advisories._segmentId-X48C-UB-.js");
 var Route$1 = createFileRoute("/advisories/$segmentId")({
 	loader: ({ params }) => {
 		const segment = segmentById(params.segmentId);

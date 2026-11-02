@@ -4,13 +4,14 @@ import { DEMO_NOW, placeById } from '@/data/fixtures'
 import { STORAGE_KEYS, readLocal, writeLocal } from '@/lib/storage'
 
 export type Lang = 'en' | 'hi'
-export type Theme = 'dark' | 'light'
+export type Theme = 'system' | 'dark' | 'light'
 
 interface Preferences {
   lang: Lang
   setLang: (l: Lang) => void
   theme: Theme
   setTheme: (t: Theme) => void
+  now: number
   t: (key: TranslationKey) => string
   /** Human age relative to the demo clock, e.g. "3 h ago" */
   ago: (ts: number) => string
@@ -28,7 +29,12 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     setLangState(readLocal<Lang>(STORAGE_KEYS.lang, 'en'))
-    setThemeState(readLocal<Theme>(STORAGE_KEYS.theme, 'dark'))
+    const storedTheme = readLocal<unknown>(STORAGE_KEYS.theme, 'dark')
+    setThemeState(
+      storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system'
+        ? storedTheme
+        : 'dark',
+    )
   }, [])
 
   useEffect(() => {
@@ -36,8 +42,22 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
   }, [lang])
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-    document.documentElement.style.colorScheme = theme
+    const media =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(prefers-color-scheme: dark)')
+        : null
+    const applyTheme = () => {
+      const dark =
+        theme === 'system' ? (media?.matches ?? false) : theme === 'dark'
+      document.documentElement.classList.toggle('dark', dark)
+      document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+    }
+
+    applyTheme()
+    if (theme !== 'system' || !media) return
+
+    media.addEventListener('change', applyTheme)
+    return () => media.removeEventListener('change', applyTheme)
   }, [theme])
 
   const setLang = useCallback((l: Lang) => {
@@ -57,6 +77,7 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
       setLang,
       theme,
       setTheme,
+      now: DEMO_NOW,
       t,
       ago: (ts) => {
         const mins = Math.max(0, Math.round((DEMO_NOW - ts) / 60_000))
@@ -96,4 +117,4 @@ export function usePrefs() {
 }
 
 /** Inline script that applies the saved theme before first paint. */
-export const themeBootScript = `try{var t=localStorage.getItem('${STORAGE_KEYS.theme}');if(t&&JSON.parse(t)==='light'){document.documentElement.classList.remove('dark');document.documentElement.style.colorScheme='light'}}catch(e){}`
+export const themeBootScript = `(()=>{let dark=true;try{const theme=JSON.parse(localStorage.getItem('${STORAGE_KEYS.theme}')||'null');if(theme==='dark')dark=true;else if(theme==='light')dark=false;else if(theme==='system')dark=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-color-scheme: dark)').matches}catch{}document.documentElement.classList.toggle('dark',dark);document.documentElement.style.colorScheme=dark?'dark':'light'})()`

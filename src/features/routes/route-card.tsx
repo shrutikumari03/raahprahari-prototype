@@ -1,13 +1,14 @@
 import { Link } from '@tanstack/react-router'
 import { Bookmark, BookmarkCheck, Info, List, Map as MapIcon, TriangleAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { AdvisoryBadge, LEVEL_META } from '@/components/advisory'
+import { ActionBadge, FreshnessChip, LEVEL_META } from '@/components/advisory'
 import { usePrefs } from '@/i18n/preferences'
 import { advisoryFor } from '@/lib/data'
 import type { RouteAdvisorySummary } from '@/lib/advisory'
 import type { RouteOption } from '@/features/routes/routing'
 import { routeLabel } from '@/features/routes/routing'
 import { cn } from '@/lib/utils'
+import { getAdvisorySourceTimestamp } from '@/lib/advisory'
 
 function Metric({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
@@ -41,6 +42,15 @@ export function RouteCard({
 }) {
   const { t, lang, ago, duration } = usePrefs()
   const letter = String.fromCharCode(65 + index)
+  const advisories = route.segments.map((segment) => advisoryFor(segment.id)).filter((advisory) => advisory !== undefined)
+  const timestamps = advisories
+    .map(getAdvisorySourceTimestamp)
+    .filter((timestamp): timestamp is number => timestamp !== undefined)
+  const latestSourceAt = timestamps.length ? Math.max(...timestamps) : undefined
+  const sources = [
+    ...(advisories.some((advisory) => advisory.evidence.length > 0) ? [t('source.community')] : []),
+    ...(advisories.some((advisory) => !!advisory.restriction) ? [t('source.official')] : []),
+  ]
   return (
     <article
       className={cn(
@@ -62,7 +72,13 @@ export function RouteCard({
               {t('results.via')} {routeLabel(route, lang)}
             </p>
           </div>
-          <AdvisoryBadge level={summary.level} />
+          <ActionBadge level={summary.level} />
+        </div>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <FreshnessChip sourceTimestamp={latestSourceAt} />
+          <span className="text-xs text-muted-foreground">
+            {sources.length ? sources.join(' · ') : t('source.unknown')}
+          </span>
         </div>
         {/* Per-section strip, proportional to distance */}
         <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-muted" aria-hidden>
@@ -95,12 +111,10 @@ export function RouteCard({
           {t('copy.awaitingClearance')}
         </p>
       )}
-      {summary.poorCoverage && (
-        <p className="mt-3 flex gap-2 rounded-lg bg-accent px-3 py-2.5 text-sm">
-          <Info aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          {t('copy.poorCoverage')}
-        </p>
-      )}
+      <p className="mt-3 flex gap-2 rounded-lg bg-accent px-3 py-2.5 text-sm">
+        <Info aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        {t('copy.poorCoverage')}
+      </p>
 
       <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
         <Button variant="secondary" className="h-auto min-h-11 rounded-xl py-2 whitespace-normal" onClick={onCompare}>

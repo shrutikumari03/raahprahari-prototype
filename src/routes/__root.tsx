@@ -2,8 +2,10 @@ import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { SkipLink } from '@/components/ui/feedback'
 import { NotFoundPage } from '@/components/error-pages'
 import { SiteFooter, SiteHeader } from '@/components/site-chrome'
+import { DemoBadge } from '@/components/advisory'
 import { PreferencesProvider, themeBootScript } from '@/i18n/preferences'
 
 import '../styles.css'
@@ -70,18 +72,16 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <PreferencesProvider>
           <TooltipProvider>
-            <a
-              href="#main"
-              className="sr-only z-50 rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-            >
-              Skip to content
-            </a>
+            <SkipLink>Skip to content</SkipLink>
             <div className="flex min-h-screen flex-col">
               <SiteHeader />
-              <main id="main" className="flex-1">
+              <main id="main" className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0">
                 {children}
               </main>
               <SiteFooter />
+            </div>
+            <div className="pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
+              <DemoBadge />
             </div>
           </TooltipProvider>
         </PreferencesProvider>

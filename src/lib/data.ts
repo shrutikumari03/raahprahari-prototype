@@ -5,16 +5,19 @@ import { DEMO_NOW, REPORTS, RESTRICTIONS, SEGMENTS } from '@/data/fixtures'
 import { computeSegmentAdvisory, type SegmentAdvisory } from '@/lib/advisory'
 
 let cache: Map<string, SegmentAdvisory> | null = null
+let cachedAt: number | undefined
 
-export function getAdvisories(): Map<string, SegmentAdvisory> {
-  if (!cache) {
+export function getAdvisories(now: number = DEMO_NOW): Map<string, SegmentAdvisory> {
+  if (!cache || cachedAt !== now) {
     cache = new Map(
-      SEGMENTS.map((s) => [s.id, computeSegmentAdvisory(s.id, REPORTS, RESTRICTIONS, DEMO_NOW)]),
+      SEGMENTS.map((s) => [s.id, computeSegmentAdvisory(s.id, REPORTS, RESTRICTIONS, now)]),
     )
+    cachedAt = now
   }
   return cache
 }
 
-export const advisoryFor = (segmentId: string) => getAdvisories().get(segmentId)
+export const advisoryFor = (segmentId: string, now: number = DEMO_NOW) =>
+  getAdvisories(now).get(segmentId)
 
 export const reportByRef = (ref: string) => REPORTS.find((r) => r.ref === ref)

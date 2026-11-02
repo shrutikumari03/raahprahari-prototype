@@ -19,11 +19,13 @@ export function RouteSearchCard({
   initialFrom = null,
   initialTo = null,
   layout = 'stacked',
+  destination = 'check',
   className,
 }: {
   initialFrom?: string | null
   initialTo?: string | null
   layout?: 'stacked' | 'inline'
+  destination?: 'check' | 'traveller'
   className?: string
 }) {
   const { t, place } = usePrefs()
@@ -46,7 +48,11 @@ export function RouteSearchCard({
     e?.preventDefault()
     if (!valid) return
     setRecent((prev) => [{ from, to, at: Date.now() }, ...prev.filter((r) => !(r.from === from && r.to === to))].slice(0, 5))
-    void navigate({ to: '/check', search: { from, to } })
+    if (destination === 'traveller') {
+      void navigate({ to: '/traveller', search: { from, to } })
+    } else {
+      void navigate({ to: '/check', search: { from, to } })
+    }
   }
 
   const locate = async () => {
@@ -140,7 +146,7 @@ export function RouteSearchCard({
                 onClick={() => pick(id)}
                 aria-pressed={selected}
                 className={cn(
-                  'min-h-9 rounded-full border px-3 text-sm transition-colors',
+                  'min-h-11 rounded-full border px-3 text-sm transition-colors',
                   selected
                     ? 'border-brand-orange bg-brand-orange/15 text-foreground'
                     : 'border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground',
@@ -171,7 +177,7 @@ export function RouteSearchCard({
                     setFrom(r.from)
                     setTo(r.to)
                   }}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-accent px-3 text-sm hover:bg-muted"
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-accent px-3 text-sm hover:bg-muted"
                 >
                   <RotateCcw aria-hidden className="size-3.5 text-muted-foreground" />
                   {place(r.from)} → {place(r.to)}

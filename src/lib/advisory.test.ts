@@ -1,9 +1,40 @@
 import { describe, expect, it } from 'vitest'
-import { computeSegmentAdvisory, summariseRoute } from '@/lib/advisory'
+import {
+  computeSegmentAdvisory,
+  getAdvisorySourceTimestamp,
+  getFreshnessState,
+  HAZARD_FRESH_MS,
+  summariseRoute,
+} from '@/lib/advisory'
 import type { CommunityReport, OfficialRestriction, Segment } from '@/lib/types'
 
 const NOW = Date.UTC(2026, 9, 25, 12)
 const H = 3600_000
+
+describe('getFreshnessState', () => {
+  it('classifies timestamps relative to the injected clock', () => {
+    expect(getFreshnessState(NOW, NOW)).toBe('fresh')
+    expect(getFreshnessState(NOW - HAZARD_FRESH_MS, NOW)).toBe('fresh')
+    expect(getFreshnessState(NOW - HAZARD_FRESH_MS - 1, NOW)).toBe('stale')
+  })
+
+  describe('getAdvisorySourceTimestamp', () => {
+    it('uses the newest report or official publication timestamp', () => {
+      expect(
+        getAdvisorySourceTimestamp({
+          latestObservationAt: NOW - 2 * H,
+          restriction: closure({ publishedAt: NOW - H }),
+        }),
+      ).toBe(NOW - H)
+    })
+  })
+
+  it('returns unknown for missing, invalid, or future timestamps', () => {
+    expect(getFreshnessState(undefined, NOW)).toBe('unknown')
+    expect(getFreshnessState(Number.NaN, NOW)).toBe('unknown')
+    expect(getFreshnessState(NOW + 1, NOW)).toBe('unknown')
+  })
+})
 
 const report = (over: Partial<CommunityReport> = {}): CommunityReport => ({
   ref: 'RP-000001',

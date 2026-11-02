@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ArrowRight, List, Map as MapIcon, Route as RouteIcon, ShieldCheck, TriangleAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { AdvisoryBadge, DemoBadge, RoadCode, StaleBadge } from '@/components/advisory'
+import { ActionBadge, FreshnessChip, RoadCode } from '@/components/advisory'
 import { CORRIDORS, SEGMENTS, placeById } from '@/data/fixtures'
 import { RouteSearchCard } from '@/features/routes/route-search'
 import { RouteCard } from '@/features/routes/route-card'
@@ -11,7 +11,7 @@ import { findSeededRoutes } from '@/features/routes/routing'
 import { MapLegend, SchematicMap } from '@/features/routes/schematic-map'
 import { SegmentDetail } from '@/features/routes/segment-detail'
 import { usePrefs } from '@/i18n/preferences'
-import { summariseRoute } from '@/lib/advisory'
+import { getAdvisorySourceTimestamp, summariseRoute } from '@/lib/advisory'
 import { advisoryFor } from '@/lib/data'
 import { STORAGE_KEYS, useLocalState } from '@/lib/storage'
 import type { Segment } from '@/lib/types'
@@ -117,7 +117,6 @@ function CheckPage() {
   return (
     <div className="rp-container space-y-8 py-8 md:py-10">
       <header className="space-y-3">
-        <DemoBadge />
         <h1 className="font-display text-3xl font-bold md:text-4xl">
           {journey ? (
             <span className="inline-flex flex-wrap items-center gap-x-3">
@@ -270,10 +269,14 @@ function CheckPage() {
 }
 
 function SegmentRow({ segment, selected, onSelect }: { segment: Segment; selected: boolean; onSelect: () => void }) {
-  const { t, place, ago } = usePrefs()
+  const { t, place } = usePrefs()
   const a = advisoryFor(segment.id)
-  if (!a) return null
+  if (!a) throw new Error(`Missing advisory for segment "${segment.id}"`)
   const hazards = a.evidence.filter((r) => r.kind === 'hazard').length
+  const sources = [
+    ...(a.evidence.length > 0 ? [t('source.community')] : []),
+    ...(a.restriction ? [t('source.official')] : []),
+  ]
   return (
     <li>
       <button
@@ -292,23 +295,25 @@ function SegmentRow({ segment, selected, onSelect }: { segment: Segment; selecte
           <p className="mt-0.5 font-semibold">
             {place(segment.from)} – {place(segment.to)}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {a.latestObservationAt ? `${t('results.latest')}: ${ago(a.latestObservationAt)}` : t('copy.noRecent')}
+          {(hazards > 0 || a.restriction) && <p className="mt-1 text-xs text-muted-foreground">
             {hazards > 0 && (
               <span className="ml-2 inline-flex items-center gap-1">
-                · <TriangleAlert aria-hidden className="size-3" /> {hazards}
+                <TriangleAlert aria-hidden className="size-3" /> {hazards} {t('map.hazard')}
               </span>
             )}
             {a.restriction && (
               <span className="ml-2 inline-flex items-center gap-1">
-                · <ShieldCheck aria-hidden className="size-3 text-status-official" /> {t(`restriction.${a.restriction.type}`)}
+                <ShieldCheck aria-hidden className="size-3 text-status-official" /> {t(`restriction.${a.restriction.type}`)}
               </span>
             )}
+          </p>}
+          <p className="mt-1 text-xs text-muted-foreground">
+            {sources.length ? sources.join(' · ') : t('source.unknown')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
-          {a.stale && <StaleBadge />}
-          <AdvisoryBadge level={a.level} />
+          <ActionBadge level={a.level} />
+          <FreshnessChip sourceTimestamp={getAdvisorySourceTimestamp(a)} />
         </div>
       </button>
     </li>

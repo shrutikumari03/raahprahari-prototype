@@ -1,8 +1,9 @@
 import { Link } from '@tanstack/react-router'
 import { Camera, Copy, GitCompare, MapPin, ShieldCheck, TriangleAlert, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { AdvisoryBadge, DemoBadge, OfficialBadge, RoadCode, StaleBadge } from '@/components/advisory'
+import { AdvisoryBadge, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
 import { corridorById, segmentById } from '@/data/fixtures'
+import { getAdvisorySourceTimestamp } from '@/lib/advisory'
 import { advisoryFor } from '@/lib/data'
 import { usePrefs } from '@/i18n/preferences'
 import type { CommunityReport } from '@/lib/types'
@@ -36,7 +37,7 @@ export function ReportCard({ report }: { report: CommunityReport }) {
         <dt className="text-muted-foreground">{t('segment.status')}</dt>
         <dd>{t(`status.${report.status}`)}</dd>
         <dt className="text-muted-foreground">{t('segment.source')}</dt>
-        <dd>{t(`source.${report.source}`)}</dd>
+        <dd>{t('source.community')}</dd>
         <dt className="text-muted-foreground">{t('segment.locConf')}</dt>
         <dd>{t(`conf.${report.locationConfidence}`)}</dd>
       </dl>
@@ -105,7 +106,7 @@ export function SegmentDetail({ segmentId, onClose, className }: { segmentId?: s
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <AdvisoryBadge level={adv.level} size="lg" />
-        {adv.stale && <StaleBadge age={adv.latestObservationAt ? ago(adv.latestObservationAt) : undefined} />}
+        <FreshnessChip sourceTimestamp={getAdvisorySourceTimestamp(adv)} />
         {r && <OfficialBadge label={t(`restriction.${r.type}`)} />}
         {adv.awaitingClearance && (
           <span className="rounded-full border border-dashed border-status-official px-2.5 py-0.5 text-xs font-medium">
@@ -164,6 +165,9 @@ export function SegmentDetail({ segmentId, onClose, className }: { segmentId?: s
         </Block>
 
         <Block title={t('segment.source')}>
+          <p>
+            {t('segment.source')}: {r ? t('source.official') : adv.evidence.length > 0 ? t('source.community') : t('source.unknown')}
+          </p>
           {adv.latestObservationAt ? (
             <p>
               {t('results.latest')}: <span className="font-medium">{ago(adv.latestObservationAt)}</span>{' '}
@@ -194,7 +198,6 @@ export function SegmentDetail({ segmentId, onClose, className }: { segmentId?: s
         <div className="border-t border-border pt-3.5">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{t('segment.reports')}</h4>
-            <DemoBadge />
           </div>
           <ul className="space-y-2">
             {adv.evidence.slice(0, 3).map((rep) => (

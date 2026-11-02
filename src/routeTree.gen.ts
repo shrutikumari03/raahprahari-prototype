@@ -10,12 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as CheckRouteImport } from './routes/check'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as MapRouteImport } from './routes/map'
 import { Route as ReportRouteImport } from './routes/report'
+import { Route as TravellerRouteImport } from './routes/traveller'
+import { Route as AdvisoriesIndexRouteImport } from './routes/advisories.index'
+import { Route as AdvisoriesSegmentIdRouteImport } from './routes/advisories.$segmentId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckRoute = CheckRouteImport.update({
@@ -23,40 +35,129 @@ const CheckRoute = CheckRouteImport.update({
   path: '/check',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReportRoute = ReportRouteImport.update({
   id: '/report',
   path: '/report',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TravellerRoute = TravellerRouteImport.update({
+  id: '/traveller',
+  path: '/traveller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdvisoriesIndexRoute = AdvisoriesIndexRouteImport.update({
+  id: '/advisories/',
+  path: '/advisories/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdvisoriesSegmentIdRoute = AdvisoriesSegmentIdRouteImport.update({
+  id: '/advisories/$segmentId',
+  path: '/advisories/$segmentId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/check': typeof CheckRoute
+  '/contact': typeof ContactRoute
+  '/help': typeof HelpRoute
+  '/map': typeof MapRoute
   '/report': typeof ReportRoute
+  '/traveller': typeof TravellerRoute
+  '/advisories/$segmentId': typeof AdvisoriesSegmentIdRoute
+  '/advisories/': typeof AdvisoriesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/check': typeof CheckRoute
+  '/contact': typeof ContactRoute
+  '/help': typeof HelpRoute
+  '/map': typeof MapRoute
   '/report': typeof ReportRoute
+  '/traveller': typeof TravellerRoute
+  '/advisories/$segmentId': typeof AdvisoriesSegmentIdRoute
+  '/advisories': typeof AdvisoriesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/check': typeof CheckRoute
+  '/contact': typeof ContactRoute
+  '/help': typeof HelpRoute
+  '/map': typeof MapRoute
   '/report': typeof ReportRoute
+  '/traveller': typeof TravellerRoute
+  '/advisories/$segmentId': typeof AdvisoriesSegmentIdRoute
+  '/advisories/': typeof AdvisoriesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/check' | '/report'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/check'
+    | '/contact'
+    | '/help'
+    | '/map'
+    | '/report'
+    | '/traveller'
+    | '/advisories/$segmentId'
+    | '/advisories/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/check' | '/report'
-  id: '__root__' | '/' | '/check' | '/report'
+  to:
+    | '/'
+    | '/about'
+    | '/check'
+    | '/contact'
+    | '/help'
+    | '/map'
+    | '/report'
+    | '/traveller'
+    | '/advisories/$segmentId'
+    | '/advisories'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/check'
+    | '/contact'
+    | '/help'
+    | '/map'
+    | '/report'
+    | '/traveller'
+    | '/advisories/$segmentId'
+    | '/advisories/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   CheckRoute: typeof CheckRoute
+  ContactRoute: typeof ContactRoute
+  HelpRoute: typeof HelpRoute
+  MapRoute: typeof MapRoute
   ReportRoute: typeof ReportRoute
+  TravellerRoute: typeof TravellerRoute
+  AdvisoriesSegmentIdRoute: typeof AdvisoriesSegmentIdRoute
+  AdvisoriesIndexRoute: typeof AdvisoriesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,11 +169,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/check': {
       id: '/check'
       path: '/check'
       fullPath: '/check'
       preLoaderRoute: typeof CheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/report': {
@@ -82,13 +211,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/traveller': {
+      id: '/traveller'
+      path: '/traveller'
+      fullPath: '/traveller'
+      preLoaderRoute: typeof TravellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/advisories/': {
+      id: '/advisories/'
+      path: '/advisories'
+      fullPath: '/advisories/'
+      preLoaderRoute: typeof AdvisoriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/advisories/$segmentId': {
+      id: '/advisories/$segmentId'
+      path: '/advisories/$segmentId'
+      fullPath: '/advisories/$segmentId'
+      preLoaderRoute: typeof AdvisoriesSegmentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   CheckRoute: CheckRoute,
+  ContactRoute: ContactRoute,
+  HelpRoute: HelpRoute,
+  MapRoute: MapRoute,
   ReportRoute: ReportRoute,
+  TravellerRoute: TravellerRoute,
+  AdvisoriesSegmentIdRoute: AdvisoriesSegmentIdRoute,
+  AdvisoriesIndexRoute: AdvisoriesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

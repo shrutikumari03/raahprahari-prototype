@@ -1,0 +1,1 @@
+import{a as e,d as t,l as n}from"./storage-D0tHhFkW.js";import{i as r}from"./link-DV54VQBI.js";var i=t(n(),1);function a(e){let t=r();return i.useCallback(n=>t.navigate({...n,from:n.from??e?.from}),[e?.from,t])}var o={name:`x`,size:24,node:[[`path`,{d:`M18 6 6 18`,key:`1bl5f8`}],[`path`,{d:`m6 6 12 12`,key:`d8bk6v`}]]};o.node;var s=e(o);export{a as n,s as t};

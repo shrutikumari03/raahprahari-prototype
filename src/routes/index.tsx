@@ -11,17 +11,16 @@ import {
   TriangleAlert,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { AdvisoryBadge, DemoBadge, OfficialBadge, RoadCode, StaleBadge } from '@/components/advisory'
-import { SEGMENTS, segmentById } from '@/data/fixtures'
+import { ActionBadge, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
+import { DEMO_NOW, SEGMENTS, segmentById } from '@/data/fixtures'
 import { RouteSearchCard } from '@/features/routes/route-search'
 import { usePrefs } from '@/i18n/preferences'
+import { getAdvisorySourceTimestamp } from '@/lib/advisory'
 import { advisoryFor } from '@/lib/data'
 
 export const Route = createFileRoute('/')({
   component: Home,
 })
-
-const heroSrc = (w: number) => `/.netlify/images?url=/img/hero-road.png&w=${w}&fm=webp&q=70`
 
 function Home() {
   const { t } = usePrefs()
@@ -69,7 +68,7 @@ function Home() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="h-12 rounded-xl px-6 text-base">
-              <Link to="/report">
+              <Link to="/report" search={{ segment: undefined }}>
                 <TriangleAlert />
                 {t('hero.report')}
               </Link>
@@ -86,10 +85,8 @@ function Hero() {
   return (
     <section aria-labelledby="hero-title" className="relative isolate overflow-hidden">
       <img
-        src={heroSrc(1600)}
-        srcSet={`${heroSrc(800)} 800w, ${heroSrc(1280)} 1280w, ${heroSrc(1920)} 1920w`}
-        sizes="100vw"
-        alt=""
+        src="/img/hero-road-generated.svg"
+        alt={t('hero.imageAlt')}
         fetchPriority="high"
         className="absolute inset-0 -z-20 h-full w-full object-cover object-[60%_center]"
       />
@@ -113,7 +110,7 @@ function Hero() {
           <p className="mt-5 max-w-xl text-lg text-[#E6E4DC]/85">{t('hero.body')}</p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Button asChild variant="outline" className="h-12 rounded-xl border-[#E6E4DC]/40 bg-[#111719]/40 px-5 text-base text-[#E6E4DC] hover:bg-[#111719]/70 hover:text-[#E6E4DC]">
-              <Link to="/report">
+              <Link to="/report" search={{ segment: undefined }}>
                 <TriangleAlert />
                 {t('hero.report')}
               </Link>
@@ -125,9 +122,8 @@ function Hero() {
         <div className="rounded-3xl border border-border bg-card/95 p-5 shadow-2xl backdrop-blur-sm sm:p-7">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-display text-xl font-semibold">{t('search.title')}</h2>
-            <DemoBadge />
           </div>
-          <RouteSearchCard />
+          <RouteSearchCard destination="traveller" />
         </div>
       </div>
     </section>
@@ -135,18 +131,24 @@ function Hero() {
 }
 
 function SampleAdvisory() {
-  const { t, place, ago } = usePrefs()
-  const seg = segmentById('nh7-06')!
-  const a = advisoryFor(seg.id)!
+  const { t, place } = usePrefs()
+  const seg = segmentById('nh7-06')
+  if (!seg) throw new Error('Missing sample segment "nh7-06"')
+  const a = advisoryFor(seg.id)
+  if (!a) throw new Error(`Missing advisory for segment "${seg.id}"`)
+  const timestamp = getAdvisorySourceTimestamp(a)
+  const sources = [
+    ...(a.evidence.length ? [t('source.community')] : []),
+    ...(a.restriction ? [t('source.official')] : []),
+  ]
   return (
     <Link
-      to="/check"
-      search={{ view: 'map', seg: seg.id }}
+      to="/advisories/$segmentId"
+      params={{ segmentId: seg.id }}
       className="mt-10 block max-w-md rounded-2xl border border-[#465056] bg-[#272A2D]/90 p-4 text-[#E6E4DC] transition-colors hover:border-[#B7BCB9]"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-semibold tracking-wider text-[#B7BCB9] uppercase">{t('hero.sample')}</span>
-        <span className="font-mono text-[10px] text-[#B7BCB9] uppercase">{t('demo.badge')}</span>
       </div>
       <div className="mt-2 flex flex-wrap items-start justify-between gap-2">
         <div>
@@ -157,14 +159,13 @@ function SampleAdvisory() {
             {place(seg.from)} – {place(seg.to)}
           </p>
         </div>
-        <span className="dark">
-          <AdvisoryBadge level={a.level} />
-        </span>
+        <ActionBadge level={a.level} />
       </div>
-      <p className="mt-2 flex items-center gap-1.5 text-sm text-[#B7BCB9]">
-        <ShieldCheck aria-hidden className="size-4 text-[#92C5FF]" />
-        {a.restriction && t(`restriction.${a.restriction.type}`)} · {a.latestObservationAt && ago(a.latestObservationAt)}
-      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <FreshnessChip sourceTimestamp={timestamp} />
+        {a.restriction && <OfficialBadge label={t('map.restriction')} />}
+        <span className="text-xs text-[#B7BCB9]">{sources.length ? sources.join(' · ') : t('source.unknown')}</span>
+      </div>
       {a.awaitingClearance && <p className="mt-1 text-xs text-[#B7BCB9]">{t('copy.awaitingClearance')}</p>}
     </Link>
   )
@@ -180,7 +181,7 @@ function CheckYourRoad() {
     { icon: Ruler, label: t('s1.d') },
   ]
   return (
-    <section aria-labelledby="check-title" className="rp-container grid gap-10 py-16 md:py-20 lg:grid-cols-2 lg:items-center">
+    <section aria-labelledby="check-title" className="rp-container grid min-w-0 grid-cols-1 gap-10 py-16 md:py-20 lg:grid-cols-2 lg:items-center">
       <div>
         <h2 id="check-title" className="font-display text-3xl font-bold md:text-4xl">
           {t('s1.title')}
@@ -203,28 +204,34 @@ function CheckYourRoad() {
               {place('rishikesh')} – {place('badrinath')}
             </span>
           </p>
-          <DemoBadge />
         </div>
         <ol className="space-y-1.5">
           {nh7.map((s) => {
-            const a = advisoryFor(s.id)!
+            const a = advisoryFor(s.id)
+            if (!a) throw new Error(`Missing advisory for segment "${s.id}"`)
+            const sources = [
+              ...(a.evidence.length ? [t('source.community')] : []),
+              ...(a.restriction ? [t('source.official')] : []),
+            ]
             return (
               <li key={s.id}>
                 <Link
-                  to="/check"
-                  search={{ from: 'rishikesh', to: 'badrinath', view: 'list', seg: s.id }}
-                  className="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 hover:bg-accent"
+                  to="/advisories/$segmentId"
+                  params={{ segmentId: s.id }}
+                  className="grid min-h-11 gap-2 rounded-lg px-3 py-3 hover:bg-accent sm:grid-cols-[minmax(0,1fr)_auto]"
                 >
                   <span className="min-w-0">
                     <span className="block font-mono text-[11px] text-muted-foreground">km {s.kmStart}–{s.kmEnd}</span>
                     <span className="block truncate text-sm font-medium">
                       {place(s.from)} – {place(s.to)}
                     </span>
+                    <span className="mt-1 block text-xs text-muted-foreground">
+                      {sources.length ? sources.join(' · ') : t('source.unknown')}
+                    </span>
                   </span>
-                  <span className="flex shrink-0 items-center gap-1.5">
-                    {a.restriction && <ShieldCheck aria-label={t('level.official')} className="size-4 text-status-official" />}
-                    {a.stale && <StaleBadge />}
-                    <AdvisoryBadge level={a.level} />
+                  <span className="flex flex-wrap items-center gap-1.5 sm:justify-end">
+                    <ActionBadge level={a.level} />
+                    <FreshnessChip sourceTimestamp={getAdvisorySourceTimestamp(a)} />
                   </span>
                 </Link>
               </li>
@@ -252,8 +259,11 @@ function LocalKnowledge() {
           }
           text={t('copy.communityUnverified')}
         />
-        <StateCard badge={<AdvisoryBadge level="unknown" />} text={t('copy.noRecent')} />
-        <StateCard badge={<StaleBadge age="40 h" />} text={t('s3.c')} />
+        <StateCard badge={<ActionBadge level="unknown" />} text={t('copy.noRecent')} />
+        <StateCard
+          badge={<FreshnessChip sourceTimestamp={DEMO_NOW - 40 * 60 * 60_000} />}
+          text={t('s3.c')}
+        />
       </div>
       <div className="order-1 lg:order-2">
         <h2 id="local-title" className="font-display text-3xl font-bold md:text-4xl">

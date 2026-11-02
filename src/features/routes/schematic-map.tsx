@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ShieldCheck, TriangleAlert } from 'lucide-react'
+import { CircleQuestionMark, ShieldCheck, TriangleAlert } from 'lucide-react'
 import { PLACES, QUICK_PICKS, SEGMENTS, placeById } from '@/data/fixtures'
 import { LEVEL_META } from '@/components/advisory'
 import { getAdvisories } from '@/lib/data'
@@ -142,19 +142,26 @@ export function SchematicMap({
           const mx = (pa.x + pb.x) / 2
           const my = (pa.y + pb.y) / 2
           const hazards = adv.evidence.filter((r) => r.kind === 'hazard').length
+          const unknown = adv.level === 'unknown'
           const dim = hasHighlight && !highlightSet.has(s.id)
           return (
             <g key={`m-${s.id}`} pointerEvents="none" opacity={dim ? 0.3 : 1}>
               {hazards > 0 && (
-                <g transform={`translate(${mx + (adv.restriction ? 20 : 0)}, ${my - 4})`}>
+                <g transform={`translate(${mx + (adv.restriction ? 22 : unknown ? 16 : 0)}, ${my - 4})`}>
                   <circle r={17} fill="var(--card)" stroke={LEVEL_META[adv.level].color} strokeWidth={3} />
                   <TriangleAlert x={-10} y={-11} width={20} height={20} color="var(--foreground)" />
                 </g>
               )}
               {adv.restriction && (
-                <g transform={`translate(${mx - (hazards ? 20 : 0)}, ${my - 4})`}>
-                  <circle r={17} fill="var(--action-blue)" stroke="var(--card)" strokeWidth={3} />
+                <g transform={`translate(${mx - (hazards ? 22 : unknown ? 16 : 0)}, ${my - 4})`}>
+                  <circle r={17} fill="var(--status-official)" stroke="var(--card)" strokeWidth={3} />
                   <ShieldCheck x={-10} y={-10} width={20} height={20} color="#ffffff" />
+                </g>
+              )}
+              {unknown && (
+                <g transform={`translate(${mx - (hazards || adv.restriction ? 16 : 0)}, ${my - 4})`}>
+                  <circle r={17} fill="var(--card)" stroke={LEVEL_META.unknown.color} strokeWidth={3} />
+                  <CircleQuestionMark x={-10} y={-10} width={20} height={20} color={LEVEL_META.unknown.color} />
                 </g>
               )}
             </g>
@@ -235,8 +242,8 @@ export function MapLegend({ className }: { className?: string }) {
           {t('map.hazard')}
         </li>
         <li className="flex items-center gap-2">
-          <span aria-hidden className="inline-flex size-5 items-center justify-center rounded-full bg-action-blue text-white">
-            <ShieldCheck className="size-3" />
+          <span aria-hidden className="inline-flex size-5 items-center justify-center rounded-full bg-status-official">
+            <ShieldCheck className="size-3 text-white" />
           </span>
           {t('map.restriction')}
         </li>

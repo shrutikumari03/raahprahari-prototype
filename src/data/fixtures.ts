@@ -12,9 +12,8 @@ import type {
   Segment,
 } from '@/lib/types'
 
-const TEN_MIN = 10 * 60 * 1000
-/** Demo clock, rounded so server and browser renders agree. */
-export const DEMO_NOW = Math.floor(Date.now() / TEN_MIN) * TEN_MIN
+/** Fixed demo clock so seeded ages are stable across runs and tests. */
+export const DEMO_NOW = Date.parse('2026-10-15T04:30:00.000Z')
 const hoursAgo = (h: number) => DEMO_NOW - Math.round(h * 3600_000)
 
 export const COVERAGE_BOUNDS = {

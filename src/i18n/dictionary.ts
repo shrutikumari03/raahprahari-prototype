@@ -28,7 +28,7 @@ export const en = {
   'hero.eyebrow': 'Uttarakhand road-hazard advisories',
   'hero.title': 'Know before you go.',
   'hero.body':
-    'Check reported road hazards, information freshness, and official restrictions before your next journey.',
+    'Understand reported road hazards, information freshness, and official restrictions before your next journey.',
   'hero.report': 'Report a hazard',
   'hero.sample': 'Sample advisory',
   'hero.imageAlt': 'Illustrative mountain road winding through a Himalayan valley.',

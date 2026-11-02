@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Clock3, ShieldCheck, TriangleAlert, UsersRound } from 'lucide-react'
 import { ActionBadge, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
 import { usePrefs } from '@/i18n/preferences'
 import { getAdvisorySourceTimestamp } from '@/lib/advisory'
@@ -10,9 +10,11 @@ import { cn } from '@/lib/utils'
 export function AdvisoryCard({
   segment,
   className,
+  variant = 'default',
 }: {
   segment: Segment
   className?: string
+  variant?: 'default' | 'home-featured'
 }) {
   const { t, place } = usePrefs()
   const advisory = advisoryFor(segment.id)
@@ -24,6 +26,60 @@ export function AdvisoryCard({
     ...(advisory.evidence.length > 0 ? [t('source.community')] : []),
     ...(advisory.restriction ? [t('source.official')] : []),
   ]
+
+  if (variant === 'home-featured') {
+    const sourceTimestamp = getAdvisorySourceTimestamp(advisory)
+    if (sourceTimestamp === undefined) {
+      throw new Error(`Missing source timestamp for sample segment "${segment.id}"`)
+    }
+
+    const lastUpdated = new Intl.DateTimeFormat('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    }).format(sourceTimestamp)
+
+    return (
+      <article className={cn('home-advisory', className)}>
+        <Link
+          to="/advisories/$segmentId"
+          params={{ segmentId: segment.id }}
+          className="home-advisory-link"
+        >
+          <p className="home-advisory-kicker">
+            <TriangleAlert aria-hidden />
+            ROAD ADVISORY
+          </p>
+          <div className="home-advisory-status">
+            <ActionBadge level={advisory.level} size="lg" className="home-avoid-badge" />
+            <RoadCode className="home-advisory-road">B-12 · Km 42–48</RoadCode>
+          </div>
+          <p className="home-advisory-description">Reported debris on the road</p>
+          <dl className="home-advisory-details">
+            <div>
+              <ShieldCheck aria-hidden />
+              <dt>Official restriction:</dt>
+              <dd>No current official information</dd>
+            </div>
+            <div>
+              <UsersRound aria-hidden />
+              <dt>Evidence:</dt>
+              <dd>Community corroborated</dd>
+            </div>
+            <div>
+              <Clock3 aria-hidden />
+              <dt>Last updated:</dt>
+              <dd>{lastUpdated}</dd>
+            </div>
+          </dl>
+          <p className="home-advisory-footer">Illustrative synthetic information</p>
+        </Link>
+      </article>
+    )
+  }
 
   return (
     <article className={cn('rounded-xl border border-border bg-card transition-colors hover:border-blue-on-dark/60', className)}>

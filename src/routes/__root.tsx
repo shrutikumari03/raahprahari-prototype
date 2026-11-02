@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
 
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -63,6 +63,8 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const isHome = useRouterState({ select: (state) => state.location.pathname === '/' })
+
   return (
     <html lang="en" className="dark" style={{ colorScheme: 'dark' }} suppressHydrationWarning>
       <head>
@@ -75,14 +77,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <SkipLink>Skip to content</SkipLink>
             <div className="flex min-h-screen flex-col">
               <SiteHeader />
-              <main id="main" className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0">
+              <main
+                id="main"
+                className={isHome ? 'flex-1' : 'flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0'}
+              >
                 {children}
               </main>
-              <SiteFooter />
+              {!isHome && <SiteFooter />}
             </div>
-            <div className="pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
-              <DemoBadge />
-            </div>
+            {!isHome && (
+              <div className="pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
+                <DemoBadge />
+              </div>
+            )}
           </TooltipProvider>
         </PreferencesProvider>
         <Toaster />

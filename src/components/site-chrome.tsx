@@ -132,14 +132,12 @@ export function SiteHeader() {
   const current = (active: boolean) => (active ? ('page' as const) : undefined)
   const isMap = pathname === '/map' || (pathname === '/check' && view !== 'list')
   const isList = pathname === '/advisories' || pathname === '/advisories/' || pathname.startsWith('/advisories/') || (pathname === '/check' && view === 'list')
+  const isHome = pathname === '/'
 
   const navLinks = (onClick?: () => void) => (
     <>
       <Link to="/" onClick={onClick} aria-current={current(pathname === '/')} className={linkClass(pathname === '/')}>
         {t('nav.home')}
-      </Link>
-      <Link to="/traveller" onClick={onClick} aria-current={current(pathname === '/traveller')} className={linkClass(pathname === '/traveller')}>
-        {t('nav.traveller')}
       </Link>
       <Link to="/map" onClick={onClick} aria-current={current(isMap)} className={linkClass(isMap)}>
         {t('nav.map')}
@@ -147,38 +145,61 @@ export function SiteHeader() {
       <Link to="/advisories" onClick={onClick} aria-current={current(isList)} className={linkClass(isList)}>
         {t('nav.advisories')}
       </Link>
-      <Link to="/help" onClick={onClick} aria-current={current(pathname === '/help')} className={linkClass(pathname === '/help')}>
-        {t('nav.help')}
-      </Link>
+      {isHome ? (
+        <Link to="/about" onClick={onClick} className={linkClass(false)}>
+          {t('nav.about')}
+        </Link>
+      ) : (
+        <>
+          <Link to="/traveller" onClick={onClick} aria-current={current(pathname === '/traveller')} className={linkClass(pathname === '/traveller')}>
+            {t('nav.traveller')}
+          </Link>
+          <Link to="/help" onClick={onClick} aria-current={current(pathname === '/help')} className={linkClass(pathname === '/help')}>
+            {t('nav.help')}
+          </Link>
+        </>
+      )}
     </>
   )
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md">
+      <header className={cn('sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md', isHome && 'home-header')}>
         <div className="rp-container flex h-16 items-center gap-3">
           <Link to="/" className="mr-2 rounded-md" aria-label="RaahPrahari — home">
-            <Logo />
+            <span className={cn('home-brand', !isHome && 'hidden')}>
+              <Logo />
+              <span lang="hi">सफ़र से पहले सुरक्षा की ख़बर</span>
+            </span>
+            <span className={cn(isHome && 'hidden')}>
+              <Logo />
+            </span>
           </Link>
           <nav aria-label={t('nav.primary')} className="hidden items-center gap-0.5 lg:flex">
             {navLinks()}
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <div className="hidden items-center gap-1.5 md:flex">
-              <LangSwitch />
-              <ThemeSwitch />
-              <Button variant="ghost" className="h-10 rounded-full" onClick={() => setLoginOpen(true)}>
+              {isHome ? <HomeLanguageSelect /> : <LangSwitch />}
+              {!isHome && <ThemeSwitch />}
+              <Button
+                variant={isHome ? 'outline' : 'ghost'}
+                className={cn('h-10 rounded-full', isHome && 'home-login-button')}
+                onClick={() => setLoginOpen(true)}
+              >
                 <UserRound />
                 {t('nav.login')}
               </Button>
             </div>
-            <Button asChild className="h-10 rounded-full px-4 font-semibold">
-              <Link to="/report" search={{ segment: undefined }}>
-                <TriangleAlert />
-                <span className="hidden sm:inline">{t('nav.report')}</span>
-                <span className="sr-only sm:hidden">{t('hero.report')}</span>
-              </Link>
-            </Button>
+            {!isHome && (
+              <Button asChild className="h-10 rounded-full px-4 font-semibold">
+                <Link to="/report" search={{ segment: undefined }}>
+                  <TriangleAlert />
+                  <span className="hidden sm:inline">{t('nav.report')}</span>
+                  <span className="sr-only sm:hidden">{t('hero.report')}</span>
+                </Link>
+              </Button>
+            )}
             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon-lg" className="rounded-full lg:hidden" aria-label={t('nav.menu')}>
@@ -196,8 +217,8 @@ export function SiteHeader() {
                   {navLinks(() => setMenuOpen(false))}
                 </nav>
                 <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border px-4 pt-4">
-                  <LangSwitch />
-                  <ThemeSwitch />
+                  {isHome ? <HomeLanguageSelect /> : <LangSwitch />}
+                  {!isHome && <ThemeSwitch />}
                   <Button
                     variant="outline"
                     className="h-11 w-full rounded-full"
@@ -225,7 +246,10 @@ export function SiteHeader() {
       </header>
       <nav
         aria-label={t('nav.primary')}
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md lg:hidden"
+        className={cn(
+          'fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md lg:hidden',
+          isHome && 'hidden',
+        )}
       >
         {([
           { to: '/', label: 'nav.home', icon: House, active: pathname === '/' },
@@ -249,6 +273,19 @@ export function SiteHeader() {
       </nav>
       <LoginDialog open={loginOpen} onOpenChange={setLoginOpen} />
     </>
+  )
+}
+
+function HomeLanguageSelect() {
+  const { lang, setLang, t } = usePrefs()
+  return (
+    <label className="home-language-control">
+      <span className="sr-only">{t('lang.label')}</span>
+      <select value={lang} onChange={(event) => setLang(event.target.value as 'en' | 'hi')} aria-label={t('lang.label')}>
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+      </select>
+    </label>
   )
 }
 

@@ -3,7 +3,7 @@ import { ArrowRight, Clock3, ShieldCheck, TriangleAlert, UsersRound } from 'luci
 import { ActionBadge, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
 import { usePrefs } from '@/i18n/preferences'
 import { getAdvisorySourceTimestamp } from '@/lib/advisory'
-import type { Segment } from '@/lib/types'
+import type { CommunityReport, Segment } from '@/lib/types'
 import { advisoryFor } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
@@ -11,12 +11,14 @@ export function AdvisoryCard({
   segment,
   className,
   variant = 'default',
+  communityReport,
 }: {
   segment: Segment
   className?: string
-  variant?: 'default' | 'home-featured'
+  variant?: 'default' | 'home-featured' | 'community-report'
+  communityReport?: CommunityReport
 }) {
-  const { t, place } = usePrefs()
+  const { t, place, ago } = usePrefs()
   const advisory = advisoryFor(segment.id)
   if (!advisory) {
     throw new Error(`Missing advisory for segment "${segment.id}"`)
@@ -26,6 +28,35 @@ export function AdvisoryCard({
     ...(advisory.evidence.length > 0 ? [t('source.community')] : []),
     ...(advisory.restriction ? [t('source.official')] : []),
   ]
+
+  if (variant === 'community-report') {
+    if (!communityReport) {
+      throw new Error('A community report is required for the community-report card')
+    }
+    const level = communityReport.severity === 'high' ? 'avoid' : 'caution'
+    return (
+      <article className={cn('rounded-lg border border-border bg-card transition-colors hover:border-blue-on-dark/60', className)}>
+        <Link
+          to="/advisories/$segmentId"
+          params={{ segmentId: communityReport.ref }}
+          className="block rounded-[inherit] p-4 focus-visible:outline-offset-[-3px]"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-semibold">{t(`hazard.${communityReport.hazardType}`)}</h2>
+            <ActionBadge level={level} />
+          </div>
+          <p className="mt-1.5 text-sm text-muted-foreground">{communityReport.description}</p>
+          <p className="mt-3 text-xs text-muted-foreground">
+            {segment.code} · {communityReport.landmark} · Observed {ago(communityReport.observedAt)}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <FreshnessChip sourceTimestamp={communityReport.observedAt} />
+            <span className="text-xs text-blue-on-dark">Community report, not an official closure</span>
+          </div>
+        </Link>
+      </article>
+    )
+  }
 
   if (variant === 'home-featured') {
     const sourceTimestamp = getAdvisorySourceTimestamp(advisory)

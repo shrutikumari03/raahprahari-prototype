@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, Camera, CircleQuestionMark, Copy, GitCompare, MapPin, ShieldCheck, TriangleAlert, X } from 'lucide-react'
+import { ArrowRight, Camera, CircleQuestionMark, Clock3, Copy, GitCompare, MapPin, Route as RouteIcon, ShieldCheck, TriangleAlert, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ActionBadge, AdvisoryBadge, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
 import { corridorById, segmentById } from '@/data/fixtures'
@@ -73,7 +73,7 @@ export function SegmentDetail({
   segmentId?: string
   onClose?: () => void
   className?: string
-  variant?: 'default' | 'map'
+  variant?: 'default' | 'map' | 'overview'
 }) {
   const { t, ago, stamp, place } = usePrefs()
   const seg = segmentId ? segmentById(segmentId) : undefined
@@ -105,6 +105,10 @@ export function SegmentDetail({
         className={className}
       />
     )
+  }
+
+  if (variant === 'overview') {
+    return <OverviewSegmentDetail segment={seg} className={className} />
   }
 
   return (
@@ -235,6 +239,95 @@ export function SegmentDetail({
           {t('results.reportHere')}
         </Link>
       </Button>
+    </section>
+  )
+}
+
+function OverviewSegmentDetail({
+  segment,
+  className,
+}: {
+  segment: NonNullable<ReturnType<typeof segmentById>>
+  className?: string
+}) {
+  const { place, duration } = usePrefs()
+  return (
+    <section className={cn('rounded-lg border border-border bg-card p-3 sm:p-4', className)}>
+      <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
+        <RouteIcon aria-hidden className="size-5 shrink-0 text-blue-on-dark" />
+        Route details
+      </h2>
+      <dl className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
+        <div className="flex items-start gap-2">
+          <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <div>
+            <dt className="text-[11px] text-muted-foreground">Starting point</dt>
+            <dd className="text-xs font-medium">{place(segment.from)}</dd>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <RouteIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <div>
+            <dt className="text-[11px] text-muted-foreground">Total distance</dt>
+            <dd className="text-xs font-medium">{segment.distanceKm} km (illustrative)</dd>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <div>
+            <dt className="text-[11px] text-muted-foreground">End point</dt>
+            <dd className="text-xs font-medium">{place(segment.to)}</dd>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <Clock3 aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <div>
+            <dt className="text-[11px] text-muted-foreground">Estimated time</dt>
+            <dd className="text-xs font-medium">{duration(segment.typicalMinutes)} (illustrative)</dd>
+          </div>
+        </div>
+      </dl>
+    </section>
+  )
+}
+
+export function StatusTimeline({
+  report,
+  level,
+}: {
+  report: CommunityReport
+  level: AdvisoryLevel
+}) {
+  const { ago, stamp } = usePrefs()
+  const statusLabel = report.status === 'under_review'
+    ? 'Under review'
+    : report.status === 'needs_info'
+      ? 'More information requested'
+      : report.status === 'conflicting'
+        ? 'Conflicting information noted'
+        : 'Community review status updated'
+  return (
+    <section className="rounded-xl border border-border bg-card p-4">
+      <h2 className="mb-4 text-sm font-semibold">Status history</h2>
+      <ol className="space-y-4 border-l border-border pl-4">
+        <li className="relative">
+          <span className="absolute top-1 -left-[1.32rem] size-2.5 rounded-full bg-blue-on-dark" />
+          <p className="text-sm font-medium">Reported</p>
+          <p className="text-xs text-muted-foreground">
+            {ago(report.receivedAt)} · {stamp(report.receivedAt)}
+          </p>
+        </li>
+        <li className="relative">
+          <span className="absolute top-1 -left-[1.32rem] size-2.5 rounded-full border-2 border-status-unknown bg-background" />
+          <p className="text-sm font-medium">{statusLabel}</p>
+          <p className="text-xs text-muted-foreground">Community review status</p>
+        </li>
+        <li className="relative">
+          <span className="absolute top-1 -left-[1.32rem] size-2.5 rounded-full border-2 border-status-unknown bg-background" />
+          <p className="text-sm font-medium">AI-assisted indication, not an official closure</p>
+          <ActionBadge level={level} className="mt-2" />
+        </li>
+      </ol>
     </section>
   )
 }

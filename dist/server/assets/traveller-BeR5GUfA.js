@@ -1,8 +1,8 @@
 import { a as cn, r as useLocalState, t as STORAGE_KEYS } from "./storage-wbzgXpjQ.js";
 import { t as Button } from "./button-DxFltwjo.js";
 import { d as SEGMENTS, p as placeById, r as usePrefs, s as PLACES } from "./preferences-Bu-IUfe0.js";
-import { c as FreshnessChip, o as ActionBadge, p as getAdvisorySourceTimestamp, r as Route$1 } from "./router-BV9_Jy_b.js";
-import { t as advisoryFor } from "./data-DcVb_IFo.js";
+import { o as FreshnessChip, r as ActionBadge, t as advisoryFor, u as getAdvisorySourceTimestamp } from "./data-B3r6UVjM.js";
+import { r as Route$1 } from "./router-BHtN9zMY.js";
 import { a as nearestPlace, i as inCoverage, r as getCurrentPosition, t as findSeededRoutes } from "./routing-BVsNYcwm.js";
 import { useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -306,7 +306,6 @@ function TravellerPage() {
 					}) : filteredResults.length ? filteredResults.map(({ segment, advisory }) => /* @__PURE__ */ jsx(ResultRow, {
 						segment,
 						observedAt: getAdvisorySourceTimestamp(advisory),
-						source: advisory.restriction ? "Official source" : advisory.evidence.length ? "Community report" : "No reported source",
 						reason: advisory.evidence[0]?.description ?? advisory.restriction?.title ?? "No recent observation is available for this road section.",
 						observedLabel: advisory.latestObservationAt ? ago(advisory.latestObservationAt) : void 0
 					}, segment.id)) : /* @__PURE__ */ jsxs("div", {
@@ -333,46 +332,79 @@ function TravellerPage() {
 		]
 	});
 }
-function ResultRow({ segment, observedAt, observedLabel, source, reason }) {
+function getTravellerResultAction(advisory) {
+	if (advisory.restriction) return advisory.level === "clear" ? "unknown" : advisory.level;
+	if (!advisory.evidence.length) return "unknown";
+	return advisory.level === "caution" || advisory.level === "avoid" ? advisory.level : "unknown";
+}
+function ResultRow({ segment, observedAt, observedLabel, reason }) {
 	const { place } = usePrefs();
 	const advisory = advisoryFor(segment.id);
 	if (!advisory) throw new Error(`Missing advisory for segment "${segment.id}"`);
+	const action = getTravellerResultAction(advisory);
+	const sourceLabel = advisory.evidence.length ? "Community report, not independently verified" : advisory.restriction ? "Official source" : "No reported source";
 	return /* @__PURE__ */ jsxs("article", {
-		className: cn("traveller-result-row", `status-${advisory.level}`, advisory.stale && "is-stale"),
+		className: cn("traveller-result-row", `status-${action}`, advisory.stale && "is-stale"),
 		children: [
 			/* @__PURE__ */ jsx("div", {
 				className: "traveller-result-badge",
-				children: /* @__PURE__ */ jsx(ActionBadge, { level: advisory.level })
+				children: /* @__PURE__ */ jsx(ActionBadge, { level: action })
 			}),
 			/* @__PURE__ */ jsxs("div", {
 				className: "traveller-result-main",
 				children: [
+					/* @__PURE__ */ jsxs("h2", { children: [
+						place(segment.from),
+						" – ",
+						place(segment.to),
+						" ",
+						/* @__PURE__ */ jsxs("span", { children: [
+							"(",
+							segment.code,
+							")"
+						] })
+					] }),
 					/* @__PURE__ */ jsxs("p", {
 						className: "traveller-road-code",
 						children: [
-							segment.code,
-							" · km ",
+							"km ",
 							segment.kmStart,
 							"–",
 							segment.kmEnd
 						]
 					}),
-					/* @__PURE__ */ jsxs("h2", { children: [
-						place(segment.from),
-						" – ",
-						place(segment.to)
-					] }),
 					/* @__PURE__ */ jsx("p", {
 						className: "traveller-result-reason",
 						children: reason
 					}),
+					/* @__PURE__ */ jsxs("p", {
+						className: "traveller-restriction-detail",
+						children: [
+							/* @__PURE__ */ jsx("strong", { children: "Official restriction:" }),
+							" ",
+							advisory.restriction?.title ?? "No current official information"
+						]
+					}),
+					/* @__PURE__ */ jsxs("p", {
+						className: "traveller-source-detail",
+						children: [
+							/* @__PURE__ */ jsx("strong", { children: "Evidence / Source:" }),
+							" ",
+							sourceLabel
+						]
+					}),
 					/* @__PURE__ */ jsxs("div", {
 						className: "traveller-result-metadata",
-						children: [/* @__PURE__ */ jsxs("span", { children: [
-							/* @__PURE__ */ jsx(Clock3, { "aria-hidden": true }),
-							"Observed ",
-							observedLabel ?? "time unavailable"
-						] }), /* @__PURE__ */ jsxs("span", { children: [advisory.restriction ? /* @__PURE__ */ jsx(ShieldCheck, { "aria-hidden": true }) : /* @__PURE__ */ jsx(UsersRound, { "aria-hidden": true }), source] })]
+						children: [
+							/* @__PURE__ */ jsxs("span", { children: [
+								/* @__PURE__ */ jsx(Clock3, { "aria-hidden": true }),
+								/* @__PURE__ */ jsx("strong", { children: "Observed:" }),
+								" ",
+								observedLabel ?? "time unavailable"
+							] }),
+							advisory.restriction && /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx(ShieldCheck, { "aria-hidden": true }), " Official restriction"] }),
+							advisory.evidence.length > 0 && /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx(UsersRound, { "aria-hidden": true }), " Community evidence"] })
+						]
 					})
 				]
 			}),
@@ -380,7 +412,10 @@ function ResultRow({ segment, observedAt, observedLabel, source, reason }) {
 				className: "traveller-row-trailing",
 				children: [/* @__PURE__ */ jsxs("span", {
 					className: "traveller-freshness-chip",
-					children: ["Freshness: ", /* @__PURE__ */ jsx(FreshnessChip, { sourceTimestamp: observedAt })]
+					children: [/* @__PURE__ */ jsx("strong", { children: "Freshness:" }), /* @__PURE__ */ jsx(FreshnessChip, {
+						sourceTimestamp: observedAt,
+						className: "traveller-inline-freshness"
+					})]
 				}), /* @__PURE__ */ jsx(Button, {
 					asChild: true,
 					type: "button",
@@ -602,4 +637,4 @@ function findPlaceId(value) {
 function normalizeQuery(value) {
 	return value.toLocaleLowerCase().replace(/[.,]/g, " ").replace(/\s+/g, " ").trim();
 }
-export { TravellerPage as component };
+export { ResultRow, TravellerPage as component, getTravellerResultAction };

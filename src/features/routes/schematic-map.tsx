@@ -23,18 +23,22 @@ const unproject = (x: number, y: number) => ({
 export function SchematicMap({
   highlight,
   endpoints,
+  labelPlaces,
   selectedSegmentId,
   onSelectSegment,
   onPickPoint,
   pin,
+  terrain = false,
   className,
 }: {
   highlight?: string[]
   endpoints?: string[]
+  labelPlaces?: string[]
   selectedSegmentId?: string
   onSelectSegment?: (id: string) => void
   onPickPoint?: (lat: number, lon: number) => void
   pin?: { lat: number; lon: number }
+  terrain?: boolean
   className?: string
 }) {
   const { t, place } = usePrefs()
@@ -42,7 +46,7 @@ export function SchematicMap({
   const highlightSet = useMemo(() => new Set(highlight ?? []), [highlight])
   const hasHighlight = highlightSet.size > 0
 
-  const labelIds = new Set([...QUICK_PICKS, ...(endpoints ?? [])])
+  const labelIds = new Set(labelPlaces ?? [...QUICK_PICKS, ...(endpoints ?? [])])
   const stopIds = new Set(SEGMENTS.flatMap((s) => [s.from, s.to]))
 
   const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -59,10 +63,17 @@ export function SchematicMap({
   }
 
   return (
-    <div className={cn('relative overflow-hidden rounded-2xl border border-border bg-card rp-grid-bg', className)}>
+    <div
+      className={cn(
+        terrain
+          ? 'relative h-full w-full overflow-hidden bg-transparent'
+          : 'relative overflow-hidden rounded-2xl border border-border bg-card rp-grid-bg',
+        className,
+      )}
+    >
       <svg
         viewBox={`0 0 ${W} ${H}`}
-        className={cn('block h-auto w-full', onPickPoint && 'cursor-crosshair')}
+        className={cn(terrain ? 'block h-full w-full' : 'block h-auto w-full', onPickPoint && 'cursor-crosshair')}
         role="group"
         aria-label={t('map.schematic')}
         onClick={handleSvgClick}
@@ -122,7 +133,7 @@ export function SchematicMap({
                 y1={pa.y}
                 x2={pb.x}
                 y2={pb.y}
-                stroke={LEVEL_META[level].color}
+                stroke={terrain ? '#149bff' : LEVEL_META[level].color}
                 strokeWidth={inRoute || selected ? 11 : 7}
                 strokeLinecap="round"
                 strokeDasharray={dashed ? '4 14' : undefined}
@@ -252,3 +263,5 @@ export function MapLegend({ className }: { className?: string }) {
     </div>
   )
 }
+
+export const SegmentMap = SchematicMap

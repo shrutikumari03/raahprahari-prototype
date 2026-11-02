@@ -1,12 +1,11 @@
 import { a as cn } from "./storage-wbzgXpjQ.js";
 import { t as Button } from "./button-DxFltwjo.js";
 import { c as QUICK_PICKS, d as SEGMENTS, f as corridorById, m as segmentById, p as placeById, r as usePrefs, s as PLACES } from "./preferences-Bu-IUfe0.js";
-import { c as FreshnessChip, d as RoadCode, l as LEVEL_META, p as getAdvisorySourceTimestamp, s as AdvisoryBadge, u as OfficialBadge } from "./router-BV9_Jy_b.js";
-import { n as getAdvisories, t as advisoryFor } from "./data-DcVb_IFo.js";
+import { c as OfficialBadge, d as getFreshnessState, i as AdvisoryBadge, l as RoadCode, n as getAdvisories, o as FreshnessChip, r as ActionBadge, s as LEVEL_META, t as advisoryFor, u as getAdvisorySourceTimestamp } from "./data-B3r6UVjM.js";
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
-import { jsx, jsxs } from "react/jsx-runtime";
-import { Camera, CircleQuestionMark, Copy, GitCompare, MapPin, ShieldCheck, TriangleAlert, X } from "lucide-react";
+import { Fragment, jsx, jsxs } from "react/jsx-runtime";
+import { ArrowRight, Camera, CircleQuestionMark, Copy, GitCompare, MapPin, ShieldCheck, TriangleAlert, X } from "lucide-react";
 // src/features/routes/schematic-map.tsx
 var VIEW = {
 	minLon: 77.75,
@@ -24,12 +23,12 @@ var unproject = (x, y) => ({
 	lon: VIEW.minLon + x / W * (VIEW.maxLon - VIEW.minLon),
 	lat: VIEW.maxLat - y / H * (VIEW.maxLat - VIEW.minLat)
 });
-function SchematicMap({ highlight, endpoints, selectedSegmentId, onSelectSegment, onPickPoint, pin, className }) {
+function SchematicMap({ highlight, endpoints, labelPlaces, selectedSegmentId, onSelectSegment, onPickPoint, pin, terrain = false, className }) {
 	const { t, place } = usePrefs();
 	const advisories = getAdvisories();
 	const highlightSet = useMemo(() => new Set(highlight ?? []), [highlight]);
 	const hasHighlight = highlightSet.size > 0;
-	const labelIds = /* @__PURE__ */ new Set([...QUICK_PICKS, ...endpoints ?? []]);
+	const labelIds = new Set(labelPlaces ?? [...QUICK_PICKS, ...endpoints ?? []]);
 	const stopIds = new Set(SEGMENTS.flatMap((s) => [s.from, s.to]));
 	const handleSvgClick = (e) => {
 		if (!onPickPoint) return;
@@ -44,10 +43,10 @@ function SchematicMap({ highlight, endpoints, selectedSegmentId, onSelectSegment
 		onPickPoint(lat, lon);
 	};
 	return /* @__PURE__ */ jsxs("div", {
-		className: cn("relative overflow-hidden rounded-2xl border border-border bg-card rp-grid-bg", className),
+		className: cn(terrain ? "relative h-full w-full overflow-hidden bg-transparent" : "relative overflow-hidden rounded-2xl border border-border bg-card rp-grid-bg", className),
 		children: [/* @__PURE__ */ jsxs("svg", {
 			viewBox: `0 0 ${W} ${H}`,
-			className: cn("block h-auto w-full", onPickPoint && "cursor-crosshair"),
+			className: cn(terrain ? "block h-full w-full" : "block h-auto w-full", onPickPoint && "cursor-crosshair"),
 			role: "group",
 			"aria-label": t("map.schematic"),
 			onClick: handleSvgClick,
@@ -118,7 +117,7 @@ function SchematicMap({ highlight, endpoints, selectedSegmentId, onSelectSegment
 								y1: pa.y,
 								x2: pb.x,
 								y2: pb.y,
-								stroke: LEVEL_META[level].color,
+								stroke: terrain ? "#149bff" : LEVEL_META[level].color,
 								strokeWidth: inRoute || selected ? 11 : 7,
 								strokeLinecap: "round",
 								strokeDasharray: dashed ? "4 14" : void 0
@@ -310,6 +309,7 @@ function MapLegend({ className }) {
 		]
 	});
 }
+var SegmentMap = SchematicMap;
 // src/features/routes/segment-detail.tsx
 function Block({ title, children }) {
 	return /* @__PURE__ */ jsxs("div", {
@@ -429,7 +429,7 @@ function ReportCard({ report }) {
 		]
 	});
 }
-function SegmentDetail({ segmentId, onClose, className }) {
+function SegmentDetail({ segmentId, onClose, className, variant = "default" }) {
 	const { t, ago, stamp, place } = usePrefs();
 	const seg = segmentId ? segmentById(segmentId) : void 0;
 	const adv = segmentId ? advisoryFor(segmentId) : void 0;
@@ -448,6 +448,13 @@ function SegmentDetail({ segmentId, onClose, className }) {
 	const unverified = adv.evidence.some((r) => r.kind === "hazard" && r.status !== "verified");
 	const sources = new Set(adv.evidence.map((r) => r.source));
 	const r = adv.restriction;
+	if (variant === "map") return /* @__PURE__ */ jsx(MapSegmentDetail, {
+		segment: seg,
+		advisory: adv,
+		corridorName: corridor?.name,
+		onClose,
+		className
+	});
 	return /* @__PURE__ */ jsxs("section", {
 		"aria-labelledby": "seg-title",
 		className: cn("rounded-2xl border border-border bg-card p-5", className),
@@ -676,4 +683,159 @@ function SegmentDetail({ segmentId, onClose, className }) {
 		]
 	});
 }
-export { MapLegend as n, SchematicMap as r, SegmentDetail as t };
+function MapSegmentDetail({ segment, advisory, corridorName, onClose, className }) {
+	const { t, ago, stamp, place } = usePrefs();
+	const sourceTimestamp = getAdvisorySourceTimestamp(advisory);
+	const condition = advisory.evidence.find((report) => report.kind === "hazard") ?? advisory.evidence[0];
+	const source = advisory.evidence.length ? t("source.community") : advisory.restriction ? t("source.official") : t("source.unknown");
+	return /* @__PURE__ */ jsxs("section", {
+		className: cn("rp-map-detail-panel", className),
+		"aria-labelledby": "rp-map-segment-title",
+		children: [
+			/* @__PURE__ */ jsxs("div", {
+				className: "rp-map-detail-heading",
+				children: [/* @__PURE__ */ jsxs("div", {
+					className: "rp-map-detail-heading-label",
+					children: [/* @__PURE__ */ jsx("span", {
+						"aria-hidden": true,
+						className: "rp-map-mountain-mark",
+						children: "⌁"
+					}), /* @__PURE__ */ jsx("span", { children: "Selected road segment" })]
+				}), onClose && /* @__PURE__ */ jsx("button", {
+					type: "button",
+					className: "rp-map-detail-close",
+					onClick: onClose,
+					"aria-label": "Close selected segment",
+					children: /* @__PURE__ */ jsx(X, { "aria-hidden": true })
+				})]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "rp-map-segment-title-row",
+				children: [/* @__PURE__ */ jsxs("h2", {
+					id: "rp-map-segment-title",
+					children: [
+						place(segment.from),
+						" – ",
+						place(segment.to)
+					]
+				}), /* @__PURE__ */ jsx(ActionBadge, {
+					level: advisory.level,
+					size: "lg"
+				})]
+			}),
+			/* @__PURE__ */ jsxs("p", {
+				className: "rp-map-segment-meta",
+				children: [
+					/* @__PURE__ */ jsx(RoadCode, { children: segment.code }),
+					/* @__PURE__ */ jsx("span", {
+						"aria-hidden": true,
+						children: "·"
+					}),
+					/* @__PURE__ */ jsxs("span", { children: [segment.distanceKm, " km"] }),
+					corridorName && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("span", {
+						"aria-hidden": true,
+						children: "·"
+					}), /* @__PURE__ */ jsx("span", { children: corridorName })] })
+				]
+			}),
+			/* @__PURE__ */ jsx(FreshnessChip, {
+				sourceTimestamp,
+				className: "rp-map-freshness"
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "rp-map-condition",
+				children: [/* @__PURE__ */ jsx(TriangleAlert, { "aria-hidden": true }), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("strong", { children: condition ? t(`hazard.${condition.hazardType}`) : "No recent observation" }), /* @__PURE__ */ jsx("p", { children: condition?.description ?? t("copy.noRecent") })] })]
+			}),
+			/* @__PURE__ */ jsxs("dl", {
+				className: "rp-map-observation-grid",
+				children: [
+					/* @__PURE__ */ jsxs("div", { children: [
+						/* @__PURE__ */ jsx("dt", { children: "Observation time" }),
+						/* @__PURE__ */ jsx("dd", { children: advisory.latestObservationAt ? ago(advisory.latestObservationAt) : "Unknown" }),
+						advisory.latestObservationAt && /* @__PURE__ */ jsx("small", { children: stamp(advisory.latestObservationAt) })
+					] }),
+					/* @__PURE__ */ jsxs("div", { children: [
+						/* @__PURE__ */ jsx("dt", { children: "Source" }),
+						/* @__PURE__ */ jsx("dd", { children: source }),
+						advisory.evidence.length > 0 && /* @__PURE__ */ jsxs("small", { children: [advisory.evidence.length, " reports"] })
+					] }),
+					/* @__PURE__ */ jsxs("div", { children: [
+						/* @__PURE__ */ jsx("dt", { children: "Last updated" }),
+						/* @__PURE__ */ jsx("dd", { children: sourceTimestamp ? ago(sourceTimestamp) : "Unknown" }),
+						sourceTimestamp && /* @__PURE__ */ jsx("small", { children: stamp(sourceTimestamp) })
+					] })
+				]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "rp-map-official-info",
+				children: [/* @__PURE__ */ jsxs("div", {
+					className: "rp-map-official-heading",
+					children: [/* @__PURE__ */ jsx(ShieldCheck, { "aria-hidden": true }), /* @__PURE__ */ jsx("strong", { children: "Official restriction" })]
+				}), advisory.restriction ? /* @__PURE__ */ jsxs("div", {
+					className: "rp-map-restriction",
+					children: [
+						/* @__PURE__ */ jsx(OfficialBadge, { label: t(`restriction.${advisory.restriction.type}`) }),
+						/* @__PURE__ */ jsx("p", { children: advisory.restriction.title }),
+						/* @__PURE__ */ jsx("small", { children: advisory.restriction.issuingAuthority })
+					]
+				}) : /* @__PURE__ */ jsx("p", {
+					className: "rp-map-no-official",
+					children: "No current official information"
+				})]
+			}),
+			/* @__PURE__ */ jsxs(Link, {
+				to: "/advisories/$segmentId",
+				params: { segmentId: segment.id },
+				className: "rp-map-details-link",
+				children: ["View details ", /* @__PURE__ */ jsx(ArrowRight, { "aria-hidden": true })]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "rp-map-reports",
+				children: [/* @__PURE__ */ jsxs("h3", { children: [
+					"Available reports (",
+					advisory.evidence.length,
+					")"
+				] }), advisory.evidence.length ? /* @__PURE__ */ jsx("ul", { children: advisory.evidence.slice(0, 3).map((report) => /* @__PURE__ */ jsx(MapReportRow, {
+					report,
+					segmentLevel: advisory.level
+				}, report.ref)) }) : /* @__PURE__ */ jsx("p", {
+					className: "rp-map-no-official",
+					children: "No community reports are available for this segment."
+				})]
+			}),
+			/* @__PURE__ */ jsx("p", {
+				className: "rp-map-detail-footer",
+				children: "Prototype visualization · Synthetic data"
+			})
+		]
+	});
+}
+function MapReportRow({ report, segmentLevel }) {
+	const { t, ago, now } = usePrefs();
+	const level = getFreshnessState(report.observedAt, now) === "stale" || report.kind === "clear" ? "unknown" : segmentLevel === "avoid" ? "avoid" : "caution";
+	const title = report.kind === "hazard" ? `${t(`hazard.${report.hazardType}`)} reported` : "Community condition report";
+	return /* @__PURE__ */ jsxs("li", {
+		className: "rp-map-report-row",
+		children: [/* @__PURE__ */ jsx("div", {
+			className: "rp-map-report-icon",
+			children: level === "unknown" ? /* @__PURE__ */ jsx(CircleQuestionMark, { "aria-hidden": true }) : /* @__PURE__ */ jsx(TriangleAlert, { "aria-hidden": true })
+		}), /* @__PURE__ */ jsxs("div", {
+			className: "rp-map-report-copy",
+			children: [
+				/* @__PURE__ */ jsxs("div", {
+					className: "rp-map-report-title",
+					children: [/* @__PURE__ */ jsx("strong", { children: title }), /* @__PURE__ */ jsx(ActionBadge, { level })]
+				}),
+				/* @__PURE__ */ jsx("p", { children: report.description }),
+				/* @__PURE__ */ jsxs("small", { children: [
+					t("source.community"),
+					" · ",
+					t(`source.${report.source}`),
+					" · ",
+					ago(report.observedAt)
+				] })
+			]
+		})]
+	});
+}
+export { SegmentMap as i, MapLegend as n, SchematicMap as r, SegmentDetail as t };

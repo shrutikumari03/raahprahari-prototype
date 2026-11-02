@@ -1,10 +1,11 @@
 import { a as cn } from "./storage-wbzgXpjQ.js";
 import { t as Button } from "./button-DxFltwjo.js";
 import { m as segmentById, n as themeBootScript, r as usePrefs, t as PreferencesProvider } from "./preferences-Bu-IUfe0.js";
+import { a as DemoBadge } from "./data-B3r6UVjM.js";
 import { useEffect, useState } from "react";
 import { HeadContent, Link, Scripts, createFileRoute, createRootRoute, createRouter, lazyRouteComponent, notFound, useRouter, useRouterState } from "@tanstack/react-router";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
-import { CheckCircle2, CircleCheck, CircleCheckIcon, CircleQuestionMark, Clock, FlaskConical, House, InfoIcon, ListChecks, Loader2Icon, Map as Map$1, Menu, Monitor, Moon, OctagonAlert, OctagonX, OctagonXIcon, Search, ShieldCheck, Sun, TriangleAlert, TriangleAlertIcon, UserRound, WifiOff, XIcon } from "lucide-react";
+import { CircleCheckIcon, House, InfoIcon, ListChecks, Loader2Icon, Map, Menu, Monitor, Moon, OctagonXIcon, Search, Sun, TriangleAlert, TriangleAlertIcon, UserRound, WifiOff, XIcon } from "lucide-react";
 import { Toaster } from "sonner";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -573,7 +574,7 @@ function SiteHeader() {
 				{
 					to: "/map",
 					label: "nav.map",
-					icon: Map$1,
+					icon: Map,
 					active: isMap
 				},
 				{
@@ -659,240 +660,6 @@ function SiteFooter() {
 		})
 	});
 }
-// src/lib/advisory.ts
-function getAdvisorySourceTimestamp(advisory) {
-	const timestamps = [advisory.latestObservationAt, advisory.restriction?.publishedAt].filter((timestamp) => timestamp !== void 0);
-	return timestamps.length ? Math.max(...timestamps) : void 0;
-}
-function getFreshnessState(sourceTimestamp, now) {
-	if (sourceTimestamp === void 0 || !Number.isFinite(sourceTimestamp) || !Number.isFinite(now) || sourceTimestamp <= 0 || sourceTimestamp > now) return "unknown";
-	return now - sourceTimestamp <= 864e5 ? "fresh" : "stale";
-}
-var LEVEL_RANK = {
-	clear: 0,
-	unknown: 1,
-	caution: 2,
-	avoid: 3,
-	do_not_travel: 4
-};
-var RESTRICTION_LEVEL = {
-	road_closed: "do_not_travel",
-	partially_restricted: "avoid",
-	vehicle_restricted: "caution",
-	time_bound: "caution"
-};
-var IGNORED = ["rejected", "duplicate"];
-function isRestrictionInForce(r) {
-	return r.status !== "lifted";
-}
-function computeSegmentAdvisory(segmentId, reports, restrictions, now) {
-	const segReports = reports.filter((r) => r.segmentId === segmentId && !IGNORED.includes(r.status)).sort((a, b) => b.observedAt - a.observedAt);
-	const latestObservationAt = segReports[0]?.observedAt;
-	const reviewedCount = segReports.filter((r) => r.status === "verified").length;
-	const freshHazards = segReports.filter((r) => r.kind === "hazard" && now - r.observedAt <= 864e5);
-	const freshClears = segReports.filter((r) => r.kind === "clear" && now - r.observedAt <= 432e5);
-	const evidence = [...freshHazards, ...freshClears].sort((a, b) => b.observedAt - a.observedAt);
-	const base = {
-		segmentId,
-		latestObservationAt,
-		reviewedCount,
-		restrictionPastReview: false,
-		awaitingClearance: false,
-		stale: false
-	};
-	const restriction = restrictions.filter((r) => r.segmentId === segmentId && isRestrictionInForce(r)).sort((a, b) => LEVEL_RANK[RESTRICTION_LEVEL[b.type]] - LEVEL_RANK[RESTRICTION_LEVEL[a.type]])[0];
-	if (restriction) return {
-		...base,
-		level: RESTRICTION_LEVEL[restriction.type],
-		basis: "official",
-		restriction,
-		restrictionPastReview: now > restriction.reviewBy,
-		awaitingClearance: restriction.clearance === "pending",
-		evidence: evidence.length ? evidence : segReports.slice(0, 3)
-	};
-	if (freshHazards.length) {
-		if (freshClears.length > 0 || freshHazards.some((r) => r.status === "conflicting")) return {
-			...base,
-			level: "caution",
-			basis: "conflicting",
-			evidence
-		};
-		const high = freshHazards.filter((r) => r.severity === "high");
-		const corroborated = high.length >= 2 && high.some((r) => r.status === "verified");
-		return {
-			...base,
-			level: corroborated ? "avoid" : "caution",
-			basis: corroborated ? "corroborated" : "single_report",
-			evidence
-		};
-	}
-	if (freshClears.filter((r) => r.status === "verified").length) return {
-		...base,
-		level: "clear",
-		basis: "verified_clear",
-		evidence
-	};
-	if (segReports.length) return {
-		...base,
-		level: "unknown",
-		basis: "stale_only",
-		stale: true,
-		evidence: segReports.slice(0, 3)
-	};
-	return {
-		...base,
-		level: "unknown",
-		basis: "no_evidence",
-		evidence: []
-	};
-}
-function summariseRoute(segments, advisories) {
-	const byId = new Map(advisories.map((a) => [a.segmentId, a]));
-	let total = 0;
-	let unknownKm = 0;
-	let level = "clear";
-	let hazardCount = 0;
-	let restrictionCount = 0;
-	let latest;
-	let awaitingClearance = false;
-	for (const s of segments) {
-		const a = byId.get(s.id);
-		total += s.distanceKm;
-		if (!a || a.level === "unknown") unknownKm += s.distanceKm;
-		const l = a?.level ?? "unknown";
-		if (LEVEL_RANK[l] > LEVEL_RANK[level]) level = l;
-		if (!a) continue;
-		hazardCount += a.evidence.filter((r) => r.kind === "hazard").length;
-		if (a.restriction) restrictionCount++;
-		if (a.awaitingClearance) awaitingClearance = true;
-		if (a.latestObservationAt && (!latest || a.latestObservationAt > latest)) latest = a.latestObservationAt;
-	}
-	const coverage = total ? (total - unknownKm) / total : 0;
-	return {
-		level,
-		coverage,
-		unknownKm,
-		hazardCount,
-		restrictionCount,
-		latestObservationAt: latest,
-		poorCoverage: coverage < .5,
-		awaitingClearance
-	};
-}
-// src/components/advisory.tsx
-var LEVEL_META = {
-	clear: {
-		icon: CircleCheck,
-		color: "var(--status-clear)",
-		chip: "bg-status-clear/15 border-status-clear",
-		bar: "bg-status-clear"
-	},
-	caution: {
-		icon: TriangleAlert,
-		color: "var(--status-caution)",
-		chip: "bg-status-caution/15 border-status-caution",
-		bar: "bg-status-caution"
-	},
-	avoid: {
-		icon: OctagonAlert,
-		color: "var(--status-avoid)",
-		chip: "bg-status-avoid/15 border-status-avoid",
-		bar: "bg-status-avoid"
-	},
-	do_not_travel: {
-		icon: OctagonX,
-		color: "var(--status-dnt)",
-		chip: "bg-status-dnt/15 border-status-dnt",
-		bar: "bg-status-dnt"
-	},
-	unknown: {
-		icon: CircleQuestionMark,
-		color: "var(--status-unknown)",
-		chip: "bg-status-unknown/15 border-status-unknown",
-		bar: "bg-status-unknown"
-	}
-};
-function AdvisoryBadge({ level, size = "sm", className }) {
-	const { t } = usePrefs();
-	const meta = LEVEL_META[level];
-	const Icon = meta.icon;
-	return /* @__PURE__ */ jsxs("span", {
-		className: cn("inline-flex items-center gap-1.5 rounded-full border font-semibold text-foreground", size === "lg" ? "px-3 py-1.5 text-sm" : "px-2.5 py-0.5 text-xs", meta.chip, className),
-		children: [/* @__PURE__ */ jsx(Icon, {
-			"aria-hidden": true,
-			className: size === "lg" ? "size-4" : "size-3.5",
-			style: { color: meta.color }
-		}), t(`level.${level}`)]
-	});
-}
-function ActionBadge({ level, size = "sm", className }) {
-	return /* @__PURE__ */ jsx(AdvisoryBadge, {
-		level,
-		size,
-		className
-	});
-}
-var FRESHNESS_META = {
-	fresh: {
-		icon: CheckCircle2,
-		color: "var(--blue-on-dark)",
-		chip: "border-blue-on-dark/50 bg-brand-blue/15"
-	},
-	stale: {
-		icon: Clock,
-		color: "var(--status-stale)",
-		chip: "border-status-stale/50 bg-status-stale/10"
-	},
-	unknown: {
-		icon: CircleQuestionMark,
-		color: "var(--status-unknown)",
-		chip: "border-status-unknown/50 bg-status-unknown/10"
-	}
-};
-function FreshnessChip({ sourceTimestamp, className }) {
-	const { t, ago, now } = usePrefs();
-	const state = getFreshnessState(sourceTimestamp, now);
-	const meta = FRESHNESS_META[state];
-	const Icon = meta.icon;
-	return /* @__PURE__ */ jsxs("span", {
-		className: cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium text-foreground", meta.chip, className),
-		children: [
-			/* @__PURE__ */ jsx(Icon, {
-				"aria-hidden": true,
-				className: "size-3.5",
-				style: { color: meta.color }
-			}),
-			t(`freshness.${state}`),
-			sourceTimestamp && state !== "unknown" ? ` · ${ago(sourceTimestamp)}` : ""
-		]
-	});
-}
-function OfficialBadge({ label, className }) {
-	const { t } = usePrefs();
-	return /* @__PURE__ */ jsxs("span", {
-		className: cn("inline-flex items-center gap-1.5 rounded-full border border-status-official bg-status-official/15 px-2.5 py-0.5 text-xs font-semibold text-foreground", className),
-		children: [/* @__PURE__ */ jsx(ShieldCheck, {
-			"aria-hidden": true,
-			className: "size-3.5 text-status-official"
-		}), label ?? t("level.official")]
-	});
-}
-function DemoBadge({ className }) {
-	const { t } = usePrefs();
-	return /* @__PURE__ */ jsxs("span", {
-		className: cn("inline-flex items-center gap-1.5 rounded-md border border-border bg-background/70 px-2 py-0.5 font-mono text-[11px] font-medium tracking-wide text-muted-foreground", className),
-		children: [/* @__PURE__ */ jsx(FlaskConical, {
-			"aria-hidden": true,
-			className: "size-3"
-		}), t("demo.badge")]
-	});
-}
-function RoadCode({ children, className }) {
-	return /* @__PURE__ */ jsx("span", {
-		className: cn("font-mono text-xs font-medium tracking-tight text-muted-foreground", className),
-		children
-	});
-}
 // src/routes/__root.tsx
 var siteName = "RaahPrahari — Know before you go";
 var siteDescription = "Check reported road hazards, information freshness, and official restrictions across Uttarakhand before your journey.";
@@ -950,9 +717,10 @@ var Route$11 = createRootRoute({
 	notFoundComponent: NotFoundPage
 });
 function RootDocument({ children }) {
-	const { isHome, isTraveller } = useRouterState({ select: (state) => ({
+	const { isHome, isTraveller, isMap } = useRouterState({ select: (state) => ({
 		isHome: state.location.pathname === "/",
-		isTraveller: state.location.pathname === "/traveller"
+		isTraveller: state.location.pathname === "/traveller",
+		isMap: state.location.pathname === "/map"
 	}) });
 	return /* @__PURE__ */ jsxs("html", {
 		lang: "en",
@@ -965,16 +733,16 @@ function RootDocument({ children }) {
 				/* @__PURE__ */ jsxs("div", {
 					className: "flex min-h-screen flex-col",
 					children: [
-						/* @__PURE__ */ jsx(SiteHeader, {}),
+						!isMap && /* @__PURE__ */ jsx(SiteHeader, {}),
 						/* @__PURE__ */ jsx("main", {
 							id: "main",
-							className: isHome || isTraveller ? "flex-1" : "flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0",
+							className: isHome || isTraveller || isMap ? "flex-1" : "flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0",
 							children
 						}),
-						!isHome && !isTraveller && /* @__PURE__ */ jsx(SiteFooter, {})
+						!isHome && !isTraveller && !isMap && /* @__PURE__ */ jsx(SiteFooter, {})
 					]
 				}),
-				!isHome && !isTraveller && /* @__PURE__ */ jsx("div", {
+				!isHome && !isTraveller && !isMap && /* @__PURE__ */ jsx("div", {
 					className: "pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2",
 					children: /* @__PURE__ */ jsx(DemoBadge, {})
 				})
@@ -985,7 +753,7 @@ function RootDocument({ children }) {
 	});
 }
 // src/routes/index.tsx
-var $$splitComponentImporter$9 = () => import("./routes-BPMK7CJx.js");
+var $$splitComponentImporter$9 = () => import("./routes-dCRyMaO6.js");
 var Route$10 = createFileRoute("/")({ component: lazyRouteComponent($$splitComponentImporter$9, "component") });
 // src/routes/about.tsx
 var $$splitComponentImporter$8 = () => import("./about-LH57kE70.js");
@@ -994,7 +762,7 @@ var Route$9 = createFileRoute("/about")({
 	component: lazyRouteComponent($$splitComponentImporter$8, "component")
 });
 // src/routes/check.tsx
-var $$splitComponentImporter$7 = () => import("./check-BMdp_A9r.js");
+var $$splitComponentImporter$7 = () => import("./check-sMl6Dmpu.js");
 var Route$8 = createFileRoute("/check")({
 	validateSearch: (s) => ({
 		from: typeof s.from === "string" ? s.from : void 0,
@@ -1018,7 +786,7 @@ var Route$6 = createFileRoute("/help")({
 	component: lazyRouteComponent($$splitComponentImporter$5, "component")
 });
 // src/routes/map.tsx
-var $$splitComponentImporter$4 = () => import("./map-CP_jaCqH.js");
+var $$splitComponentImporter$4 = () => import("./map-DIrrtC3T.js");
 var Route$5 = createFileRoute("/map")({
 	validateSearch: (search) => ({
 		seg: typeof search.seg === "string" ? search.seg : void 0,
@@ -1034,7 +802,7 @@ var Route$4 = createFileRoute("/report")({
 	component: lazyRouteComponent($$splitComponentImporter$3, "component")
 });
 // src/routes/traveller.tsx
-var $$splitComponentImporter$2 = () => import("./traveller-B52o0iKx.js");
+var $$splitComponentImporter$2 = () => import("./traveller-BeR5GUfA.js");
 var Route$3 = createFileRoute("/traveller")({
 	validateSearch: (search) => ({
 		q: typeof search.q === "string" ? search.q : void 0,
@@ -1047,13 +815,13 @@ var Route$3 = createFileRoute("/traveller")({
 	component: lazyRouteComponent($$splitComponentImporter$2, "component")
 });
 // src/routes/advisories.index.tsx
-var $$splitComponentImporter$1 = () => import("./advisories.index-CkeRyivE.js");
+var $$splitComponentImporter$1 = () => import("./advisories.index-CYxTlWWp.js");
 var Route$2 = createFileRoute("/advisories/")({
 	head: () => ({ meta: [{ title: "Road advisories · RaahPrahari" }] }),
 	component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
 // src/routes/advisories.$segmentId.tsx
-var $$splitComponentImporter = () => import("./advisories._segmentId-X48C-UB-.js");
+var $$splitComponentImporter = () => import("./advisories._segmentId-Cm1TSVYN.js");
 var Route$1 = createFileRoute("/advisories/$segmentId")({
 	loader: ({ params }) => {
 		const segment = segmentById(params.segmentId);
@@ -1136,4 +904,4 @@ var getRouter = () => {
 		defaultPreloadStaleTime: 0
 	});
 };
-export { Route$8 as a, FreshnessChip as c, RoadCode as d, computeSegmentAdvisory as f, getRouter, EmptyState as h, Route$5 as i, LEVEL_META as l, summariseRoute as m, Route$1 as n, ActionBadge as o, getAdvisorySourceTimestamp as p, Route$3 as r, AdvisoryBadge as s, router_exports as t, OfficialBadge as u };
+export { Route$8 as a, getRouter, Route$5 as i, Route$1 as n, Logo as o, Route$3 as r, EmptyState as s, router_exports as t };

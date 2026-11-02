@@ -63,10 +63,11 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { isHome, isTraveller } = useRouterState({
+  const { isHome, isTraveller, isMap } = useRouterState({
     select: (state) => ({
       isHome: state.location.pathname === '/',
       isTraveller: state.location.pathname === '/traveller',
+      isMap: state.location.pathname === '/map',
     }),
   })
 
@@ -81,16 +82,16 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <TooltipProvider>
             <SkipLink>Skip to content</SkipLink>
             <div className="flex min-h-screen flex-col">
-              <SiteHeader />
+              {!isMap && <SiteHeader />}
               <main
                 id="main"
-                className={isHome || isTraveller ? 'flex-1' : 'flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0'}
+                className={isHome || isTraveller || isMap ? 'flex-1' : 'flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0'}
               >
                 {children}
               </main>
-              {!isHome && !isTraveller && <SiteFooter />}
+              {!isHome && !isTraveller && !isMap && <SiteFooter />}
             </div>
-            {!isHome && !isTraveller && (
+            {!isHome && !isTraveller && !isMap && (
               <div className="pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
                 <DemoBadge />
               </div>

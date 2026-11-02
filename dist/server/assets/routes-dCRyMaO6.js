@@ -1,6 +1,6 @@
 import { m as segmentById, r as usePrefs } from "./preferences-Bu-IUfe0.js";
-import "./router-BV9_Jy_b.js";
-import { t as AdvisoryCard } from "./advisory-card-BvGHbWIS.js";
+import "./router-BHtN9zMY.js";
+import { t as AdvisoryCard } from "./advisory-card-7dSQfsaW.js";
 import { Link } from "@tanstack/react-router";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { ArrowRight, CloudDownload, MapPin, Search, ShieldCheck, TriangleAlert, UsersRound } from "lucide-react";

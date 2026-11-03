@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { Slot } from '@radix-ui/react-slot'
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -20,14 +20,14 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: 'h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5',
-        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
-        icon: 'size-9',
-        'icon-xs': "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-        'icon-sm': 'size-8',
-        'icon-lg': 'size-10',
+        default: 'h-11 px-4 py-2 has-[>svg]:px-3',
+        xs: "h-11 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: 'h-11 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5',
+        lg: 'h-11 rounded-md px-6 has-[>svg]:px-4',
+        icon: 'size-11',
+        'icon-xs': "size-11 rounded-md [&_svg:not([class*='size-'])]:size-3",
+        'icon-sm': 'size-11',
+        'icon-lg': 'size-11',
       },
     },
     defaultVariants: {
@@ -37,16 +37,29 @@ const buttonVariants = cva(
   },
 )
 
+type IconButtonSize = 'icon' | 'icon-xs' | 'icon-sm' | 'icon-lg'
+type TextButtonSize = 'default' | 'xs' | 'sm' | 'lg'
+type ButtonBaseProps = Omit<
+  React.ComponentProps<'button'>,
+  'aria-label' | 'size'
+> &
+  Omit<VariantProps<typeof buttonVariants>, 'size'> & {
+    asChild?: boolean
+  }
+
+export type ButtonProps = ButtonBaseProps &
+  (
+    | { size?: TextButtonSize; 'aria-label'?: string }
+    | { size: IconButtonSize; 'aria-label': string }
+  )
+
 function Button({
   className,
   variant = 'default',
   size = 'default',
   asChild = false,
   ...props
-}: React.ComponentProps<'button'> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
+}: ButtonProps) {
   const Comp = asChild ? Slot : 'button'
 
   return (
@@ -60,4 +73,26 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+export type IconButtonProps = Omit<
+  ButtonBaseProps,
+  'children'
+> & {
+  label: string
+  icon: React.ReactNode
+  size?: IconButtonSize
+}
+
+function IconButton({
+  label,
+  icon,
+  size = 'icon',
+  ...props
+}: IconButtonProps) {
+  return (
+    <Button {...props} size={size} aria-label={label}>
+      {icon}
+    </Button>
+  )
+}
+
+export { Button, IconButton, buttonVariants }

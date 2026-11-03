@@ -1,8 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { Camera, Copy, GitCompare, MapPin, ShieldCheck, TriangleAlert, X } from 'lucide-react'
+import { ArrowRight, Camera, CircleQuestionMark, Clock3, Copy, GitCompare, MapPin, Route as RouteIcon, ShieldCheck, TriangleAlert, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { AdvisoryBadge, DemoBadge, OfficialBadge, RoadCode, StaleBadge } from '@/components/advisory'
+import { ActionBadge, AdvisoryBadge, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
 import { corridorById, segmentById } from '@/data/fixtures'
+import { getAdvisorySourceTimestamp, getFreshnessState, type AdvisoryLevel } from '@/lib/advisory'
 import { advisoryFor } from '@/lib/data'
 import { usePrefs } from '@/i18n/preferences'
 import type { CommunityReport } from '@/lib/types'
@@ -36,7 +37,7 @@ export function ReportCard({ report }: { report: CommunityReport }) {
         <dt className="text-muted-foreground">{t('segment.status')}</dt>
         <dd>{t(`status.${report.status}`)}</dd>
         <dt className="text-muted-foreground">{t('segment.source')}</dt>
-        <dd>{t(`source.${report.source}`)}</dd>
+        <dd>{t('source.community')}</dd>
         <dt className="text-muted-foreground">{t('segment.locConf')}</dt>
         <dd>{t(`conf.${report.locationConfidence}`)}</dd>
       </dl>
@@ -63,7 +64,17 @@ export function ReportCard({ report }: { report: CommunityReport }) {
   )
 }
 
-export function SegmentDetail({ segmentId, onClose, className }: { segmentId?: string; onClose?: () => void; className?: string }) {
+export function SegmentDetail({
+  segmentId,
+  onClose,
+  className,
+  variant = 'default',
+}: {
+  segmentId?: string
+  onClose?: () => void
+  className?: string
+  variant?: 'default' | 'map' | 'overview'
+}) {
   const { t, ago, stamp, place } = usePrefs()
   const seg = segmentId ? segmentById(segmentId) : undefined
   const adv = segmentId ? advisoryFor(segmentId) : undefined
@@ -83,6 +94,22 @@ export function SegmentDetail({ segmentId, onClose, className }: { segmentId?: s
   const unverified = adv.evidence.some((r) => r.kind === 'hazard' && r.status !== 'verified')
   const sources = new Set(adv.evidence.map((r) => r.source))
   const r = adv.restriction
+
+  if (variant === 'map') {
+    return (
+      <MapSegmentDetail
+        segment={seg}
+        advisory={adv}
+        corridorName={corridor?.name}
+        onClose={onClose}
+        className={className}
+      />
+    )
+  }
+
+  if (variant === 'overview') {
+    return <OverviewSegmentDetail segment={seg} className={className} />
+  }
 
   return (
     <section aria-labelledby="seg-title" className={cn('rounded-2xl border border-border bg-card p-5', className)}>
@@ -105,7 +132,7 @@ export function SegmentDetail({ segmentId, onClose, className }: { segmentId?: s
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <AdvisoryBadge level={adv.level} size="lg" />
-        {adv.stale && <StaleBadge age={adv.latestObservationAt ? ago(adv.latestObservationAt) : undefined} />}
+        <FreshnessChip sourceTimestamp={getAdvisorySourceTimestamp(adv)} />
         {r && <OfficialBadge label={t(`restriction.${r.type}`)} />}
         {adv.awaitingClearance && (
           <span className="rounded-full border border-dashed border-status-official px-2.5 py-0.5 text-xs font-medium">
@@ -164,6 +191,9 @@ export function SegmentDetail({ segmentId, onClose, className }: { segmentId?: s
         </Block>
 
         <Block title={t('segment.source')}>
+          <p>
+            {t('segment.source')}: {r ? t('source.official') : adv.evidence.length > 0 ? t('source.community') : t('source.unknown')}
+          </p>
           {adv.latestObservationAt ? (
             <p>
               {t('results.latest')}: <span className="font-medium">{ago(adv.latestObservationAt)}</span>{' '}
@@ -194,7 +224,6 @@ export function SegmentDetail({ segmentId, onClose, className }: { segmentId?: s
         <div className="border-t border-border pt-3.5">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{t('segment.reports')}</h4>
-            <DemoBadge />
           </div>
           <ul className="space-y-2">
             {adv.evidence.slice(0, 3).map((rep) => (
@@ -211,5 +240,248 @@ export function SegmentDetail({ segmentId, onClose, className }: { segmentId?: s
         </Link>
       </Button>
     </section>
+  )
+}
+
+function OverviewSegmentDetail({
+  segment,
+  className,
+}: {
+  segment: NonNullable<ReturnType<typeof segmentById>>
+  className?: string
+}) {
+  const { place, duration } = usePrefs()
+  return (
+    <section className={cn('rounded-lg border border-border bg-card p-3 sm:p-4', className)}>
+      <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
+        <RouteIcon aria-hidden className="size-5 shrink-0 text-blue-on-dark" />
+        Route details
+      </h2>
+      <dl className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
+        <div className="flex items-start gap-2">
+          <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <div>
+            <dt className="text-[11px] text-muted-foreground">Starting point</dt>
+            <dd className="text-xs font-medium">{place(segment.from)}</dd>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <RouteIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <div>
+            <dt className="text-[11px] text-muted-foreground">Total distance</dt>
+            <dd className="text-xs font-medium">{segment.distanceKm} km (illustrative)</dd>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <div>
+            <dt className="text-[11px] text-muted-foreground">End point</dt>
+            <dd className="text-xs font-medium">{place(segment.to)}</dd>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <Clock3 aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <div>
+            <dt className="text-[11px] text-muted-foreground">Estimated time</dt>
+            <dd className="text-xs font-medium">{duration(segment.typicalMinutes)} (illustrative)</dd>
+          </div>
+        </div>
+      </dl>
+    </section>
+  )
+}
+
+export function StatusTimeline({
+  report,
+  level,
+}: {
+  report: CommunityReport
+  level: AdvisoryLevel
+}) {
+  const { ago, stamp } = usePrefs()
+  const statusLabel = report.status === 'under_review'
+    ? 'Under review'
+    : report.status === 'needs_info'
+      ? 'More information requested'
+      : report.status === 'conflicting'
+        ? 'Conflicting information noted'
+        : 'Community review status updated'
+  return (
+    <section className="rounded-xl border border-border bg-card p-4">
+      <h2 className="mb-4 text-sm font-semibold">Status history</h2>
+      <ol className="space-y-4 border-l border-border pl-4">
+        <li className="relative">
+          <span className="absolute top-1 -left-[1.32rem] size-2.5 rounded-full bg-blue-on-dark" />
+          <p className="text-sm font-medium">Reported</p>
+          <p className="text-xs text-muted-foreground">
+            {ago(report.receivedAt)} · {stamp(report.receivedAt)}
+          </p>
+        </li>
+        <li className="relative">
+          <span className="absolute top-1 -left-[1.32rem] size-2.5 rounded-full border-2 border-status-unknown bg-background" />
+          <p className="text-sm font-medium">{statusLabel}</p>
+          <p className="text-xs text-muted-foreground">Community review status</p>
+        </li>
+        <li className="relative">
+          <span className="absolute top-1 -left-[1.32rem] size-2.5 rounded-full border-2 border-status-unknown bg-background" />
+          <p className="text-sm font-medium">AI-assisted indication, not an official closure</p>
+          <ActionBadge level={level} className="mt-2" />
+        </li>
+      </ol>
+    </section>
+  )
+}
+
+function MapSegmentDetail({
+  segment,
+  advisory,
+  corridorName,
+  onClose,
+  className,
+}: {
+  segment: NonNullable<ReturnType<typeof segmentById>>
+  advisory: NonNullable<ReturnType<typeof advisoryFor>>
+  corridorName?: string
+  onClose?: () => void
+  className?: string
+}) {
+  const { t, ago, stamp, place } = usePrefs()
+  const sourceTimestamp = getAdvisorySourceTimestamp(advisory)
+  const condition = advisory.evidence.find((report) => report.kind === 'hazard') ?? advisory.evidence[0]
+  const source = advisory.evidence.length
+    ? t('source.community')
+    : advisory.restriction
+      ? t('source.official')
+      : t('source.unknown')
+
+  return (
+    <section className={cn('rp-map-detail-panel', className)} aria-labelledby="rp-map-segment-title">
+      <div className="rp-map-detail-heading">
+        <div className="rp-map-detail-heading-label">
+          <span aria-hidden className="rp-map-mountain-mark">⌁</span>
+          <span>Selected road segment</span>
+        </div>
+        {onClose && (
+          <button type="button" className="rp-map-detail-close" onClick={onClose} aria-label="Close selected segment">
+            <X aria-hidden />
+          </button>
+        )}
+      </div>
+
+      <div className="rp-map-segment-title-row">
+        <h2 id="rp-map-segment-title">{place(segment.from)} – {place(segment.to)}</h2>
+        <ActionBadge level={advisory.level} size="lg" />
+      </div>
+      <p className="rp-map-segment-meta">
+        <RoadCode>{segment.code}</RoadCode>
+        <span aria-hidden>·</span>
+        <span>{segment.distanceKm} km</span>
+        {corridorName && <><span aria-hidden>·</span><span>{corridorName}</span></>}
+      </p>
+      <FreshnessChip sourceTimestamp={sourceTimestamp} className="rp-map-freshness" />
+
+      <div className="rp-map-condition">
+        <TriangleAlert aria-hidden />
+        <div>
+          <strong>{condition ? t(`hazard.${condition.hazardType}`) : 'No recent observation'}</strong>
+          <p>{condition?.description ?? t('copy.noRecent')}</p>
+        </div>
+      </div>
+
+      <dl className="rp-map-observation-grid">
+        <div>
+          <dt>Observation time</dt>
+          <dd>{advisory.latestObservationAt ? ago(advisory.latestObservationAt) : 'Unknown'}</dd>
+          {advisory.latestObservationAt && <small>{stamp(advisory.latestObservationAt)}</small>}
+        </div>
+        <div>
+          <dt>Source</dt>
+          <dd>{source}</dd>
+          {advisory.evidence.length > 0 && <small>{advisory.evidence.length} reports</small>}
+        </div>
+        <div>
+          <dt>Last updated</dt>
+          <dd>{sourceTimestamp ? ago(sourceTimestamp) : 'Unknown'}</dd>
+          {sourceTimestamp && <small>{stamp(sourceTimestamp)}</small>}
+        </div>
+      </dl>
+
+      <div className="rp-map-official-info">
+        <div className="rp-map-official-heading">
+          <ShieldCheck aria-hidden />
+          <strong>Official restriction</strong>
+        </div>
+        {advisory.restriction ? (
+          <div className="rp-map-restriction">
+            <OfficialBadge label={t(`restriction.${advisory.restriction.type}`)} />
+            <p>{advisory.restriction.title}</p>
+            <small>{advisory.restriction.issuingAuthority}</small>
+          </div>
+        ) : (
+          <p className="rp-map-no-official">No current official information</p>
+        )}
+      </div>
+
+      <Link
+        to="/advisories/$segmentId"
+        params={{ segmentId: segment.id }}
+        className="rp-map-details-link"
+      >
+        View details <ArrowRight aria-hidden />
+      </Link>
+
+      <div className="rp-map-reports">
+        <h3>Available reports ({advisory.evidence.length})</h3>
+        {advisory.evidence.length ? (
+          <ul>
+            {advisory.evidence.slice(0, 3).map((report) => (
+              <MapReportRow key={report.ref} report={report} segmentLevel={advisory.level} />
+            ))}
+          </ul>
+        ) : (
+          <p className="rp-map-no-official">No community reports are available for this segment.</p>
+        )}
+      </div>
+      <p className="rp-map-detail-footer">Prototype visualization · Synthetic data</p>
+    </section>
+  )
+}
+
+function MapReportRow({
+  report,
+  segmentLevel,
+}: {
+  report: CommunityReport
+  segmentLevel: AdvisoryLevel
+}) {
+  const { t, ago, now } = usePrefs()
+  const freshness = getFreshnessState(report.observedAt, now)
+  const level: AdvisoryLevel =
+    freshness === 'stale' || report.kind === 'clear'
+      ? 'unknown'
+      : segmentLevel === 'avoid'
+        ? 'avoid'
+        : 'caution'
+  const title =
+    report.kind === 'hazard'
+      ? `${t(`hazard.${report.hazardType}`)} reported`
+      : 'Community condition report'
+
+  return (
+    <li className="rp-map-report-row">
+      <div className="rp-map-report-icon">
+        {level === 'unknown' ? <CircleQuestionMark aria-hidden /> : <TriangleAlert aria-hidden />}
+      </div>
+      <div className="rp-map-report-copy">
+        <div className="rp-map-report-title">
+          <strong>{title}</strong>
+          <ActionBadge level={level} />
+        </div>
+        <p>{report.description}</p>
+        <small>
+          {t('source.community')} · {t(`source.${report.source}`)} · {ago(report.observedAt)}
+        </small>
+      </div>
+    </li>
   )
 }

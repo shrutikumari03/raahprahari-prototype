@@ -1,9 +1,11 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
 
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { SkipLink } from '@/components/ui/feedback'
 import { NotFoundPage } from '@/components/error-pages'
 import { SiteFooter, SiteHeader } from '@/components/site-chrome'
+import { DemoBadge } from '@/components/advisory'
 import { PreferencesProvider, themeBootScript } from '@/i18n/preferences'
 
 import '../styles.css'
@@ -61,6 +63,14 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { isHome, isTraveller, isMap } = useRouterState({
+    select: (state) => ({
+      isHome: state.location.pathname === '/',
+      isTraveller: state.location.pathname === '/traveller',
+      isMap: state.location.pathname === '/map',
+    }),
+  })
+
   return (
     <html lang="en" className="dark" style={{ colorScheme: 'dark' }} suppressHydrationWarning>
       <head>
@@ -70,19 +80,22 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <PreferencesProvider>
           <TooltipProvider>
-            <a
-              href="#main"
-              className="sr-only z-50 rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-            >
-              Skip to content
-            </a>
+            <SkipLink>Skip to content</SkipLink>
             <div className="flex min-h-screen flex-col">
-              <SiteHeader />
-              <main id="main" className="flex-1">
+              {!isMap && <SiteHeader />}
+              <main
+                id="main"
+                className={isHome || isTraveller || isMap ? 'flex-1' : 'flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0'}
+              >
                 {children}
               </main>
-              <SiteFooter />
+              {!isHome && !isTraveller && !isMap && <SiteFooter />}
             </div>
+            {!isHome && !isTraveller && !isMap && (
+              <div className="pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
+                <DemoBadge />
+              </div>
+            )}
           </TooltipProvider>
         </PreferencesProvider>
         <Toaster />

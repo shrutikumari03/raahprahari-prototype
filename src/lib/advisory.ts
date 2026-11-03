@@ -37,8 +37,36 @@ export interface SegmentAdvisory {
   reviewedCount: number
 }
 
+export function getAdvisorySourceTimestamp(
+  advisory: Pick<SegmentAdvisory, 'latestObservationAt' | 'restriction'>,
+): number | undefined {
+  const timestamps = [
+    advisory.latestObservationAt,
+    advisory.restriction?.publishedAt,
+  ].filter((timestamp): timestamp is number => timestamp !== undefined)
+  return timestamps.length ? Math.max(...timestamps) : undefined
+}
+
 export const HAZARD_FRESH_MS = 24 * 3600_000
 export const CLEAR_FRESH_MS = 12 * 3600_000
+
+export type FreshnessState = 'fresh' | 'stale' | 'unknown'
+
+export function getFreshnessState(
+  sourceTimestamp: number | undefined,
+  now: number,
+): FreshnessState {
+  if (
+    sourceTimestamp === undefined ||
+    !Number.isFinite(sourceTimestamp) ||
+    !Number.isFinite(now) ||
+    sourceTimestamp <= 0 ||
+    sourceTimestamp > now
+  ) {
+    return 'unknown'
+  }
+  return now - sourceTimestamp <= HAZARD_FRESH_MS ? 'fresh' : 'stale'
+}
 
 export const LEVEL_RANK: Record<AdvisoryLevel, number> = {
   clear: 0,

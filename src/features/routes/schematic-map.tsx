@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ShieldCheck, TriangleAlert } from 'lucide-react'
+import { CircleQuestionMark, ShieldCheck, TriangleAlert } from 'lucide-react'
 import { PLACES, QUICK_PICKS, SEGMENTS, placeById } from '@/data/fixtures'
 import { LEVEL_META } from '@/components/advisory'
 import { getAdvisories } from '@/lib/data'
@@ -23,18 +23,22 @@ const unproject = (x: number, y: number) => ({
 export function SchematicMap({
   highlight,
   endpoints,
+  labelPlaces,
   selectedSegmentId,
   onSelectSegment,
   onPickPoint,
   pin,
+  terrain = false,
   className,
 }: {
   highlight?: string[]
   endpoints?: string[]
+  labelPlaces?: string[]
   selectedSegmentId?: string
   onSelectSegment?: (id: string) => void
   onPickPoint?: (lat: number, lon: number) => void
   pin?: { lat: number; lon: number }
+  terrain?: boolean
   className?: string
 }) {
   const { t, place } = usePrefs()
@@ -42,7 +46,7 @@ export function SchematicMap({
   const highlightSet = useMemo(() => new Set(highlight ?? []), [highlight])
   const hasHighlight = highlightSet.size > 0
 
-  const labelIds = new Set([...QUICK_PICKS, ...(endpoints ?? [])])
+  const labelIds = new Set(labelPlaces ?? [...QUICK_PICKS, ...(endpoints ?? [])])
   const stopIds = new Set(SEGMENTS.flatMap((s) => [s.from, s.to]))
 
   const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -59,10 +63,17 @@ export function SchematicMap({
   }
 
   return (
-    <div className={cn('relative overflow-hidden rounded-2xl border border-border bg-card rp-grid-bg', className)}>
+    <div
+      className={cn(
+        terrain
+          ? 'relative h-full w-full overflow-hidden bg-transparent'
+          : 'relative overflow-hidden rounded-2xl border border-border bg-card rp-grid-bg',
+        className,
+      )}
+    >
       <svg
         viewBox={`0 0 ${W} ${H}`}
-        className={cn('block h-auto w-full', onPickPoint && 'cursor-crosshair')}
+        className={cn(terrain ? 'block h-full w-full' : 'block h-auto w-full', onPickPoint && 'cursor-crosshair')}
         role="group"
         aria-label={t('map.schematic')}
         onClick={handleSvgClick}
@@ -122,7 +133,7 @@ export function SchematicMap({
                 y1={pa.y}
                 x2={pb.x}
                 y2={pb.y}
-                stroke={LEVEL_META[level].color}
+                stroke={terrain ? '#149bff' : LEVEL_META[level].color}
                 strokeWidth={inRoute || selected ? 11 : 7}
                 strokeLinecap="round"
                 strokeDasharray={dashed ? '4 14' : undefined}
@@ -142,19 +153,26 @@ export function SchematicMap({
           const mx = (pa.x + pb.x) / 2
           const my = (pa.y + pb.y) / 2
           const hazards = adv.evidence.filter((r) => r.kind === 'hazard').length
+          const unknown = adv.level === 'unknown'
           const dim = hasHighlight && !highlightSet.has(s.id)
           return (
             <g key={`m-${s.id}`} pointerEvents="none" opacity={dim ? 0.3 : 1}>
               {hazards > 0 && (
-                <g transform={`translate(${mx + (adv.restriction ? 20 : 0)}, ${my - 4})`}>
+                <g transform={`translate(${mx + (adv.restriction ? 22 : unknown ? 16 : 0)}, ${my - 4})`}>
                   <circle r={17} fill="var(--card)" stroke={LEVEL_META[adv.level].color} strokeWidth={3} />
                   <TriangleAlert x={-10} y={-11} width={20} height={20} color="var(--foreground)" />
                 </g>
               )}
               {adv.restriction && (
-                <g transform={`translate(${mx - (hazards ? 20 : 0)}, ${my - 4})`}>
-                  <circle r={17} fill="var(--action-blue)" stroke="var(--card)" strokeWidth={3} />
+                <g transform={`translate(${mx - (hazards ? 22 : unknown ? 16 : 0)}, ${my - 4})`}>
+                  <circle r={17} fill="var(--status-official)" stroke="var(--card)" strokeWidth={3} />
                   <ShieldCheck x={-10} y={-10} width={20} height={20} color="#ffffff" />
+                </g>
+              )}
+              {unknown && (
+                <g transform={`translate(${mx - (hazards || adv.restriction ? 16 : 0)}, ${my - 4})`}>
+                  <circle r={17} fill="var(--card)" stroke={LEVEL_META.unknown.color} strokeWidth={3} />
+                  <CircleQuestionMark x={-10} y={-10} width={20} height={20} color={LEVEL_META.unknown.color} />
                 </g>
               )}
             </g>
@@ -235,8 +253,8 @@ export function MapLegend({ className }: { className?: string }) {
           {t('map.hazard')}
         </li>
         <li className="flex items-center gap-2">
-          <span aria-hidden className="inline-flex size-5 items-center justify-center rounded-full bg-action-blue text-white">
-            <ShieldCheck className="size-3" />
+          <span aria-hidden className="inline-flex size-5 items-center justify-center rounded-full bg-status-official">
+            <ShieldCheck className="size-3 text-white" />
           </span>
           {t('map.restriction')}
         </li>
@@ -245,3 +263,5 @@ export function MapLegend({ className }: { className?: string }) {
     </div>
   )
 }
+
+export const SegmentMap = SchematicMap

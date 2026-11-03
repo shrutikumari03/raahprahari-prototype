@@ -4,9 +4,12 @@ import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 
-const config = defineConfig({
+export default defineConfig(({ command }) => ({
   resolve: { tsconfigPaths: true },
-  plugins: [tailwindcss(), netlify(), tanstackStart(), viteReact()],
-})
-
-export default config
+  plugins: [
+    tailwindcss(),
+    command === 'build' ? netlify() : null,
+    tanstackStart(),
+    viteReact(),
+  ],
+}))

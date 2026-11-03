@@ -1,80 +1,109 @@
-import { Link } from '@tanstack/react-router'
-import { ArrowRight, Clock3, ShieldCheck, TriangleAlert, UsersRound } from 'lucide-react'
-import { ActionBadge, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
-import { usePrefs } from '@/i18n/preferences'
-import { getAdvisorySourceTimestamp } from '@/lib/advisory'
-import type { CommunityReport, Segment } from '@/lib/types'
-import { advisoryFor } from '@/lib/data'
-import { cn } from '@/lib/utils'
+import { Link } from "@tanstack/react-router";
+import {
+  ArrowRight,
+  Clock3,
+  ShieldCheck,
+  TriangleAlert,
+  UsersRound,
+} from "lucide-react";
+import {
+  ActionBadge,
+  FreshnessChip,
+  OfficialBadge,
+  RoadCode,
+} from "@/components/advisory";
+import { usePrefs } from "@/i18n/preferences";
+import { getAdvisorySourceTimestamp } from "@/lib/advisory";
+import type { CommunityReport, Segment } from "@/lib/types";
+import { advisoryFor } from "@/lib/data";
+import { cn } from "@/lib/utils";
 
 export function AdvisoryCard({
   segment,
   className,
-  variant = 'default',
+  variant = "default",
   communityReport,
+  showRestrictionDetail = false,
 }: {
-  segment: Segment
-  className?: string
-  variant?: 'default' | 'home-featured' | 'community-report'
-  communityReport?: CommunityReport
+  segment: Segment;
+  className?: string;
+  variant?: "default" | "home-featured" | "community-report";
+  communityReport?: CommunityReport;
+  showRestrictionDetail?: boolean;
 }) {
-  const { t, place, ago } = usePrefs()
-  const advisory = advisoryFor(segment.id)
+  const { t, place, ago } = usePrefs();
+  const advisory = advisoryFor(segment.id);
   if (!advisory) {
-    throw new Error(`Missing advisory for segment "${segment.id}"`)
+    throw new Error(`Missing advisory for segment "${segment.id}"`);
   }
-  const report = advisory.evidence[0]
+  const report = advisory.evidence[0];
   const sources = [
-    ...(advisory.evidence.length > 0 ? [t('source.community')] : []),
-    ...(advisory.restriction ? [t('source.official')] : []),
-  ]
+    ...(advisory.evidence.length > 0 ? [t("source.community")] : []),
+    ...(advisory.restriction ? [t("source.official")] : []),
+  ];
 
-  if (variant === 'community-report') {
+  if (variant === "community-report") {
     if (!communityReport) {
-      throw new Error('A community report is required for the community-report card')
+      throw new Error(
+        "A community report is required for the community-report card",
+      );
     }
-    const level = communityReport.severity === 'high' ? 'avoid' : 'caution'
+    const level = communityReport.severity === "high" ? "avoid" : "caution";
     return (
-      <article className={cn('rounded-lg border border-border bg-card transition-colors hover:border-blue-on-dark/60', className)}>
+      <article
+        className={cn(
+          "rounded-lg border border-border bg-card transition-colors hover:border-blue-on-dark/60",
+          className,
+        )}
+      >
         <Link
           to="/advisories/$segmentId"
           params={{ segmentId: communityReport.ref }}
           className="block rounded-[inherit] p-4 focus-visible:outline-offset-[-3px]"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-semibold">{t(`hazard.${communityReport.hazardType}`)}</h2>
+            <h2 className="font-semibold">
+              {t(`hazard.${communityReport.hazardType}`)}
+            </h2>
             <ActionBadge level={level} />
           </div>
-          <p className="mt-1.5 text-sm text-muted-foreground">{communityReport.description}</p>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            {communityReport.description}
+          </p>
           <p className="mt-3 text-xs text-muted-foreground">
-            {segment.code} · {communityReport.landmark} · Observed {ago(communityReport.observedAt)}
+            {segment.code} · {communityReport.landmark} · Observed{" "}
+            {ago(communityReport.observedAt)}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <FreshnessChip sourceTimestamp={communityReport.observedAt} />
-            <span className="text-xs text-blue-on-dark">Community report, not an official closure</span>
+            <span className="text-xs text-blue-on-dark">
+              Community report, not an official closure
+            </span>
           </div>
         </Link>
       </article>
-    )
+    );
   }
 
-  if (variant === 'home-featured') {
-    const sourceTimestamp = getAdvisorySourceTimestamp(advisory)
+  if (variant === "home-featured") {
+    const sourceTimestamp = getAdvisorySourceTimestamp(advisory);
     if (sourceTimestamp === undefined) {
-      throw new Error(`Missing source timestamp for sample segment "${segment.id}"`)
+      throw new Error(
+        `Missing source timestamp for sample segment "${segment.id}"`,
+      );
     }
 
-    const lastUpdated = new Intl.DateTimeFormat('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    const lastUpdated = new Intl.DateTimeFormat("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
       hour12: true,
-    }).format(sourceTimestamp)
+    }).format(sourceTimestamp);
 
     return (
-      <article className={cn('home-advisory', className)}>
+      <article className={cn("home-advisory", className)}>
         <Link
           to="/advisories/$segmentId"
           params={{ segmentId: segment.id }}
@@ -85,10 +114,16 @@ export function AdvisoryCard({
             ROAD ADVISORY
           </p>
           <div className="home-advisory-status">
-            <ActionBadge level={advisory.level} size="lg" className="home-avoid-badge" />
+            <ActionBadge
+              level={advisory.level}
+              size="lg"
+              className="home-avoid-badge"
+            />
             <RoadCode className="home-advisory-road">B-12 · Km 42–48</RoadCode>
           </div>
-          <p className="home-advisory-description">Reported debris on the road</p>
+          <p className="home-advisory-description">
+            Reported debris on the road
+          </p>
           <dl className="home-advisory-details">
             <div>
               <ShieldCheck aria-hidden />
@@ -106,14 +141,21 @@ export function AdvisoryCard({
               <dd>{lastUpdated}</dd>
             </div>
           </dl>
-          <p className="home-advisory-footer">Illustrative synthetic information</p>
+          <p className="home-advisory-footer">
+            Illustrative synthetic information
+          </p>
         </Link>
       </article>
-    )
+    );
   }
 
   return (
-    <article className={cn('rounded-xl border border-border bg-card transition-colors hover:border-blue-on-dark/60', className)}>
+    <article
+      className={cn(
+        "rounded-xl border border-border bg-card transition-colors hover:border-blue-on-dark/60",
+        className,
+      )}
+    >
       <Link
         to="/advisories/$segmentId"
         params={{ segmentId: segment.id }}
@@ -121,7 +163,9 @@ export function AdvisoryCard({
       >
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <RoadCode>{segment.code} · km {segment.kmStart}–{segment.kmEnd}</RoadCode>
+            <RoadCode>
+              {segment.code} · km {segment.kmStart}–{segment.kmEnd}
+            </RoadCode>
             <h2 className="mt-1 font-semibold">
               {place(segment.from)} – {place(segment.to)}
             </h2>
@@ -129,19 +173,29 @@ export function AdvisoryCard({
           <ActionBadge level={advisory.level} />
         </div>
         <p className="mt-2 text-sm text-muted-foreground">
-          {report?.description ?? t('copy.noRecent')}
+          {report?.description ?? t("copy.noRecent")}
         </p>
+        {showRestrictionDetail && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">
+              {t("map.restriction")}:
+            </span>{" "}
+            {advisory.restriction?.title ?? "No current official information"}
+          </p>
+        )}
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <FreshnessChip sourceTimestamp={getAdvisorySourceTimestamp(advisory)} />
+          <FreshnessChip
+            sourceTimestamp={getAdvisorySourceTimestamp(advisory)}
+          />
           {advisory.restriction && (
-            <OfficialBadge label={t('map.restriction')} />
+            <OfficialBadge label={t("map.restriction")} />
           )}
           <span className="text-xs text-muted-foreground">
-            {sources.length ? sources.join(' · ') : t('source.unknown')}
+            {sources.length ? sources.join(" · ") : t("source.unknown")}
           </span>
           <ArrowRight aria-hidden className="ml-auto size-4 text-link" />
         </div>
       </Link>
     </article>
-  )
+  );
 }

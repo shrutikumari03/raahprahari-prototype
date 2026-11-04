@@ -336,24 +336,68 @@ export const en = {
   'traveller.title': 'Search road conditions',
   'traveller.body':
     'Choose a route to review available observations, evidence freshness, and official restrictions. Missing information is shown as unknown.',
-  'help.title': 'Help & Safety Centre',
-  'help.subtitle': 'Travel informed. Understand the conditions.',
+  'help.eyebrow': 'HELP & SAFETY CENTRE',
+  'help.title': 'Travel informed. Understand the conditions.',
+  'help.subtitle':
+    'Learn how to interpret road reports and use RaahPrahari responsibly.',
   'help.body':
     'Learn how to interpret road reports and use RaahPrahari responsibly.',
-  'help.search': 'Search help topics',
+  'help.search': 'Search help topics...',
+  'help.topics': 'Help topics',
+  'help.empty': 'No topics found',
+  'help.planned': 'Planned',
+  'help.backHome': 'Back to home',
+  'help.backTopics': 'Back to help topics',
   'help.report': 'How to report a hazard',
-  'help.reportBody': 'Report only what you observed. A community submission is evidence for review, not an official restriction.',
+  'help.reportBody': 'Learn the steps to submit a hazard report with accurate location and evidence.',
   'help.status': 'Understanding road status',
-  'help.statusBody': 'Action badges summarize available evidence. Unknown means current information is not available.',
+  'help.statusBody': 'Know what different road status indicators mean and how to interpret them.',
   'help.freshness': 'Checking report freshness',
-  'help.freshnessBody': 'Freshness is calculated from a source timestamp. Missing or future timestamps are shown as unknown.',
-  'help.map': 'Using the map',
-  'help.mapBody': 'Triangles mark reported hazards, shields mark official restrictions, and question marks mark unknown information.',
+  'help.freshnessBody': 'Understand how recent the information is and why it matters.',
+  'help.map': 'Using the map offline',
+  'help.mapBody': 'Learn about accessing maps and key information without an internet connection.',
   'help.privacy': 'Location and photo privacy',
-  'help.privacyBody': 'This prototype uses synthetic data and does not send reports to a live service.',
+  'help.privacyBody': 'Understand how your location and photos are used and protected.',
   'help.restrictions': 'Following official restrictions',
-  'help.restrictionsBody': 'Official restrictions are shown separately from community reports. Follow instructions from the issuing authority.',
+  'help.restrictionsBody': 'Learn how to find and respect official road restrictions.',
   'help.reminder': 'A missing report does not establish road conditions.',
+  'help.reminderLabel': 'SAFETY REMINDER',
+  'help.reminderTitle': 'No current report does not mean a road is safe.',
+  'help.reminderBody':
+    'Road conditions can change quickly in mountainous regions. Always check the latest information, follow official restrictions, and use multiple sources before you travel.',
+  'help.reminderConditions': 'Check conditions',
+  'help.reminderUpdates': 'Look for official updates',
+  'help.reminderResponsibly': 'Travel responsibly',
+  'help.reportDetailTitle': 'Share observations, not conclusions.',
+  'help.reportDetailBody':
+    'Describe what you personally observed and include the location and observation time when known. Only gather photos from a place away from traffic; do not stop in a dangerous area to collect evidence.',
+  'help.reportDetailExtra':
+    'A community report is an observation for context, not an official restriction. This prototype uses synthetic sample data and does not send submissions to a live service.',
+  'help.statusDetailTitle': 'What the road status labels mean',
+  'help.statusDetailBody':
+    'CAUTION can reflect a recent hazard report or conflicting observations. For community reports, AVOID requires multiple recent high-severity reports, including at least one reviewed report. UNKNOWN means current information is unavailable or only older information is present.',
+  'help.statusDetailExtra':
+    'An official restriction is displayed separately and can also affect the overall advisory. A report, calculated score, or AI output cannot create or remove an official closure.',
+  'help.freshnessDetailTitle': 'Freshness follows the source timestamp',
+  'help.freshnessDetailBody':
+    'The displayed age is calculated from the timestamp supplied by the source. Missing, invalid, or future timestamps cannot establish freshness. A recent timestamp describes when information was recorded; it does not guarantee that conditions have not changed since then.',
+  'help.freshnessDetailExtra':
+    'Check the source and timestamp together, and seek current official updates before travelling.',
+  'help.mapDetailTitle': 'Offline map access is planned',
+  'help.mapDetailBody':
+    'Offline map access and saved map content are not implemented in this prototype. The map may not be available without an internet connection.',
+  'help.mapDetailExtra':
+    'Planned means not available today. Do not rely on this prototype for offline navigation.',
+  'help.privacyDetailTitle': 'Share location and photos thoughtfully',
+  'help.privacyDetailBody':
+    'This prototype uses synthetic sample reports and does not send submissions to a live reporting service. If you choose to share a location or photo in another service, check how that service uses and stores it.',
+  'help.privacyDetailExtra':
+    'When collecting evidence, do not stop in a dangerous place or use a phone while driving.',
+  'help.restrictionsDetailTitle': 'Official restrictions are separate from reports',
+  'help.restrictionsDetailBody':
+    'RaahPrahari shows official road restrictions separately from community observations. Follow the issuing authority’s current instructions; community reports are not a substitute for them.',
+  'help.restrictionsDetailExtra':
+    'A report, calculated score, or AI output cannot create or remove an official closure. Only an authorised official update can change that restriction.',
   'contact.title': 'Contact',
   'contact.body':
     'Contact details are not configured in this synthetic prototype.',
@@ -696,24 +740,68 @@ export const hi: Record<TranslationKey, string> = {
   'traveller.title': 'सड़क की स्थिति खोजें',
   'traveller.body':
     'उपलब्ध अवलोकन, साक्ष्य की ताज़गी और आधिकारिक प्रतिबंध देखने के लिए मार्ग चुनें। जानकारी न होने पर अज्ञात दिखाया जाता है।',
-  'help.title': 'मदद और यात्रा सुरक्षा केंद्र',
-  'help.subtitle': 'जानकारी लेकर यात्रा करें। परिस्थितियों को समझें।',
+  'help.eyebrow': 'मदद और सुरक्षा केंद्र',
+  'help.title': 'जानकारी लेकर यात्रा करें। परिस्थितियों को समझें।',
+  'help.subtitle':
+    'जानें कि सड़क रिपोर्ट को कैसे समझें और RaahPrahari का ज़िम्मेदारी से उपयोग कैसे करें।',
   'help.body':
     'सड़क रिपोर्ट समझना और राहप्रहरी का ज़िम्मेदारी से उपयोग करना सीखें।',
-  'help.search': 'मदद के विषय खोजें',
+  'help.search': 'मदद के विषय खोजें...',
+  'help.topics': 'मदद के विषय',
+  'help.empty': 'कोई विषय नहीं मिला',
+  'help.planned': 'नियोजित',
+  'help.backHome': 'होम पर जाएँ',
+  'help.backTopics': 'मदद के विषयों पर लौटें',
   'help.report': 'ख़तरे की रिपोर्ट कैसे करें',
-  'help.reportBody': 'केवल वही बताएँ जो आपने देखा। समुदाय की रिपोर्ट समीक्षा के लिए साक्ष्य है, आधिकारिक प्रतिबंध नहीं।',
+  'help.reportBody': 'सही स्थान और साक्ष्य के साथ ख़तरे की रिपोर्ट भेजने के चरण जानें।',
   'help.status': 'सड़क की स्थिति समझना',
-  'help.statusBody': 'कार्रवाई बैज उपलब्ध साक्ष्य का सार बताते हैं। अज्ञात का अर्थ है कि वर्तमान जानकारी उपलब्ध नहीं है।',
+  'help.statusBody': 'सड़क की स्थिति के संकेतकों का अर्थ और उनकी व्याख्या जानें।',
   'help.freshness': 'रिपोर्ट की ताज़गी जाँचना',
-  'help.freshnessBody': 'ताज़गी स्रोत के समय से निकाली जाती है। समय न होने या भविष्य का समय होने पर स्थिति अज्ञात रहती है।',
-  'help.map': 'मानचित्र का उपयोग',
-  'help.mapBody': 'त्रिकोण रिपोर्ट किए गए ख़तरे, शील्ड आधिकारिक प्रतिबंध और प्रश्नचिह्न अज्ञात जानकारी दिखाते हैं।',
+  'help.freshnessBody': 'जानें कि जानकारी कितनी नई है और यह क्यों मायने रखता है।',
+  'help.map': 'ऑफ़लाइन मानचित्र का उपयोग',
+  'help.mapBody': 'इंटरनेट के बिना मानचित्र और ज़रूरी जानकारी पाने की योजना के बारे में जानें।',
   'help.privacy': 'स्थान और फ़ोटो की गोपनीयता',
-  'help.privacyBody': 'इस प्रोटोटाइप में कृत्रिम डेटा है; रिपोर्ट किसी लाइव सेवा को नहीं भेजी जाती।',
+  'help.privacyBody': 'जानें कि आपका स्थान और फ़ोटो कैसे उपयोग और सुरक्षित रखे जाते हैं।',
   'help.restrictions': 'आधिकारिक प्रतिबंधों का पालन',
-  'help.restrictionsBody': 'आधिकारिक प्रतिबंध समुदाय की रिपोर्टों से अलग दिखाए जाते हैं। जारीकर्ता प्राधिकरण के निर्देश मानें।',
+  'help.restrictionsBody': 'आधिकारिक सड़क प्रतिबंधों को खोजने और उनका पालन करने का तरीका जानें।',
   'help.reminder': 'रिपोर्ट न होना सड़क की स्थिति का प्रमाण नहीं है।',
+  'help.reminderLabel': 'यात्रा सुरक्षा',
+  'help.reminderTitle': 'नई रिपोर्ट न होने का अर्थ यह नहीं कि सड़क सुरक्षित है।',
+  'help.reminderBody':
+    'पहाड़ी क्षेत्रों में सड़क की स्थिति तेज़ी से बदल सकती है। यात्रा से पहले हमेशा नवीनतम जानकारी देखें, आधिकारिक प्रतिबंधों का पालन करें और कई स्रोतों का उपयोग करें।',
+  'help.reminderConditions': 'स्थिति जाँचें',
+  'help.reminderUpdates': 'आधिकारिक अपडेट देखें',
+  'help.reminderResponsibly': 'ज़िम्मेदारी से यात्रा करें',
+  'help.reportDetailTitle': 'निष्कर्ष नहीं, अपना देखा हुआ बताएँ।',
+  'help.reportDetailBody':
+    'जो आपने स्वयं देखा उसका वर्णन करें और उपलब्ध होने पर स्थान तथा देखने का समय दें। तस्वीरें केवल यातायात से दूर स्थान से लें; साक्ष्य जुटाने के लिए ख़तरनाक जगह पर न रुकें।',
+  'help.reportDetailExtra':
+    'समुदाय की रिपोर्ट संदर्भ के लिए एक अवलोकन है, आधिकारिक प्रतिबंध नहीं। इस प्रोटोटाइप में कृत्रिम नमूना डेटा है और रिपोर्ट किसी लाइव सेवा को नहीं भेजी जाती।',
+  'help.statusDetailTitle': 'सड़क स्थिति के लेबल का अर्थ',
+  'help.statusDetailBody':
+    'CAUTION हाल की ख़तरे की रिपोर्ट या परस्पर विरोधी अवलोकनों को दिखा सकता है। समुदाय की रिपोर्टों के लिए AVOID का अर्थ है कई हालिया गंभीर रिपोर्टें, जिनमें कम-से-कम एक की समीक्षा हुई हो। UNKNOWN का अर्थ है वर्तमान जानकारी उपलब्ध नहीं है या केवल पुरानी जानकारी मौजूद है।',
+  'help.statusDetailExtra':
+    'आधिकारिक प्रतिबंध अलग दिखाया जाता है और समग्र सलाह को प्रभावित कर सकता है। कोई रिपोर्ट, गणना किया गया स्कोर या AI आउटपुट आधिकारिक सड़क बंदी बना या हटा नहीं सकता।',
+  'help.freshnessDetailTitle': 'ताज़गी स्रोत के समय पर निर्भर करती है',
+  'help.freshnessDetailBody':
+    'दिखाई गई जानकारी की आयु स्रोत द्वारा दिए गए समय से निकाली जाती है। समय न हो, अमान्य हो या भविष्य का हो तो ताज़गी तय नहीं की जा सकती। हाल का समय बताता है कि जानकारी कब दर्ज हुई थी; यह गारंटी नहीं कि उसके बाद स्थिति नहीं बदली।',
+  'help.freshnessDetailExtra':
+    'यात्रा से पहले स्रोत और समय साथ देखें और नवीनतम आधिकारिक अपडेट खोजें।',
+  'help.mapDetailTitle': 'ऑफ़लाइन मानचित्र की सुविधा नियोजित है',
+  'help.mapDetailBody':
+    'ऑफ़लाइन मानचित्र और सहेजी गई मानचित्र सामग्री इस प्रोटोटाइप में लागू नहीं हैं। इंटरनेट कनेक्शन के बिना मानचित्र उपलब्ध नहीं हो सकता।',
+  'help.mapDetailExtra':
+    'नियोजित का अर्थ है कि यह सुविधा अभी उपलब्ध नहीं है। ऑफ़लाइन रास्ता खोजने के लिए इस प्रोटोटाइप पर निर्भर न रहें।',
+  'help.privacyDetailTitle': 'स्थान और फ़ोटो सोच-समझकर साझा करें',
+  'help.privacyDetailBody':
+    'इस प्रोटोटाइप में कृत्रिम नमूना रिपोर्टें हैं और रिपोर्टें किसी लाइव सेवा को नहीं भेजी जातीं। किसी अन्य सेवा में स्थान या फ़ोटो साझा करने से पहले देखें कि वह सेवा उनका उपयोग और भंडारण कैसे करती है।',
+  'help.privacyDetailExtra':
+    'साक्ष्य जुटाते समय ख़तरनाक जगह पर न रुकें और वाहन चलाते समय फ़ोन का उपयोग न करें।',
+  'help.restrictionsDetailTitle': 'आधिकारिक प्रतिबंध रिपोर्टों से अलग हैं',
+  'help.restrictionsDetailBody':
+    'RaahPrahari आधिकारिक सड़क प्रतिबंधों को समुदाय के अवलोकनों से अलग दिखाता है। जारीकर्ता प्राधिकरण के वर्तमान निर्देशों का पालन करें; समुदाय की रिपोर्ट उनका विकल्प नहीं है।',
+  'help.restrictionsDetailExtra':
+    'कोई रिपोर्ट, गणना किया गया स्कोर या AI आउटपुट आधिकारिक सड़क बंदी बना या हटा नहीं सकता। प्रतिबंध केवल अधिकृत आधिकारिक अपडेट से बदल सकता है।',
   'contact.title': 'संपर्क',
   'contact.body': 'इस कृत्रिम प्रोटोटाइप में संपर्क विवरण उपलब्ध नहीं हैं।',
 }

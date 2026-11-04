@@ -19,6 +19,7 @@ import { Route as ReportRouteImport } from './routes/report'
 import { Route as TravellerRouteImport } from './routes/traveller'
 import { Route as AdvisoriesIndexRouteImport } from './routes/advisories.index'
 import { Route as AdvisoriesSegmentIdRouteImport } from './routes/advisories.$segmentId'
+import { Route as HelpTopicRouteImport } from './routes/help.$topic'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,17 +71,23 @@ const AdvisoriesSegmentIdRoute = AdvisoriesSegmentIdRouteImport.update({
   path: '/advisories/$segmentId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpTopicRoute = HelpTopicRouteImport.update({
+  id: '/$topic',
+  path: '/$topic',
+  getParentRoute: () => HelpRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/check': typeof CheckRoute
   '/contact': typeof ContactRoute
-  '/help': typeof HelpRoute
+  '/help': typeof HelpRouteWithChildren
   '/map': typeof MapRoute
   '/report': typeof ReportRoute
   '/traveller': typeof TravellerRoute
   '/advisories/$segmentId': typeof AdvisoriesSegmentIdRoute
+  '/help/$topic': typeof HelpTopicRoute
   '/advisories/': typeof AdvisoriesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -88,11 +95,12 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/check': typeof CheckRoute
   '/contact': typeof ContactRoute
-  '/help': typeof HelpRoute
+  '/help': typeof HelpRouteWithChildren
   '/map': typeof MapRoute
   '/report': typeof ReportRoute
   '/traveller': typeof TravellerRoute
   '/advisories/$segmentId': typeof AdvisoriesSegmentIdRoute
+  '/help/$topic': typeof HelpTopicRoute
   '/advisories': typeof AdvisoriesIndexRoute
 }
 export interface FileRoutesById {
@@ -101,11 +109,12 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/check': typeof CheckRoute
   '/contact': typeof ContactRoute
-  '/help': typeof HelpRoute
+  '/help': typeof HelpRouteWithChildren
   '/map': typeof MapRoute
   '/report': typeof ReportRoute
   '/traveller': typeof TravellerRoute
   '/advisories/$segmentId': typeof AdvisoriesSegmentIdRoute
+  '/help/$topic': typeof HelpTopicRoute
   '/advisories/': typeof AdvisoriesIndexRoute
 }
 export interface FileRouteTypes {
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | '/report'
     | '/traveller'
     | '/advisories/$segmentId'
+    | '/help/$topic'
     | '/advisories/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/report'
     | '/traveller'
     | '/advisories/$segmentId'
+    | '/help/$topic'
     | '/advisories'
   id:
     | '__root__'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/report'
     | '/traveller'
     | '/advisories/$segmentId'
+    | '/help/$topic'
     | '/advisories/'
   fileRoutesById: FileRoutesById
 }
@@ -152,7 +164,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   CheckRoute: typeof CheckRoute
   ContactRoute: typeof ContactRoute
-  HelpRoute: typeof HelpRoute
+  HelpRoute: typeof HelpRouteWithChildren
   MapRoute: typeof MapRoute
   ReportRoute: typeof ReportRoute
   TravellerRoute: typeof TravellerRoute
@@ -232,15 +244,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdvisoriesSegmentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/help/$topic': {
+      id: '/help/$topic'
+      path: '/$topic'
+      fullPath: '/help/$topic'
+      preLoaderRoute: typeof HelpTopicRouteImport
+      parentRoute: typeof HelpRoute
+    }
   }
 }
+
+interface HelpRouteChildren {
+  HelpTopicRoute: typeof HelpTopicRoute
+}
+
+const HelpRouteChildren: HelpRouteChildren = {
+  HelpTopicRoute: HelpTopicRoute,
+}
+
+const HelpRouteWithChildren = HelpRoute._addFileChildren(HelpRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   CheckRoute: CheckRoute,
   ContactRoute: ContactRoute,
-  HelpRoute: HelpRoute,
+  HelpRoute: HelpRouteWithChildren,
   MapRoute: MapRoute,
   ReportRoute: ReportRoute,
   TravellerRoute: TravellerRoute,

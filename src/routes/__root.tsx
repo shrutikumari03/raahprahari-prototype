@@ -63,11 +63,12 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { isHome, isTraveller, isMap } = useRouterState({
+  const { isHome, isTraveller, isMap, isHelp } = useRouterState({
     select: (state) => ({
       isHome: state.location.pathname === '/',
       isTraveller: state.location.pathname === '/traveller',
       isMap: state.location.pathname === '/map',
+      isHelp: state.location.pathname === '/help',
     }),
   })
 
@@ -89,9 +90,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               >
                 {children}
               </main>
-              {!isHome && !isTraveller && !isMap && <SiteFooter />}
+              {!isHome && !isTraveller && !isMap && !isHelp && <SiteFooter />}
             </div>
-            {!isHome && !isTraveller && !isMap && (
+            {!isHome && !isTraveller && !isMap && !isHelp && (
               <div className="pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
                 <DemoBadge />
               </div>

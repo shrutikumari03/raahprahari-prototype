@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { describe, expect, it, vi } from "vitest";
 import { NotFoundPage, RouteErrorPage } from "./error-pages";
+import { PreferencesProvider } from "@/i18n/preferences";
 
 describe("error pages", () => {
   it("shows the themed not-found page and recovery routes", async () => {
@@ -24,7 +25,11 @@ describe("error pages", () => {
       history: createMemoryHistory({ initialEntries: ["/missing"] }),
     });
     await router.load();
-    render(<RouterProvider router={router} />);
+    render(
+      <PreferencesProvider>
+        <RouterProvider router={router} />
+      </PreferencesProvider>,
+    );
 
     expect(
       await screen.findByRole("heading", {

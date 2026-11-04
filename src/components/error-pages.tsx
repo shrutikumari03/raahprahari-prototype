@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { PageBanner } from "@/components/page-banner";
 import { Button } from "@/components/ui/button";
+import { DemoBadge } from "@/components/advisory";
 
 export function NotFoundPage() {
   useEffect(() => {
@@ -14,7 +15,7 @@ export function NotFoundPage() {
   }, []);
 
   return (
-    <div className="rp-info-page">
+    <div className="rp-info-page flex min-h-full flex-col">
       <PageBanner
         eyebrow="PAGE NOT FOUND"
         title="This page could not be found"
@@ -38,6 +39,7 @@ export function NotFoundPage() {
             </Link>
           </Button>
         </div>
+        <DemoBadge className="mt-6" />
       </div>
     </div>
   );

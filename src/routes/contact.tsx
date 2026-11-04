@@ -11,9 +11,19 @@ export const Route = createFileRoute("/contact")({
 type ContactField = "name" | "email" | "message";
 type ContactErrors = Partial<Record<ContactField, string>>;
 
-function ContactPage() {
+export function ContactPage() {
   const [errors, setErrors] = useState<ContactErrors>({});
   const [notice, setNotice] = useState(false);
+
+  function validateField(field: ContactField, value: string) {
+    const trimmedValue = value.trim();
+    if (field === "name" && !trimmedValue) return "Enter your name.";
+    if (field === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedValue)) {
+      return "Enter a valid email address.";
+    }
+    if (field === "message" && !trimmedValue) return "Enter a message.";
+    return undefined;
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -23,16 +33,27 @@ function ContactPage() {
     const message = String(formData.get("message") ?? "").trim();
     const nextErrors: ContactErrors = {};
 
-    if (!name) nextErrors.name = "Enter your name.";
-    if (!email) {
-      nextErrors.email = "Enter your email address.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      nextErrors.email = "Enter a valid email address.";
-    }
-    if (!message) nextErrors.message = "Enter a message.";
+    const nameError = validateField("name", name);
+    const emailError = validateField("email", email);
+    const messageError = validateField("message", message);
+    if (nameError) nextErrors.name = nameError;
+    if (emailError) nextErrors.email = emailError;
+    if (messageError) nextErrors.message = messageError;
 
     setErrors(nextErrors);
     setNotice(Object.keys(nextErrors).length === 0);
+  }
+
+  function validateOnBlur(field: ContactField, value: string) {
+    const error = validateField(field, value);
+    setErrors((previous) => {
+      if (previous[field] === error) return previous;
+      const next = { ...previous };
+      if (error) next[field] = error;
+      else delete next[field];
+      return next;
+    });
+    setNotice(false);
   }
 
   function clearFieldError(field: ContactField) {
@@ -79,6 +100,9 @@ function ContactPage() {
                 aria-describedby={`contact-name-help${errors.name ? " contact-name-error" : ""}`}
                 className="rp-contact-control"
                 onChange={() => clearFieldError("name")}
+                onBlur={(event) =>
+                  validateOnBlur("name", event.currentTarget.value)
+                }
               />
               {errors.name && (
                 <p
@@ -94,7 +118,7 @@ function ContactPage() {
             <div className="rp-contact-field">
               <label htmlFor="contact-email">Email</label>
               <p id="contact-email-help" className="rp-contact-help">
-                Enter a valid email address.
+                We’ll only use this address to respond.
               </p>
               <input
                 id="contact-email"
@@ -107,6 +131,9 @@ function ContactPage() {
                 aria-describedby={`contact-email-help${errors.email ? " contact-email-error" : ""}`}
                 className="rp-contact-control"
                 onChange={() => clearFieldError("email")}
+                onBlur={(event) =>
+                  validateOnBlur("email", event.currentTarget.value)
+                }
               />
               {errors.email && (
                 <p
@@ -133,6 +160,9 @@ function ContactPage() {
                 aria-describedby={`contact-message-help${errors.message ? " contact-message-error" : ""}`}
                 className="rp-contact-control rp-contact-message"
                 onChange={() => clearFieldError("message")}
+                onBlur={(event) =>
+                  validateOnBlur("message", event.currentTarget.value)
+                }
               />
               {errors.message && (
                 <p

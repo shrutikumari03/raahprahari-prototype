@@ -15,49 +15,55 @@ const siteDescription =
   'Check reported road hazards, information freshness, and official restrictions across Uttarakhand before your journey.'
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: siteName,
-      },
-      {
-        name: 'description',
-        content: siteDescription,
-      },
-      {
-        property: 'og:title',
-        content: siteName,
-      },
-      {
-        property: 'og:description',
-        content: siteDescription,
-      },
-      {
-        property: 'og:type',
-        content: 'website',
-      },
-      {
-        name: 'twitter:card',
-        content: 'summary_large_image',
-      },
-      { name: 'theme-color', content: '#111719' },
-    ],
-    links: [
-      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+Devanagari:wght@400;600&family=Oxanium:wght@600;700&display=swap',
-      },
-    ],
-  }),
+  head: ({ matches }) => {
+    const isNotFound = matches.some(
+      (match) => match.status === 'notFound' || match._notFound,
+    )
+    const title = isNotFound ? 'Page not found | RaahPrahari' : siteName
+    return {
+      meta: [
+        {
+          charSet: 'utf-8',
+        },
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1',
+        },
+        {
+          title,
+        },
+        {
+          name: 'description',
+          content: siteDescription,
+        },
+        {
+          property: 'og:title',
+          content: title,
+        },
+        {
+          property: 'og:description',
+          content: siteDescription,
+        },
+        {
+          property: 'og:type',
+          content: 'website',
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image',
+        },
+        { name: 'theme-color', content: '#111719' },
+      ],
+      links: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+Devanagari:wght@400;600&family=Oxanium:wght@600;700&display=swap',
+        },
+      ],
+    }
+  },
   shellComponent: RootDocument,
   notFoundComponent: NotFoundPage,
 })

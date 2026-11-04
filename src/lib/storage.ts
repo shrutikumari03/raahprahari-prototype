@@ -58,4 +58,5 @@ export const STORAGE_KEYS = {
   savedRoads: 'rp.savedRoads',
   reportDraft: 'rp.reportDraft',
   localReports: 'rp.localReports',
+  lastLocalReport: 'rp.lastLocalReport',
 } as const

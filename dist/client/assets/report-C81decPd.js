@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-DyZJNswf.js";import{I as t}from"./index-DasBDRtQ.js";var n=e();function r(){return(0,n.jsx)(t,{})}export{r as component};

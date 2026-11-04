@@ -252,26 +252,35 @@ export function SiteHeader() {
       <nav
         aria-label={t('nav.primary')}
         className={cn(
-          'fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md lg:hidden',
+          'fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md lg:hidden',
           (isHome || isTraveller) && 'hidden',
         )}
       >
         {([
-          { to: '/', label: 'nav.home', icon: House, active: pathname === '/' },
-          { to: '/traveller', label: 'nav.traveller', icon: Search, active: pathname === '/traveller' },
-          { to: '/map', label: 'nav.map', icon: Map, active: isMap },
-          { to: '/advisories', label: 'nav.advisories', icon: ListChecks, active: isList },
-        ] as const).map(({ to, label, icon: Icon, active }) => (
+          { to: '/', label: 'nav.home', icon: House, active: pathname === '/', raised: false },
+          { to: '/traveller', label: 'nav.traveller', icon: Search, active: pathname === '/traveller', raised: false },
+          { to: '/report', label: 'nav.report', icon: TriangleAlert, active: pathname.startsWith('/report'), raised: true },
+          { to: '/map', label: 'nav.map', icon: Map, active: isMap, raised: false },
+          { to: '/advisories', label: 'nav.advisories', icon: ListChecks, active: isList, raised: false },
+        ] as const).map(({ to, label, icon: Icon, active, raised }) => (
           <Link
             key={to}
             to={to}
             aria-current={current(active)}
             className={cn(
               'flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-medium',
+              raised && '-mt-4',
               active ? 'text-link' : 'text-muted-foreground',
             )}
           >
-            <Icon aria-hidden className="size-5" />
+            <Icon
+              aria-hidden
+              className={cn(
+                'size-5',
+                raised &&
+                  '-mt-1 size-12 rounded-full border-4 border-background bg-brand-orange p-2.5 text-[#111719] shadow-lg',
+              )}
+            />
             <span>{t(label)}</span>
           </Link>
         ))}

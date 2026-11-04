@@ -5,7 +5,7 @@
 3. **Done** — Pure advisory rules plus unit tests (`src/lib/advisory.ts`).
 4. **Done** — Home page with hero image, FROM/TO search, sample advisory and the sections below it.
 5. **Done** — `/check`: route results (sort, save, compare), schematic map/list, filters, section detail panel.
-6. **Built, not yet mounted** — 4-step report flow component (`src/features/reports/report-flow.tsx`). Next step: add `src/routes/report.tsx` that renders `<ReportFlow initialSegment={search.segment} />`.
+6. **Phase A complete** — `/report` observation, photo, location, review, and local confirmation routes. Draft metadata and submitted synthetic reports stay on the device; photo files use browser-local storage. No upload, reviewer, closure, or My Reports screens are included.
 7. **Todo** — `/about` page (with privacy/terms/accessibility/contact anchors; footer already links there).
 8. **Todo** — Traveller dashboard: My Reports (Active/Reviewed/Drafts), report progress, follow-ups, saved roads, notifications, settings, offline queue.
 9. **Todo** — Reviewer workspace with decisions, reasons, history and a read-only AI assessment panel.

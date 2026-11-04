@@ -20,6 +20,11 @@ import { Route as TravellerRouteImport } from './routes/traveller'
 import { Route as AdvisoriesIndexRouteImport } from './routes/advisories.index'
 import { Route as AdvisoriesSegmentIdRouteImport } from './routes/advisories.$segmentId'
 import { Route as HelpTopicRouteImport } from './routes/help.$topic'
+import { Route as ReportIndexRouteImport } from './routes/report.index'
+import { Route as ReportLocationRouteImport } from './routes/report.location'
+import { Route as ReportPhotoRouteImport } from './routes/report.photo'
+import { Route as ReportReceivedRouteImport } from './routes/report.received'
+import { Route as ReportReviewRouteImport } from './routes/report.review'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +81,31 @@ const HelpTopicRoute = HelpTopicRouteImport.update({
   path: '/$topic',
   getParentRoute: () => HelpRoute,
 } as any)
+const ReportIndexRoute = ReportIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ReportRoute,
+} as any)
+const ReportLocationRoute = ReportLocationRouteImport.update({
+  id: '/location',
+  path: '/location',
+  getParentRoute: () => ReportRoute,
+} as any)
+const ReportPhotoRoute = ReportPhotoRouteImport.update({
+  id: '/photo',
+  path: '/photo',
+  getParentRoute: () => ReportRoute,
+} as any)
+const ReportReceivedRoute = ReportReceivedRouteImport.update({
+  id: '/received',
+  path: '/received',
+  getParentRoute: () => ReportRoute,
+} as any)
+const ReportReviewRoute = ReportReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => ReportRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -84,11 +114,16 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/help': typeof HelpRouteWithChildren
   '/map': typeof MapRoute
-  '/report': typeof ReportRoute
+  '/report': typeof ReportRouteWithChildren
   '/traveller': typeof TravellerRoute
   '/advisories/$segmentId': typeof AdvisoriesSegmentIdRoute
   '/help/$topic': typeof HelpTopicRoute
+  '/report/location': typeof ReportLocationRoute
+  '/report/photo': typeof ReportPhotoRoute
+  '/report/received': typeof ReportReceivedRoute
+  '/report/review': typeof ReportReviewRoute
   '/advisories/': typeof AdvisoriesIndexRoute
+  '/report/': typeof ReportIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -97,11 +132,15 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/help': typeof HelpRouteWithChildren
   '/map': typeof MapRoute
-  '/report': typeof ReportRoute
   '/traveller': typeof TravellerRoute
   '/advisories/$segmentId': typeof AdvisoriesSegmentIdRoute
   '/help/$topic': typeof HelpTopicRoute
+  '/report/location': typeof ReportLocationRoute
+  '/report/photo': typeof ReportPhotoRoute
+  '/report/received': typeof ReportReceivedRoute
+  '/report/review': typeof ReportReviewRoute
   '/advisories': typeof AdvisoriesIndexRoute
+  '/report': typeof ReportIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -111,11 +150,16 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/help': typeof HelpRouteWithChildren
   '/map': typeof MapRoute
-  '/report': typeof ReportRoute
+  '/report': typeof ReportRouteWithChildren
   '/traveller': typeof TravellerRoute
   '/advisories/$segmentId': typeof AdvisoriesSegmentIdRoute
   '/help/$topic': typeof HelpTopicRoute
+  '/report/location': typeof ReportLocationRoute
+  '/report/photo': typeof ReportPhotoRoute
+  '/report/received': typeof ReportReceivedRoute
+  '/report/review': typeof ReportReviewRoute
   '/advisories/': typeof AdvisoriesIndexRoute
+  '/report/': typeof ReportIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -130,7 +174,12 @@ export interface FileRouteTypes {
     | '/traveller'
     | '/advisories/$segmentId'
     | '/help/$topic'
+    | '/report/location'
+    | '/report/photo'
+    | '/report/received'
+    | '/report/review'
     | '/advisories/'
+    | '/report/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -139,11 +188,15 @@ export interface FileRouteTypes {
     | '/contact'
     | '/help'
     | '/map'
-    | '/report'
     | '/traveller'
     | '/advisories/$segmentId'
     | '/help/$topic'
+    | '/report/location'
+    | '/report/photo'
+    | '/report/received'
+    | '/report/review'
     | '/advisories'
+    | '/report'
   id:
     | '__root__'
     | '/'
@@ -156,7 +209,12 @@ export interface FileRouteTypes {
     | '/traveller'
     | '/advisories/$segmentId'
     | '/help/$topic'
+    | '/report/location'
+    | '/report/photo'
+    | '/report/received'
+    | '/report/review'
     | '/advisories/'
+    | '/report/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -166,7 +224,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   HelpRoute: typeof HelpRouteWithChildren
   MapRoute: typeof MapRoute
-  ReportRoute: typeof ReportRoute
+  ReportRoute: typeof ReportRouteWithChildren
   TravellerRoute: typeof TravellerRoute
   AdvisoriesSegmentIdRoute: typeof AdvisoriesSegmentIdRoute
   AdvisoriesIndexRoute: typeof AdvisoriesIndexRoute
@@ -251,6 +309,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpTopicRouteImport
       parentRoute: typeof HelpRoute
     }
+    '/report/': {
+      id: '/report/'
+      path: '/'
+      fullPath: '/report/'
+      preLoaderRoute: typeof ReportIndexRouteImport
+      parentRoute: typeof ReportRoute
+    }
+    '/report/location': {
+      id: '/report/location'
+      path: '/location'
+      fullPath: '/report/location'
+      preLoaderRoute: typeof ReportLocationRouteImport
+      parentRoute: typeof ReportRoute
+    }
+    '/report/photo': {
+      id: '/report/photo'
+      path: '/photo'
+      fullPath: '/report/photo'
+      preLoaderRoute: typeof ReportPhotoRouteImport
+      parentRoute: typeof ReportRoute
+    }
+    '/report/received': {
+      id: '/report/received'
+      path: '/received'
+      fullPath: '/report/received'
+      preLoaderRoute: typeof ReportReceivedRouteImport
+      parentRoute: typeof ReportRoute
+    }
+    '/report/review': {
+      id: '/report/review'
+      path: '/review'
+      fullPath: '/report/review'
+      preLoaderRoute: typeof ReportReviewRouteImport
+      parentRoute: typeof ReportRoute
+    }
   }
 }
 
@@ -264,6 +357,25 @@ const HelpRouteChildren: HelpRouteChildren = {
 
 const HelpRouteWithChildren = HelpRoute._addFileChildren(HelpRouteChildren)
 
+interface ReportRouteChildren {
+  ReportLocationRoute: typeof ReportLocationRoute
+  ReportPhotoRoute: typeof ReportPhotoRoute
+  ReportReceivedRoute: typeof ReportReceivedRoute
+  ReportReviewRoute: typeof ReportReviewRoute
+  ReportIndexRoute: typeof ReportIndexRoute
+}
+
+const ReportRouteChildren: ReportRouteChildren = {
+  ReportLocationRoute: ReportLocationRoute,
+  ReportPhotoRoute: ReportPhotoRoute,
+  ReportReceivedRoute: ReportReceivedRoute,
+  ReportReviewRoute: ReportReviewRoute,
+  ReportIndexRoute: ReportIndexRoute,
+}
+
+const ReportRouteWithChildren =
+  ReportRoute._addFileChildren(ReportRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -271,7 +383,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   HelpRoute: HelpRouteWithChildren,
   MapRoute: MapRoute,
-  ReportRoute: ReportRoute,
+  ReportRoute: ReportRouteWithChildren,
   TravellerRoute: TravellerRoute,
   AdvisoriesSegmentIdRoute: AdvisoriesSegmentIdRoute,
   AdvisoriesIndexRoute: AdvisoriesIndexRoute,

@@ -1,10 +1,10 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight, Camera, CircleQuestionMark, Clock3, Copy, GitCompare, MapPin, Route as RouteIcon, ShieldCheck, TriangleAlert, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ActionBadge, AdvisoryBadge, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
+import { ActionBadge, AdvisoryBadge, CacheTimeLabel, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
 import { corridorById, segmentById } from '@/data/fixtures'
 import { getAdvisorySourceTimestamp, getFreshnessState, type AdvisoryLevel } from '@/lib/advisory'
-import { advisoryFor } from '@/lib/data'
+import { advisoryFor, getAdvisoryCacheTimestamp } from '@/lib/data'
 import { usePrefs } from '@/i18n/preferences'
 import type { CommunityReport, Segment } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -96,6 +96,7 @@ export function SegmentDetail({
   const unverified = adv.evidence.some((r) => r.kind === 'hazard' && r.status !== 'verified')
   const sources = new Set(adv.evidence.map((r) => r.source))
   const r = adv.restriction
+  const cacheTimestamp = getAdvisoryCacheTimestamp()
 
   if (variant === 'map') {
     return (
@@ -150,8 +151,8 @@ export function SegmentDetail({
             <p>
               {t(`hazard.${latestHazard.hazardType}`)} · {t(`sev.${latestHazard.severity}`)} — {latestHazard.description}
             </p>
-          ) : adv.basis === 'verified_clear' ? (
-            <p>{t('kind.clear')}</p>
+          ) : adv.basis === 'community_clear' ? (
+            <p>{t('basis.community_clear')}</p>
           ) : (
             <p>{t('copy.noRecent')}</p>
           )}
@@ -204,6 +205,7 @@ export function SegmentDetail({
           ) : (
             <p>{t('copy.noRecent')}</p>
           )}
+          <CacheTimeLabel timestamp={cacheTimestamp} />
           {sources.size > 0 && (
             <p className="text-muted-foreground">
               {[...sources].map((s) => t(`source.${s}`)).join(' · ')} — {adv.evidence.length} {t('segment.reportsCount')}
@@ -293,6 +295,8 @@ export function StatusTimeline({
   level: AdvisoryLevel
 }) {
   const { ago, stamp } = usePrefs()
+  const communityLevel: AdvisoryLevel =
+    level === 'clear' || level === 'do_not_travel' ? 'unknown' : level
   const statusLabel = report.status === 'under_review'
     ? 'Under review'
     : report.status === 'needs_info'
@@ -319,7 +323,7 @@ export function StatusTimeline({
         <li className="relative">
           <span className="absolute top-1 -left-[1.32rem] size-2.5 rounded-full border-2 border-status-unknown bg-background" />
           <p className="text-sm font-medium">AI-assisted indication, not an official closure</p>
-          <ActionBadge level={level} className="mt-2" />
+          <ActionBadge level={communityLevel} className="mt-2" />
         </li>
       </ol>
     </section>
@@ -340,6 +344,7 @@ export function MapSegmentDetail({
   className?: string
 }) {
   const { t, ago, stamp, place } = usePrefs()
+  const cacheTimestamp = getAdvisoryCacheTimestamp()
   const sourceTimestamp = getAdvisorySourceTimestamp(advisory)
   const condition = advisory.evidence.find((report) => report.kind === 'hazard') ?? advisory.evidence[0]
   const source = advisory.evidence.length
@@ -398,11 +403,15 @@ export function MapSegmentDetail({
           </dd>
         </div>
         <div>
-          <dt>Last updated</dt>
+          <dt>Source time</dt>
           <dd>
             {sourceTimestamp ? ago(sourceTimestamp) : 'Unknown'}
             {sourceTimestamp && <small>{stamp(sourceTimestamp)}</small>}
           </dd>
+        </div>
+        <div>
+          <dt>Cached at</dt>
+          <dd><CacheTimeLabel timestamp={cacheTimestamp} /></dd>
         </div>
       </dl>
 

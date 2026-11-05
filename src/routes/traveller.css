@@ -359,6 +359,31 @@
   pointer-events: none;
 }
 
+.traveller-map-terrain {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.25;
+}
+
+.traveller-map-fallback-notice {
+  position: absolute;
+  z-index: 3;
+  top: 0.65rem;
+  right: 0.65rem;
+  left: 0.65rem;
+  margin: 0;
+  border: 1px solid #6f8792;
+  border-radius: 0.5rem;
+  background: #10232c;
+  padding: 0.6rem 0.75rem;
+  color: #e6e4dc;
+  font-size: 0.75rem;
+}
+
 .traveller-map-disclaimer {
   position: absolute;
   z-index: 3;
@@ -609,6 +634,33 @@
   padding: 0.7rem 0;
   color: #d4e0e5;
   font-size: 0.85rem;
+}
+
+.traveller-map-list-row {
+  display: grid;
+  gap: 0.5rem;
+  border-top: 1px solid #2b5366;
+  padding: 0.7rem 0;
+}
+
+.traveller-map-list-row > button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #d4e0e5;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.traveller-map-list-row > button[aria-pressed='true'] {
+  color: #9ed5ff;
+  font-weight: 600;
+}
+
+.traveller-map-list-row > a {
+  color: #9ed5ff;
+  font-size: 0.75rem;
 }
 
 .traveller-route-summary {

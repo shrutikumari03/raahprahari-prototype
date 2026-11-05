@@ -4,7 +4,7 @@
 //   1. Active official restriction (expiry alone never lifts it)
 //   2. Adequately corroborated community reports  → at most AVOID
 //   3. Reports needing caution / review           → CAUTION
-//   4. Verified recent clear observation          → CLEAR
+//   4. Community clear observations               → UNKNOWN
 //   5. Otherwise UNKNOWN ("No recent observation"), flagged STALE if only old evidence exists
 //
 // A community report can never produce DO NOT TRAVEL or an official closure.
@@ -18,7 +18,7 @@ export type AdvisoryBasis =
   | 'corroborated'
   | 'single_report'
   | 'conflicting'
-  | 'verified_clear'
+  | 'community_clear'
   | 'stale_only'
   | 'no_evidence'
 
@@ -154,13 +154,13 @@ export function computeSegmentAdvisory(
     }
   }
 
-  // 4. Verified recent clear observation
-  const verifiedClear = freshClears.filter((r) => r.status === 'verified')
-  if (verifiedClear.length) {
-    return { ...base, level: 'clear', basis: 'verified_clear', evidence }
+  // A community clear report is still only a community observation. It must
+  // not be presented as an independently verified or cleared road condition.
+  if (freshClears.length) {
+    return { ...base, level: 'unknown', basis: 'community_clear', evidence }
   }
 
-  // 5. Unknown — never green
+  // 5. Unknown — never positive
   if (segReports.length) {
     return { ...base, level: 'unknown', basis: 'stale_only', stale: true, evidence: segReports.slice(0, 3) }
   }

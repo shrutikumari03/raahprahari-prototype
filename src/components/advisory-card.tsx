@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import {
   ActionBadge,
+  CacheTimeLabel,
   FreshnessChip,
   OfficialBadge,
   RoadCode,
@@ -15,7 +16,7 @@ import {
 import { usePrefs } from "@/i18n/preferences";
 import { getAdvisorySourceTimestamp } from "@/lib/advisory";
 import type { CommunityReport, Segment } from "@/lib/types";
-import { advisoryFor } from "@/lib/data";
+import { advisoryFor, getAdvisoryCacheTimestamp } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 export function AdvisoryCard({
@@ -37,6 +38,8 @@ export function AdvisoryCard({
     throw new Error(`Missing advisory for segment "${segment.id}"`);
   }
   const report = advisory.evidence[0];
+  const cacheTimestamp = getAdvisoryCacheTimestamp();
+  const activeClosure = advisory.restriction?.type === "road_closed";
   const sources = [
     ...(advisory.evidence.length > 0 ? [t("source.community")] : []),
     ...(advisory.restriction ? [t("source.official")] : []),
@@ -76,6 +79,7 @@ export function AdvisoryCard({
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <FreshnessChip sourceTimestamp={communityReport.observedAt} />
+            <CacheTimeLabel timestamp={cacheTimestamp} />
             <span className="text-xs text-blue-on-dark">
               Community report, not an official closure
             </span>
@@ -175,7 +179,7 @@ export function AdvisoryCard({
         <p className="mt-2 text-sm text-muted-foreground">
           {report?.description ?? t("copy.noRecent")}
         </p>
-        {showRestrictionDetail && (
+        {(showRestrictionDetail || activeClosure) && (
           <p className="mt-3 text-sm text-muted-foreground">
             <span className="font-semibold text-foreground">
               {t("map.restriction")}:
@@ -187,6 +191,7 @@ export function AdvisoryCard({
           <FreshnessChip
             sourceTimestamp={getAdvisorySourceTimestamp(advisory)}
           />
+          <CacheTimeLabel timestamp={cacheTimestamp} />
           {advisory.restriction && (
             <OfficialBadge label={t("map.restriction")} />
           )}

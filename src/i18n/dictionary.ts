@@ -109,7 +109,7 @@ export const en = {
   'basis.corroborated': 'Several reports, at least one reviewed',
   'basis.single_report': 'Community report awaiting or after review',
   'basis.conflicting': 'Conflicting reports — under review',
-  'basis.verified_clear': 'Reviewed recent observation',
+  'basis.community_clear': 'Community reports describe passable conditions; no official confirmation',
   'basis.stale_only': 'Only old observations',
   'basis.no_evidence': 'No recent observation.',
 
@@ -513,7 +513,7 @@ export const hi: Record<TranslationKey, string> = {
   'basis.corroborated': 'कई रिपोर्ट, कम से कम एक समीक्षित',
   'basis.single_report': 'समुदाय रिपोर्ट, समीक्षा लंबित या पूर्ण',
   'basis.conflicting': 'विरोधाभासी रिपोर्ट — समीक्षा जारी',
-  'basis.verified_clear': 'हाल का समीक्षित अवलोकन',
+  'basis.community_clear': 'समुदाय की रिपोर्ट में रास्ता चलने योग्य है; आधिकारिक पुष्टि नहीं',
   'basis.stale_only': 'केवल पुराने अवलोकन',
   'basis.no_evidence': 'कोई हालिया अवलोकन नहीं।',
 

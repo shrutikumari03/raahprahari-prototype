@@ -128,9 +128,10 @@ describe('computeSegmentAdvisory', () => {
     expect(a.stale).toBe(true)
   })
 
-  it('recent verified clear observation gives clear', () => {
+  it('recent verified community clear observations remain unknown', () => {
     const a = computeSegmentAdvisory('s1', [report({ kind: 'clear', status: 'verified' })], [], NOW)
-    expect(a.level).toBe('clear')
+    expect(a.level).toBe('unknown')
+    expect(a.basis).toBe('community_clear')
   })
 
   it('unverified clear observation alone does not give clear', () => {
@@ -165,7 +166,7 @@ describe('summariseRoute', () => {
     id, corridorId: 'c', code: id, from: 'a', to: 'b', kmStart: 0, kmEnd: km, distanceKm: km, typicalMinutes: km,
   })
 
-  it('a clear segment plus an unknown segment is not clear overall', () => {
+  it('a community clear observation plus an unknown segment is unknown overall', () => {
     const segs = [seg('s1', 10), seg('s2', 30)]
     const advs = [
       computeSegmentAdvisory('s1', [report({ kind: 'clear', status: 'verified' })], [], NOW),
@@ -173,7 +174,7 @@ describe('summariseRoute', () => {
     ]
     const sum = summariseRoute(segs, advs)
     expect(sum.level).toBe('unknown')
-    expect(sum.unknownKm).toBe(30)
+    expect(sum.unknownKm).toBe(40)
     expect(sum.poorCoverage).toBe(true)
   })
 })

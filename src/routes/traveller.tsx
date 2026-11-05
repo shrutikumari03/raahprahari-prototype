@@ -508,12 +508,23 @@ function IllustrativeMap({
   summary: string
 }) {
   const [mode, setMode] = useState<'map' | 'list'>('map')
+  const [mapUnavailable, setMapUnavailable] = useState(false)
+  const [selectedSegmentId, setSelectedSegmentId] = useState<string>()
   const [zoom, setZoom] = useState(1)
   return (
     <section className="traveller-map-panel" aria-label="Illustrative route map">
       <div className="traveller-map-surface" style={{ '--map-zoom': zoom } as React.CSSProperties}>
         {mode === 'map' ? (
           <>
+            <img
+              src="/img/map-terrain.png"
+              alt=""
+              className="traveller-map-terrain"
+              onError={() => {
+                setMapUnavailable(true)
+                setMode('list')
+              }}
+            />
             <p className="traveller-map-disclaimer">ILLUSTRATIVE · NOT FOR NAVIGATION</p>
             <div className="traveller-map-route" aria-hidden>
               <span className="route-piece route-piece-one" />
@@ -553,15 +564,42 @@ function IllustrativeMap({
             </div>
           </>
         ) : (
-          <div className="traveller-map-list">
-            <h2>Road sections</h2>
-            {results.length ? results.slice(0, 6).map(({ segment }) => (
-              <p key={segment.id}>{getPlace(segment.from)?.name} – {getPlace(segment.to)?.name}</p>
-            )) : <p>Illustrative map view</p>}
-          </div>
+          <>
+            {mapUnavailable && (
+              <p className="traveller-map-fallback-notice" role="status">
+                The illustrative map provider is unavailable. Showing road sections instead.
+              </p>
+            )}
+            <div className="traveller-map-list">
+              <h2>Road sections</h2>
+              {results.length ? results.slice(0, 6).map(({ segment }) => (
+                <div className="traveller-map-list-row" key={segment.id}>
+                  <button
+                    type="button"
+                    aria-pressed={selectedSegmentId === segment.id}
+                    onClick={() => setSelectedSegmentId(segment.id)}
+                  >
+                    {selectedSegmentId === segment.id ? 'Selected: ' : 'Select: '}
+                    {getPlace(segment.from)?.name} – {getPlace(segment.to)?.name}
+                  </button>
+                  <Link to="/advisories/$segmentId" params={{ segmentId: segment.id }}>
+                    View details
+                  </Link>
+                  <Link to="/report" search={{ segment: segment.id }}>
+                    Report this road
+                  </Link>
+                </div>
+              )) : <p>Search manually to view matching road sections.</p>}
+            </div>
+          </>
         )}
         <div className="traveller-map-toggle" role="group" aria-label="Map view">
-          <button type="button" aria-pressed={mode === 'map'} onClick={() => setMode('map')}>
+          <button
+            type="button"
+            aria-pressed={mode === 'map'}
+            disabled={mapUnavailable}
+            onClick={() => setMode('map')}
+          >
             <MapIcon aria-hidden /> Map
           </button>
           <button type="button" aria-pressed={mode === 'list'} onClick={() => setMode('list')}>

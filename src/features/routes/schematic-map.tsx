@@ -220,9 +220,11 @@ export function SchematicMap({
           </g>
         )}
       </svg>
-      <p className="pointer-events-none absolute right-3 bottom-2 font-mono text-[10px] text-muted-foreground">
-        {t('map.schematic')}
-      </p>
+      {!terrain && (
+        <p className="pointer-events-none absolute right-3 bottom-2 font-mono text-[10px] text-muted-foreground">
+          {t('map.schematic')}
+        </p>
+      )}
     </div>
   )
 }

@@ -6,7 +6,7 @@ import { corridorById, segmentById } from '@/data/fixtures'
 import { getAdvisorySourceTimestamp, getFreshnessState, type AdvisoryLevel } from '@/lib/advisory'
 import { advisoryFor } from '@/lib/data'
 import { usePrefs } from '@/i18n/preferences'
-import type { CommunityReport } from '@/lib/types'
+import type { CommunityReport, Segment } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
@@ -66,18 +66,20 @@ export function ReportCard({ report }: { report: CommunityReport }) {
 
 export function SegmentDetail({
   segmentId,
+  segment,
   onClose,
   className,
   variant = 'default',
 }: {
   segmentId?: string
+  segment?: Segment
   onClose?: () => void
   className?: string
   variant?: 'default' | 'map' | 'overview'
 }) {
   const { t, ago, stamp, place } = usePrefs()
-  const seg = segmentId ? segmentById(segmentId) : undefined
-  const adv = segmentId ? advisoryFor(segmentId) : undefined
+  const seg = segment ?? (segmentId ? segmentById(segmentId) : undefined)
+  const adv = seg ? advisoryFor(seg.id) : undefined
 
   if (!seg || !adv) {
     return (
@@ -114,11 +116,11 @@ export function SegmentDetail({
   return (
     <section aria-labelledby="seg-title" className={cn('rounded-2xl border border-border bg-card p-5', className)}>
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <RoadCode>
             {seg.code} · km {seg.kmStart}–{seg.kmEnd}
           </RoadCode>
-          <h3 id="seg-title" className="mt-1 font-display text-xl font-semibold">
+          <h3 id="seg-title" className="rp-wrap-anywhere mt-1 font-display text-xl font-semibold">
             {place(seg.from)} – {place(seg.to)}
           </h3>
           <p className="text-sm text-muted-foreground">{corridor?.name}</p>
@@ -258,33 +260,25 @@ function OverviewSegmentDetail({
         Route details
       </h2>
       <dl className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
-        <div className="flex items-start gap-2">
-          <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          <div>
-            <dt className="text-[11px] text-muted-foreground">Starting point</dt>
-            <dd className="text-xs font-medium">{place(segment.from)}</dd>
-          </div>
+        <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-x-2">
+          <MapPin aria-hidden className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <dt className="text-[11px] text-muted-foreground">Starting point</dt>
+          <dd className="rp-wrap-anywhere text-xs font-medium">{place(segment.from)}</dd>
         </div>
-        <div className="flex items-start gap-2">
-          <RouteIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          <div>
-            <dt className="text-[11px] text-muted-foreground">Total distance</dt>
-            <dd className="text-xs font-medium">{segment.distanceKm} km (illustrative)</dd>
-          </div>
+        <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-x-2">
+          <RouteIcon aria-hidden className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <dt className="text-[11px] text-muted-foreground">Total distance</dt>
+          <dd className="rp-wrap-anywhere text-xs font-medium">{segment.distanceKm} km (illustrative)</dd>
         </div>
-        <div className="flex items-start gap-2">
-          <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          <div>
-            <dt className="text-[11px] text-muted-foreground">End point</dt>
-            <dd className="text-xs font-medium">{place(segment.to)}</dd>
-          </div>
+        <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-x-2">
+          <MapPin aria-hidden className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <dt className="text-[11px] text-muted-foreground">End point</dt>
+          <dd className="rp-wrap-anywhere text-xs font-medium">{place(segment.to)}</dd>
         </div>
-        <div className="flex items-start gap-2">
-          <Clock3 aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          <div>
-            <dt className="text-[11px] text-muted-foreground">Estimated time</dt>
-            <dd className="text-xs font-medium">{duration(segment.typicalMinutes)} (illustrative)</dd>
-          </div>
+        <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-x-2">
+          <Clock3 aria-hidden className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <dt className="text-[11px] text-muted-foreground">Estimated time</dt>
+          <dd className="rp-wrap-anywhere text-xs font-medium">{duration(segment.typicalMinutes)} (illustrative)</dd>
         </div>
       </dl>
     </section>
@@ -332,7 +326,7 @@ export function StatusTimeline({
   )
 }
 
-function MapSegmentDetail({
+export function MapSegmentDetail({
   segment,
   advisory,
   corridorName,
@@ -369,7 +363,7 @@ function MapSegmentDetail({
       </div>
 
       <div className="rp-map-segment-title-row">
-        <h2 id="rp-map-segment-title">{place(segment.from)} – {place(segment.to)}</h2>
+        <h2 id="rp-map-segment-title" className="rp-wrap-anywhere">{place(segment.from)} – {place(segment.to)}</h2>
         <ActionBadge level={advisory.level} size="lg" />
       </div>
       <p className="rp-map-segment-meta">
@@ -391,18 +385,24 @@ function MapSegmentDetail({
       <dl className="rp-map-observation-grid">
         <div>
           <dt>Observation time</dt>
-          <dd>{advisory.latestObservationAt ? ago(advisory.latestObservationAt) : 'Unknown'}</dd>
-          {advisory.latestObservationAt && <small>{stamp(advisory.latestObservationAt)}</small>}
+          <dd>
+            {advisory.latestObservationAt ? ago(advisory.latestObservationAt) : 'Unknown'}
+            {advisory.latestObservationAt && <small>{stamp(advisory.latestObservationAt)}</small>}
+          </dd>
         </div>
         <div>
           <dt>Source</dt>
-          <dd>{source}</dd>
-          {advisory.evidence.length > 0 && <small>{advisory.evidence.length} reports</small>}
+          <dd>
+            {source}
+            {advisory.evidence.length > 0 && <small>{advisory.evidence.length} reports</small>}
+          </dd>
         </div>
         <div>
           <dt>Last updated</dt>
-          <dd>{sourceTimestamp ? ago(sourceTimestamp) : 'Unknown'}</dd>
-          {sourceTimestamp && <small>{stamp(sourceTimestamp)}</small>}
+          <dd>
+            {sourceTimestamp ? ago(sourceTimestamp) : 'Unknown'}
+            {sourceTimestamp && <small>{stamp(sourceTimestamp)}</small>}
+          </dd>
         </div>
       </dl>
 

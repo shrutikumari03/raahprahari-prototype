@@ -166,7 +166,7 @@ export function AdvisoryCard({
             <RoadCode>
               {segment.code} · km {segment.kmStart}–{segment.kmEnd}
             </RoadCode>
-            <h2 className="mt-1 font-semibold">
+            <h2 className="rp-wrap-anywhere mt-1 font-semibold">
               {place(segment.from)} – {place(segment.to)}
             </h2>
           </div>

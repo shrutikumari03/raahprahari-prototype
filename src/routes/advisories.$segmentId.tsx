@@ -70,7 +70,7 @@ export const Route = createFileRoute('/advisories/$segmentId')({
 
 function DetailNotFound() {
   return (
-    <main className="rp-container grid min-h-[55vh] place-items-center py-12">
+    <div className="rp-container grid min-h-[55vh] place-items-center py-12">
       <div className="max-w-md space-y-4 text-center">
         <CircleHelp
           aria-hidden
@@ -86,7 +86,7 @@ function DetailNotFound() {
           <Link to="/advisories">Back to search</Link>
         </Button>
       </div>
-    </main>
+    </div>
   )
 }
 
@@ -98,7 +98,7 @@ function SegmentPage() {
   return <SegmentOverview segment={data.segment} />
 }
 
-function Banner({
+export function Banner({
   segment,
   title,
   reportRef,
@@ -133,7 +133,7 @@ function Banner({
             <span className="font-mono tracking-normal">· {reportRef}</span>
           )}
         </p>
-        <h1 className="max-w-4xl font-display text-3xl leading-tight font-bold sm:text-4xl md:text-5xl">
+        <h1 className="rp-wrap-anywhere max-w-4xl font-display text-3xl leading-tight font-bold sm:text-4xl md:text-5xl">
           {title}
         </h1>
         <p className="mt-2 text-sm text-text-on-charcoal/85 sm:text-base">
@@ -148,17 +148,19 @@ function Banner({
 function RouteSummary({ segment }: { segment: Segment }) {
   const { duration } = usePrefs()
   return (
-    <dl className="mt-5 grid grid-cols-1 gap-y-2 border-t border-white/15 pt-3 text-xs sm:grid-cols-3 sm:text-sm">
-      <SummaryItem icon={RouteIcon} label={`${segment.distanceKm} km`} />
-      <SummaryItem
-        icon={Clock3}
-        label={`~ ${duration(segment.typicalMinutes)}`}
-      />
-      <SummaryItem icon={MapPin} label="Elevation unavailable" />
+    <div>
+      <dl className="mt-5 grid grid-cols-1 gap-y-2 border-t border-white/15 pt-3 text-xs sm:grid-cols-3 sm:text-sm">
+        <SummaryItem icon={RouteIcon} label={`${segment.distanceKm} km`} />
+        <SummaryItem
+          icon={Clock3}
+          label={`~ ${duration(segment.typicalMinutes)}`}
+        />
+        <SummaryItem icon={MapPin} label="Elevation unavailable" />
+      </dl>
       <p className="basis-full text-[11px] text-text-on-charcoal/70">
         All route estimates are illustrative.
       </p>
-    </dl>
+    </div>
   )
 }
 
@@ -201,10 +203,14 @@ function SegmentOverview({ segment }: { segment: Segment }) {
         segment={segment}
         title={`${segment.code.split(' · ')[0]} — ${place(segment.from)} to ${place(segment.to)}`}
       />
-      <main className="rp-container grid gap-5 py-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(19rem,0.8fr)] lg:py-6">
+      <div className="rp-container grid gap-5 py-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(19rem,0.8fr)] lg:py-6">
         <div className="min-w-0">
           <Tabs value={tab} onValueChange={setTab} className="min-w-0">
-            <div className="overflow-x-auto border-b border-border">
+            <div
+              className="overflow-x-auto border-b border-border"
+              tabIndex={0}
+              aria-label="Scrollable road information tabs"
+            >
               <TabsList
                 aria-label="Road information"
                 variant="line"
@@ -317,7 +323,7 @@ function SegmentOverview({ segment }: { segment: Segment }) {
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button
                   asChild
-                  className="bg-brand-blue text-white hover:bg-brand-blue/90"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Link to="/map" search={{ seg: segment.id }}>
                     <MapIcon aria-hidden />
@@ -327,7 +333,7 @@ function SegmentOverview({ segment }: { segment: Segment }) {
                 </Button>
                 <Button
                   asChild
-                  className="bg-brand-orange text-white hover:bg-brand-orange/90"
+                  className="bg-brand-orange text-[#111719] hover:bg-brand-orange/90"
                 >
                   <Link to="/report" search={{ segment: segment.id }}>
                     <TriangleAlert aria-hidden />
@@ -375,7 +381,7 @@ function SegmentOverview({ segment }: { segment: Segment }) {
         </div>
 
         <TerrainPanel segment={segment} reports={hazards} />
-      </main>
+      </div>
     </div>
   )
 }
@@ -417,15 +423,13 @@ function Fact({
   icon: LucideIcon
 }) {
   return (
-    <div className="flex min-w-0 items-start gap-2">
+    <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-x-2">
       <Icon
         aria-hidden
-        className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+        className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground"
       />
-      <div className="min-w-0">
-        <dt className="text-[11px] text-muted-foreground">{label}</dt>
-        <dd className="break-words text-xs font-medium">{value}</dd>
-      </div>
+      <dt className="text-[11px] text-muted-foreground">{label}</dt>
+      <dd className="rp-wrap-anywhere text-xs font-medium">{value}</dd>
     </div>
   )
 }
@@ -576,7 +580,7 @@ function TerrainPanel({
             className={cn(
               'inline-flex min-h-9 items-center gap-1.5 rounded-md px-3 text-xs',
               view === 'map'
-                ? 'bg-brand-blue text-white'
+                ? 'bg-primary text-primary-foreground'
                 : 'text-white/75 hover:text-white',
             )}
           >
@@ -589,7 +593,7 @@ function TerrainPanel({
             className={cn(
               'inline-flex min-h-9 items-center gap-1.5 rounded-md px-3 text-xs',
               view === 'list'
-                ? 'bg-brand-blue text-white'
+                ? 'bg-primary text-primary-foreground'
                 : 'text-white/75 hover:text-white',
             )}
           >
@@ -639,7 +643,7 @@ function HazardDetail({
         title={`${t(`hazard.${report.hazardType}`)} report`}
         reportRef={report.ref}
       />
-      <main className="rp-container grid gap-5 py-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:py-6">
+      <div className="rp-container grid gap-5 py-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:py-6">
         <div className="space-y-4">
           <section className="rounded-xl border border-border bg-card p-4 sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -704,7 +708,7 @@ function HazardDetail({
           <div className="flex flex-wrap gap-2">
             <Button
               asChild
-              className="bg-brand-blue text-white hover:bg-brand-blue/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Link to="/map" search={{ seg: segment.id }}>
                 <MapIcon aria-hidden /> View on map
@@ -712,7 +716,7 @@ function HazardDetail({
             </Button>
             <Button
               asChild
-              className="bg-brand-orange text-white hover:bg-brand-orange/90"
+              className="bg-brand-orange text-[#111719] hover:bg-brand-orange/90"
             >
               <Link to="/report" search={{ segment: segment.id }}>
                 <TriangleAlert aria-hidden /> Report an update
@@ -767,7 +771,7 @@ function HazardDetail({
             separate information.
           </p>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

@@ -702,13 +702,20 @@
   }
 
   .home-prototype-label {
-    right: 1rem;
-    bottom: 0.75rem;
+    position: relative;
+    right: auto;
+    bottom: auto;
+    padding: 0.5rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+    text-align: right;
     font-size: 0.5rem;
   }
 }
 
 @media (max-width: 390px) {
+  .home-header .home-brand > span:last-child {
+    display: none;
+  }
+
   .home-content {
     padding-inline: 1rem;
   }

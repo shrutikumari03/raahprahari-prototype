@@ -108,7 +108,7 @@ code {
   --popover: #132a36;
   --popover-foreground: #e6e4dc;
   --raised: #142b37;
-  --primary: #347ccb;
+  --primary: #2767ab;
   --primary-foreground: #ffffff;
   --secondary: #142b37;
   --secondary-foreground: #e6e4dc;
@@ -260,6 +260,20 @@ code {
     color: var(--link);
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+}
+
+.rp-wrap-anywhere {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1023px) {
+  .rp-demo-badge-ribbon {
+    position: static;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 1rem 1rem;
   }
 }
 

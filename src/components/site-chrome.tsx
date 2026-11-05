@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { House, ListChecks, Map, Menu, Monitor, Moon, Search, Sun, TriangleAlert, UserRound, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -93,11 +93,26 @@ function ThemeSwitch() {
   )
 }
 
-function LoginDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+function LoginDialog({
+  open,
+  onOpenChange,
+  returnFocusRef,
+}: {
+  open: boolean
+  onOpenChange: (o: boolean) => void
+  returnFocusRef: React.RefObject<HTMLButtonElement | null>
+}) {
   const { t } = usePrefs()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        onCloseAutoFocus={(event) => {
+          if (returnFocusRef.current?.isConnected) {
+            event.preventDefault()
+            returnFocusRef.current.focus()
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="font-display">{t('login.title')}</DialogTitle>
           <DialogDescription>{t('login.body')}</DialogDescription>
@@ -116,6 +131,8 @@ export function SiteHeader() {
   const { t } = usePrefs()
   const [loginOpen, setLoginOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const loginReturnFocusRef = useRef<HTMLButtonElement>(null)
+  const menuTriggerRef = useRef<HTMLButtonElement>(null)
   const online = useOnline()
   const { pathname, view } = useRouterState({
     select: (s) => ({
@@ -188,9 +205,13 @@ export function SiteHeader() {
               {isHome || isTraveller ? <HomeLanguageSelect /> : <LangSwitch />}
               {!isHome && !isTraveller && <ThemeSwitch />}
               <Button
+                ref={loginReturnFocusRef}
                 variant={isHome ? 'outline' : 'ghost'}
                 className={cn('h-10 rounded-full', isHome && 'home-login-button')}
-                onClick={() => setLoginOpen(true)}
+                onClick={(event) => {
+                  loginReturnFocusRef.current = event.currentTarget
+                  setLoginOpen(true)
+                }}
               >
                 <UserRound />
                 {t('nav.login')}
@@ -207,7 +228,13 @@ export function SiteHeader() {
             )}
             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon-lg" className="rounded-full lg:hidden" aria-label={t('nav.menu')}>
+                <Button
+                  ref={menuTriggerRef}
+                  variant="ghost"
+                  size="icon-lg"
+                  className="rounded-full lg:hidden"
+                  aria-label={t('nav.menu')}
+                >
                   <Menu />
                 </Button>
               </SheetTrigger>
@@ -228,6 +255,7 @@ export function SiteHeader() {
                     variant="outline"
                     className="h-11 w-full rounded-full"
                     onClick={() => {
+                      loginReturnFocusRef.current = menuTriggerRef.current
                       setMenuOpen(false)
                       setLoginOpen(true)
                     }}
@@ -285,7 +313,11 @@ export function SiteHeader() {
           </Link>
         ))}
       </nav>
-      <LoginDialog open={loginOpen} onOpenChange={setLoginOpen} />
+      <LoginDialog
+        open={loginOpen}
+        onOpenChange={setLoginOpen}
+        returnFocusRef={loginReturnFocusRef}
+      />
     </>
   )
 }

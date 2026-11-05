@@ -23,6 +23,14 @@ import { SegmentDetail } from '@/features/routes/segment-detail'
 import { corridorById, SEGMENTS, segmentById } from '@/data/fixtures'
 import { usePrefs } from '@/i18n/preferences'
 import { cn } from '@/lib/utils'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 import './map.css'
 
 type MapSearch = { seg?: string; view?: 'map' | 'list' }
@@ -138,15 +146,26 @@ function MapPage() {
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            className="rp-map-mobile-menu"
-            aria-expanded={mobileMenuOpen}
-            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            onClick={() => setMobileMenuOpen((open) => !open)}
-          >
-            {mobileMenuOpen ? <X aria-hidden /> : <Menu aria-hidden />}
-          </button>
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                className="rp-map-mobile-menu"
+                aria-label="Open navigation menu"
+              >
+                <Menu aria-hidden />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[min(17rem,85vw)]">
+              <SheetHeader>
+                <SheetTitle>Navigation</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Main navigation
+                </SheetDescription>
+              </SheetHeader>
+              <MapNavigation onNavigate={() => setMobileMenuOpen(false)} />
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
 
@@ -156,13 +175,8 @@ function MapPage() {
           <MapSidebarBanner />
         </aside>
 
-        {mobileMenuOpen && (
-          <div className="rp-map-mobile-navigation">
-            <MapNavigation onNavigate={() => setMobileMenuOpen(false)} />
-          </div>
-        )}
-
-        <main className="rp-map-main">
+        <div className="rp-map-main">
+          {view === 'map' && <h1 className="sr-only">Live road map</h1>}
           {mapFailed && (
             <p className="rp-map-fallback-notice" role="status">
               The terrain map could not be loaded. Showing the road list instead.
@@ -192,7 +206,7 @@ function MapPage() {
                 />
               </div>
 
-              <div className="rp-map-compass" aria-label="North">
+              <div className="rp-map-compass" role="img" aria-label="North">
                 <span aria-hidden>N</span>
                 <span aria-hidden className="rp-map-compass-arrow">▲</span>
               </div>
@@ -276,7 +290,7 @@ function MapPage() {
               />
             </section>
           )}
-        </main>
+        </div>
       </div>
     </div>
   )

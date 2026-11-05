@@ -49,7 +49,7 @@ export function RouteErrorPage({ reset }: ErrorComponentProps) {
   const router = useRouter();
 
   return (
-    <main className="grid min-h-svh place-items-center px-6 py-16">
+    <div className="grid min-h-svh place-items-center px-6 py-16">
       <div className="max-w-md space-y-6 text-center">
         <h1 className="text-3xl font-semibold tracking-tight">
           This page couldn’t load
@@ -71,6 +71,6 @@ export function RouteErrorPage({ reset }: ErrorComponentProps) {
           </Button>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

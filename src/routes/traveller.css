@@ -1314,6 +1314,10 @@
 }
 
 @media (max-width: 390px) {
+  .traveller-header .traveller-brand > span:last-child {
+    display: none;
+  }
+
   .traveller-location-actions {
     grid-template-columns: 1fr;
   }

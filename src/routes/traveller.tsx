@@ -409,7 +409,7 @@ export function ResultRow({
         <ActionBadge level={action} />
       </div>
       <div className="traveller-result-main">
-        <h2>
+        <h2 className="rp-wrap-anywhere">
           {place(segment.from)} – {place(segment.to)} <span>({segment.code})</span>
         </h2>
         <p className="traveller-road-code">km {segment.kmStart}–{segment.kmEnd}</p>

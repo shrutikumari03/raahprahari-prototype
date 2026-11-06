@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-DyZJNswf.js";import{t}from"./useNavigate-B2E0cQRx.js";import{t as n}from"./report-step-page-CZTcZktk.js";var r=e();function i(){let e=t();return(0,r.jsx)(n,{step:`received`,navigate:t=>{e(t===`/`?{to:t}:{to:t,search:{segment:void 0}})}})}export{i as component};

@@ -1,1 +1,0 @@
-import{b as e}from"./index-DasBDRtQ.js";var t=e;export{t as errorComponent};

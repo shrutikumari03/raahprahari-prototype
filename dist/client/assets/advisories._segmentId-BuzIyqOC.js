@@ -1,1 +1,0 @@
-import{X as e}from"./index-C6cJNLbs.js";var t=e;export{t as errorComponent};

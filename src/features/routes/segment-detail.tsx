@@ -1,12 +1,12 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight, Camera, CircleQuestionMark, Clock3, Copy, GitCompare, MapPin, Route as RouteIcon, ShieldCheck, TriangleAlert, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ActionBadge, AdvisoryBadge, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
+import { ActionBadge, AdvisoryBadge, CacheTimeLabel, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
 import { corridorById, segmentById } from '@/data/fixtures'
 import { getAdvisorySourceTimestamp, getFreshnessState, type AdvisoryLevel } from '@/lib/advisory'
-import { advisoryFor } from '@/lib/data'
+import { advisoryFor, getAdvisoryCacheTimestamp } from '@/lib/data'
 import { usePrefs } from '@/i18n/preferences'
-import type { CommunityReport } from '@/lib/types'
+import type { CommunityReport, Segment } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
@@ -66,18 +66,20 @@ export function ReportCard({ report }: { report: CommunityReport }) {
 
 export function SegmentDetail({
   segmentId,
+  segment,
   onClose,
   className,
   variant = 'default',
 }: {
   segmentId?: string
+  segment?: Segment
   onClose?: () => void
   className?: string
   variant?: 'default' | 'map' | 'overview'
 }) {
   const { t, ago, stamp, place } = usePrefs()
-  const seg = segmentId ? segmentById(segmentId) : undefined
-  const adv = segmentId ? advisoryFor(segmentId) : undefined
+  const seg = segment ?? (segmentId ? segmentById(segmentId) : undefined)
+  const adv = seg ? advisoryFor(seg.id) : undefined
 
   if (!seg || !adv) {
     return (
@@ -94,6 +96,7 @@ export function SegmentDetail({
   const unverified = adv.evidence.some((r) => r.kind === 'hazard' && r.status !== 'verified')
   const sources = new Set(adv.evidence.map((r) => r.source))
   const r = adv.restriction
+  const cacheTimestamp = getAdvisoryCacheTimestamp()
 
   if (variant === 'map') {
     return (
@@ -114,11 +117,11 @@ export function SegmentDetail({
   return (
     <section aria-labelledby="seg-title" className={cn('rounded-2xl border border-border bg-card p-5', className)}>
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <RoadCode>
             {seg.code} · km {seg.kmStart}–{seg.kmEnd}
           </RoadCode>
-          <h3 id="seg-title" className="mt-1 font-display text-xl font-semibold">
+          <h3 id="seg-title" className="rp-wrap-anywhere mt-1 font-display text-xl font-semibold">
             {place(seg.from)} – {place(seg.to)}
           </h3>
           <p className="text-sm text-muted-foreground">{corridor?.name}</p>
@@ -148,8 +151,8 @@ export function SegmentDetail({
             <p>
               {t(`hazard.${latestHazard.hazardType}`)} · {t(`sev.${latestHazard.severity}`)} — {latestHazard.description}
             </p>
-          ) : adv.basis === 'verified_clear' ? (
-            <p>{t('kind.clear')}</p>
+          ) : adv.basis === 'community_clear' ? (
+            <p>{t('basis.community_clear')}</p>
           ) : (
             <p>{t('copy.noRecent')}</p>
           )}
@@ -202,6 +205,7 @@ export function SegmentDetail({
           ) : (
             <p>{t('copy.noRecent')}</p>
           )}
+          <CacheTimeLabel timestamp={cacheTimestamp} />
           {sources.size > 0 && (
             <p className="text-muted-foreground">
               {[...sources].map((s) => t(`source.${s}`)).join(' · ')} — {adv.evidence.length} {t('segment.reportsCount')}
@@ -258,33 +262,25 @@ function OverviewSegmentDetail({
         Route details
       </h2>
       <dl className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
-        <div className="flex items-start gap-2">
-          <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          <div>
-            <dt className="text-[11px] text-muted-foreground">Starting point</dt>
-            <dd className="text-xs font-medium">{place(segment.from)}</dd>
-          </div>
+        <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-x-2">
+          <MapPin aria-hidden className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <dt className="text-[11px] text-muted-foreground">Starting point</dt>
+          <dd className="rp-wrap-anywhere text-xs font-medium">{place(segment.from)}</dd>
         </div>
-        <div className="flex items-start gap-2">
-          <RouteIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          <div>
-            <dt className="text-[11px] text-muted-foreground">Total distance</dt>
-            <dd className="text-xs font-medium">{segment.distanceKm} km (illustrative)</dd>
-          </div>
+        <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-x-2">
+          <RouteIcon aria-hidden className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <dt className="text-[11px] text-muted-foreground">Total distance</dt>
+          <dd className="rp-wrap-anywhere text-xs font-medium">{segment.distanceKm} km (illustrative)</dd>
         </div>
-        <div className="flex items-start gap-2">
-          <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          <div>
-            <dt className="text-[11px] text-muted-foreground">End point</dt>
-            <dd className="text-xs font-medium">{place(segment.to)}</dd>
-          </div>
+        <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-x-2">
+          <MapPin aria-hidden className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <dt className="text-[11px] text-muted-foreground">End point</dt>
+          <dd className="rp-wrap-anywhere text-xs font-medium">{place(segment.to)}</dd>
         </div>
-        <div className="flex items-start gap-2">
-          <Clock3 aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          <div>
-            <dt className="text-[11px] text-muted-foreground">Estimated time</dt>
-            <dd className="text-xs font-medium">{duration(segment.typicalMinutes)} (illustrative)</dd>
-          </div>
+        <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-x-2">
+          <Clock3 aria-hidden className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <dt className="text-[11px] text-muted-foreground">Estimated time</dt>
+          <dd className="rp-wrap-anywhere text-xs font-medium">{duration(segment.typicalMinutes)} (illustrative)</dd>
         </div>
       </dl>
     </section>
@@ -299,6 +295,8 @@ export function StatusTimeline({
   level: AdvisoryLevel
 }) {
   const { ago, stamp } = usePrefs()
+  const communityLevel: AdvisoryLevel =
+    level === 'clear' || level === 'do_not_travel' ? 'unknown' : level
   const statusLabel = report.status === 'under_review'
     ? 'Under review'
     : report.status === 'needs_info'
@@ -325,14 +323,14 @@ export function StatusTimeline({
         <li className="relative">
           <span className="absolute top-1 -left-[1.32rem] size-2.5 rounded-full border-2 border-status-unknown bg-background" />
           <p className="text-sm font-medium">AI-assisted indication, not an official closure</p>
-          <ActionBadge level={level} className="mt-2" />
+          <ActionBadge level={communityLevel} className="mt-2" />
         </li>
       </ol>
     </section>
   )
 }
 
-function MapSegmentDetail({
+export function MapSegmentDetail({
   segment,
   advisory,
   corridorName,
@@ -346,6 +344,7 @@ function MapSegmentDetail({
   className?: string
 }) {
   const { t, ago, stamp, place } = usePrefs()
+  const cacheTimestamp = getAdvisoryCacheTimestamp()
   const sourceTimestamp = getAdvisorySourceTimestamp(advisory)
   const condition = advisory.evidence.find((report) => report.kind === 'hazard') ?? advisory.evidence[0]
   const source = advisory.evidence.length
@@ -369,7 +368,7 @@ function MapSegmentDetail({
       </div>
 
       <div className="rp-map-segment-title-row">
-        <h2 id="rp-map-segment-title">{place(segment.from)} – {place(segment.to)}</h2>
+        <h2 id="rp-map-segment-title" className="rp-wrap-anywhere">{place(segment.from)} – {place(segment.to)}</h2>
         <ActionBadge level={advisory.level} size="lg" />
       </div>
       <p className="rp-map-segment-meta">
@@ -391,18 +390,28 @@ function MapSegmentDetail({
       <dl className="rp-map-observation-grid">
         <div>
           <dt>Observation time</dt>
-          <dd>{advisory.latestObservationAt ? ago(advisory.latestObservationAt) : 'Unknown'}</dd>
-          {advisory.latestObservationAt && <small>{stamp(advisory.latestObservationAt)}</small>}
+          <dd>
+            {advisory.latestObservationAt ? ago(advisory.latestObservationAt) : 'Unknown'}
+            {advisory.latestObservationAt && <small>{stamp(advisory.latestObservationAt)}</small>}
+          </dd>
         </div>
         <div>
           <dt>Source</dt>
-          <dd>{source}</dd>
-          {advisory.evidence.length > 0 && <small>{advisory.evidence.length} reports</small>}
+          <dd>
+            {source}
+            {advisory.evidence.length > 0 && <small>{advisory.evidence.length} reports</small>}
+          </dd>
         </div>
         <div>
-          <dt>Last updated</dt>
-          <dd>{sourceTimestamp ? ago(sourceTimestamp) : 'Unknown'}</dd>
-          {sourceTimestamp && <small>{stamp(sourceTimestamp)}</small>}
+          <dt>Source time</dt>
+          <dd>
+            {sourceTimestamp ? ago(sourceTimestamp) : 'Unknown'}
+            {sourceTimestamp && <small>{stamp(sourceTimestamp)}</small>}
+          </dd>
+        </div>
+        <div>
+          <dt>Cached at</dt>
+          <dd><CacheTimeLabel timestamp={cacheTimestamp} /></dd>
         </div>
       </dl>
 

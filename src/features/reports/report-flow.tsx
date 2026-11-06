@@ -644,7 +644,7 @@ function StepLocation({
           }}
         />
         <Button variant="secondary" className="h-12 rounded-xl" onClick={useGps} disabled={locating}>
-          {locating ? <LoaderCircle className="animate-spin" /> : <LocateFixed />}
+          {locating ? <LoaderCircle className="motion-safe:animate-spin" /> : <LocateFixed />}
           {locating ? t('search.locating') : t('report.locGps')}
         </Button>
       </div>
@@ -933,7 +933,7 @@ function Submission({ report, onAnother }: { report: LocalReport; onAnother: () 
               <li key={d} className="flex items-center gap-3">
                 {done ? (
                   active && d === 'uploading' ? (
-                    <LoaderCircle aria-hidden className="size-5 animate-spin text-muted-foreground" />
+                    <LoaderCircle aria-hidden className="size-5 motion-safe:animate-spin text-muted-foreground" />
                   ) : (
                     <CircleCheck aria-hidden className="size-5 text-foreground" />
                   )

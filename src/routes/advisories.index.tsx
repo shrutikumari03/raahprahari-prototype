@@ -53,7 +53,7 @@ function AdvisoriesPage() {
           <DemoBadge className="mt-4" />
         </div>
       </header>
-      <main className="rp-container space-y-5 py-6">
+      <div className="rp-container space-y-5 py-6">
         <div className="advisories-filter-scroll">
           <div
             className="flex w-max min-w-full flex-nowrap gap-2 md:w-auto md:min-w-0 md:flex-wrap"
@@ -100,7 +100,7 @@ function AdvisoriesPage() {
         ) : (
           <EmptyState title={t("adv.empty")} message={t("help.reminder")} />
         )}
-      </main>
+      </div>
     </div>
   );
 }

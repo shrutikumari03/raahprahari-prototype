@@ -108,7 +108,7 @@ code {
   --popover: #132a36;
   --popover-foreground: #e6e4dc;
   --raised: #142b37;
-  --primary: #347ccb;
+  --primary: #2767ab;
   --primary-foreground: #ffffff;
   --secondary: #142b37;
   --secondary-foreground: #e6e4dc;
@@ -263,13 +263,26 @@ code {
   }
 }
 
+.rp-wrap-anywhere {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1023px) {
+  .rp-demo-badge-ribbon {
+    position: static;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 1rem 1rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+    animation: none !important;
     transition-duration: 0.01ms !important;
   }
 }
@@ -303,8 +316,7 @@ code {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+    animation: none !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }

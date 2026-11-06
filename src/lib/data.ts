@@ -17,6 +17,14 @@ export function getAdvisories(now: number = DEMO_NOW): Map<string, SegmentAdviso
   return cache
 }
 
+export function getAdvisoryCacheTimestamp(now: number = DEMO_NOW): number {
+  getAdvisories(now)
+  if (cachedAt === undefined) {
+    throw new Error('Advisory cache timestamp is unavailable')
+  }
+  return cachedAt
+}
+
 export const advisoryFor = (segmentId: string, now: number = DEMO_NOW) =>
   getAdvisories(now).get(segmentId)
 

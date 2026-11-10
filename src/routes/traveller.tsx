@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -21,14 +21,14 @@ import {
 } from 'lucide-react'
 import { ActionBadge, FreshnessChip } from '@/components/advisory'
 import { Button } from '@/components/ui/button'
-import { PLACES, placeById, placeById as getPlace } from '@/data/fixtures'
+import { placeById, placeById as getPlace } from '@/data/fixtures'
 import { getCurrentPosition, inCoverage, nearestPlace } from '@/lib/geo'
 import { getAdvisorySourceTimestamp } from '@/lib/advisory'
 import type { AdvisoryLevel, SegmentAdvisory } from '@/lib/advisory'
 import { useAppStore } from '@/lib/app-store'
 import { usePrefs } from '@/i18n/preferences'
 import { findSeededRoutes } from '@/features/routes/routing'
-import type { Segment } from '@/lib/types'
+import type { Corridor, Place, Segment } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import './traveller.css'
 
@@ -48,6 +48,15 @@ type RecentTravellerSearch = {
 type ResultFilter = 'all' | 'roads' | 'hazards'
 type SearchStatus = 'idle' | 'loading' | 'failure'
 
+/** Typing waits this long after the last keystroke before results update. */
+export const SEARCH_DEBOUNCE_MS = 300
+
+const FILTERS = [
+  ['all', 'All'],
+  ['roads', 'Roads'],
+  ['hazards', 'Hazards'],
+] as const
+
 export const Route = createFileRoute('/traveller')({
   validateSearch: (search: Record<string, unknown>): TravellerSearch => ({
     q: typeof search.q === 'string' ? search.q : undefined,
@@ -62,10 +71,19 @@ export const Route = createFileRoute('/traveller')({
 
 function TravellerPage() {
   const { place, ago } = usePrefs()
-  const { segments, advisories, recentSearches: recent, setRecentSearches: setRecent } = useAppStore()
+  const {
+    segments,
+    corridors,
+    places,
+    advisories,
+    recentSearches: recent,
+    setRecentSearches: setRecent,
+  } = useAppStore()
   const navigate = useNavigate()
   const search = Route.useSearch()
   const inputRef = useRef<HTMLInputElement>(null)
+  const debounceRef = useRef<number | undefined>(undefined)
+  const lastTypedAtRef = useRef(0)
   const from = search.from && placeById(search.from) ? search.from : undefined
   const to = search.to && placeById(search.to) ? search.to : undefined
   const journey = !!from && !!to && from !== to
@@ -73,6 +91,8 @@ function TravellerPage() {
     search.q ?? (journey && from && to ? `${place(from)} to ${place(to)}` : ''),
   )
   const [searchStatus, setSearchStatus] = useState<SearchStatus>('idle')
+  /** True while a typed query is waiting for the debounce to fire. */
+  const [pending, setPending] = useState(false)
   const [filter, setFilter] = useState<ResultFilter>('all')
   const [locationMessage, setLocationMessage] = useState<string | null>(null)
   const [locating, setLocating] = useState(false)
@@ -80,76 +100,127 @@ function TravellerPage() {
   const activeQuery = search.q?.trim() ?? ''
   const hasSearch = !!activeQuery || journey
 
+  useEffect(() => () => window.clearTimeout(debounceRef.current), [])
+
+  // The landing and results layouts each render the form, so the input remounts
+  // when the first debounced search lands. Keep focus and caret if the user is typing.
+  useEffect(() => {
+    const input = inputRef.current
+    if (!input || document.activeElement === input) return
+    if (Date.now() - lastTypedAtRef.current > 2_000) return
+    input.focus()
+    input.setSelectionRange(input.value.length, input.value.length)
+  }, [hasSearch])
+
   const routeOptions = useMemo(
     () => {
       if (journey && from && to) return findSeededRoutes(from, to)
-      const endpoints = routePlaceIds(activeQuery)
+      const endpoints = routePlaceIds(activeQuery, places)
       return endpoints ? findSeededRoutes(...endpoints) : []
     },
-    [activeQuery, from, to, journey],
+    [activeQuery, from, to, journey, places],
   )
-  const matchingSegments = useMemo(() => {
-    if (journey && from && to) {
-      return [...new Map(routeOptions.flatMap((route) => route.segments).map((segment) => [segment.id, segment])).values()]
+
+  const results = useMemo((): { matches: SegmentMatch[]; error: boolean } => {
+    try {
+      if (journey) {
+        const routeSegments = [
+          ...new Map(routeOptions.flatMap((route) => route.segments).map((s) => [s.id, s])).values(),
+        ]
+        return { matches: routeSegments.map((s) => toMatch(s, true, advisories)), error: false }
+      }
+      return {
+        matches: searchSegments(activeQuery, { segments, corridors, places, advisories }),
+        error: false,
+      }
+    } catch (error) {
+      console.error('Road search failed', error)
+      return { matches: [], error: true }
     }
-    return activeQuery ? segmentsForQuery(activeQuery, segments, advisories) : []
-  }, [activeQuery, from, journey, routeOptions, to, segments, advisories])
-  const matchingAdvisories = matchingSegments.map((segment) => {
-    const advisory = advisories.get(segment.id)
-    if (!advisory) throw new Error(`Missing advisory for segment "${segment.id}"`)
-    return { segment, advisory }
-  })
-  const filteredResults = matchingAdvisories.filter(({ advisory }) => {
-    if (filter === 'hazards') {
-      return advisory.evidence.some((report) => report.kind === 'hazard') || !!advisory.restriction
-    }
-    if (filter === 'roads') return true
-    return true
-  })
+  }, [activeQuery, journey, routeOptions, segments, corridors, places, advisories])
+
+  const counts = {
+    all: results.matches.length,
+    roads: results.matches.filter((m) => m.road).length,
+    hazards: results.matches.filter((m) => m.hazard).length,
+  }
+  const filteredResults = results.matches.filter((m) =>
+    filter === 'roads' ? m.road : filter === 'hazards' ? m.hazard : true,
+  )
   const routeSummary = routeOptions[0]
-  const runSearch = (rawQuery = query) => {
+
+  const rememberSearch = (value: string) =>
+    setRecent((previous) =>
+      [
+        { query: value, at: Date.now() },
+        ...previous.filter((item) => item.query.toLowerCase() !== value.toLowerCase()),
+      ].slice(0, 5),
+    )
+
+  /** Puts the query in the URL. Typed (debounced) searches replace history and are not remembered. */
+  const commitSearch = (value: string | undefined, remember: boolean) =>
+    navigate({
+      to: '/traveller',
+      search: { q: value, from: undefined, to: undefined, view: undefined, seg: undefined },
+      replace: !remember,
+    })
+      .then(() => {
+        setSearchStatus('idle')
+        setPending(false)
+        if (remember && value) rememberSearch(value)
+      })
+      .catch((error: unknown) => {
+        console.error('Road search navigation failed', error)
+        setPending(false)
+        setSearchStatus('failure')
+      })
+
+  const runSearch = (rawQuery = query, options: { keepMessage?: boolean } = {}) => {
     const value = rawQuery.trim()
+    window.clearTimeout(debounceRef.current)
+    setPending(false)
     if (!value) {
       inputRef.current?.focus()
       return
     }
 
     setQuery(value)
-    setLocationMessage(null)
+    if (!options.keepMessage) setLocationMessage(null)
     setSearchStatus('loading')
-    window.setTimeout(() => {
-      void navigate({
-        to: '/traveller',
-        search: {
-          q: value,
-          from: undefined,
-          to: undefined,
-          view: undefined,
-          seg: undefined,
-        },
-      }).then(() => {
-        setSearchStatus('idle')
-        setRecent((previous) => [
-          { query: value, at: Date.now() },
-          ...previous.filter((item) => item.query.toLowerCase() !== value.toLowerCase()),
-        ].slice(0, 5))
-      }).catch((error: unknown) => {
-        console.error('Road search navigation failed', error)
-        setSearchStatus('failure')
-      })
-    }, 100)
+    window.setTimeout(() => void commitSearch(value, true), 100)
+  }
+
+  const onQueryChange = (value: string) => {
+    setQuery(value)
+    lastTypedAtRef.current = Date.now()
+    window.clearTimeout(debounceRef.current)
+    if (searchStatus === 'failure') setSearchStatus('idle')
+    const trimmed = value.trim()
+    if (trimmed === activeQuery && !journey) {
+      setPending(false)
+      return
+    }
+    setPending(true)
+    debounceRef.current = window.setTimeout(
+      () => void commitSearch(trimmed || undefined, false),
+      SEARCH_DEBOUNCE_MS,
+    )
   }
 
   const clearSearch = () => {
+    window.clearTimeout(debounceRef.current)
+    setPending(false)
     setQuery('')
     setSearchStatus('idle')
     setLocationMessage(null)
+    setFilter('all')
     void navigate({
       to: '/traveller',
       search: { q: undefined, from: undefined, to: undefined, view: undefined, seg: undefined },
     })
   }
 
+  /** Asks the browser for permission; the browser shows its own prompt. */
   const requestCurrentLocation = async () => {
     setLocating(true)
     setLocationMessage(null)
@@ -162,17 +233,23 @@ function TravellerPage() {
           : 'Location is unavailable. You can still search manually.',
       )
       setManualEntry(true)
+      inputRef.current?.focus()
       return
     }
     if (!inCoverage(result.lat, result.lon)) {
       setLocationMessage('Your location is outside the current coverage area. Enter a place or road manually.')
       setManualEntry(true)
+      inputRef.current?.focus()
       return
     }
 
+    // Allowed: search the nearest covered place. The user can edit it afterwards.
     const nearest = nearestPlace(result.lat, result.lon)
-    setQuery(place(nearest.id))
-    setLocationMessage(`Nearest covered place: ${place(nearest.id)}. Review or edit the search before continuing.`)
+    const name = place(nearest.id)
+    setLocationMessage(
+      `Showing road sections at ${name}, the nearest covered place (location accurate to about ${Math.round(result.accuracyM)} m). Edit the search to change it.`,
+    )
+    runSearch(name, { keepMessage: true })
   }
 
   const chooseRecent = (value: string) => {
@@ -197,7 +274,7 @@ function TravellerPage() {
           ref={inputRef}
           id="traveller-query"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => onQueryChange(event.target.value)}
           placeholder="e.g. Dehradun to Mussoorie"
           autoComplete="off"
         />
@@ -212,9 +289,10 @@ function TravellerPage() {
           </button>
         )}
       </div>
+      {/* Stays enabled while a typed search is pending so Enter can run it immediately. */}
       <Button type="submit" className="traveller-search-submit" disabled={!query.trim() || searchStatus === 'loading'}>
         <Search aria-hidden />
-        {searchStatus === 'loading' ? 'Searching…' : 'Search road'}
+        {searchStatus === 'loading' || pending ? 'Searching…' : 'Search road'}
       </Button>
       <div className="traveller-location-actions">
         <Button type="button" variant="outline" onClick={() => void requestCurrentLocation()} disabled={locating}>
@@ -289,12 +367,10 @@ function TravellerPage() {
           </div>
           <div className="traveller-results-search">{searchForm}</div>
         </div>
+        {/* All: every match. Roads: the road itself (ID, code, corridor or place) matched.
+            Hazards: sections with a community hazard report or an official restriction. */}
         <div className="traveller-filter-row" role="group" aria-label="Filter results">
-          {([
-            ['all', 'All'],
-            ['roads', 'Roads'],
-            ['hazards', 'Hazards'],
-          ] as const).map(([key, label]) => (
+          {FILTERS.map(([key, label]) => (
             <button
               type="button"
               key={key}
@@ -305,6 +381,7 @@ function TravellerPage() {
               {key === 'roads' && <MapIcon aria-hidden />}
               {key === 'hazards' && <TriangleAlert aria-hidden />}
               {label}
+              <span className="traveller-filter-count">{counts[key]}</span>
             </button>
           ))}
         </div>
@@ -312,7 +389,7 @@ function TravellerPage() {
 
       <div className="traveller-results-layout">
         <section className="traveller-result-list" aria-label="Search results">
-          {searchStatus === 'loading' ? (
+          {searchStatus === 'loading' || pending ? (
             <div className="traveller-state-card" role="status">
               <span className="traveller-loading-mark" aria-hidden />
               <div>
@@ -320,7 +397,7 @@ function TravellerPage() {
                 <p>Checking available synthetic reports and advisories.</p>
               </div>
             </div>
-          ) : searchStatus === 'failure' ? (
+          ) : searchStatus === 'failure' || results.error ? (
             <div className="traveller-state-card" role="alert">
               <TriangleAlert aria-hidden />
               <div>
@@ -345,6 +422,22 @@ function TravellerPage() {
                 observedLabel={advisory.latestObservationAt ? ago(advisory.latestObservationAt) : undefined}
               />
             ))
+          ) : results.matches.length ? (
+            <div className="traveller-empty-state">
+              <MapPin aria-hidden />
+              <div>
+                <h2>No {filter === 'roads' ? 'road' : 'hazard'} matches for this search.</h2>
+                <p>
+                  {filter === 'hazards'
+                    ? 'No hazard or restriction is on record here. That does not mean the road is clear.'
+                    : 'Your search only matched report text, not a road name, ID or place.'}
+                </p>
+              </div>
+              <Button type="button" variant="ghost" onClick={() => setFilter('all')}>
+                <RotateCcw aria-hidden />
+                Show all {results.matches.length} results
+              </Button>
+            </div>
           ) : (
             <div className="traveller-empty-state">
               <MapPin aria-hidden />
@@ -626,47 +719,100 @@ function TravellerFooter() {
   )
 }
 
-function segmentsForQuery(
-  query: string,
-  allSegments: Segment[],
+export interface SegmentMatch {
+  segment: Segment
+  advisory: SegmentAdvisory
+  /** The road itself (ID, code, corridor or place) matched, not only report text. */
+  road: boolean
+  /** Has a community hazard report or an official restriction. */
+  hazard: boolean
+}
+
+function toMatch(
+  segment: Segment,
+  road: boolean,
   advisories: Map<string, SegmentAdvisory>,
-): Segment[] {
+): SegmentMatch {
+  const advisory = advisories.get(segment.id)
+  if (!advisory) throw new Error(`Missing advisory for segment "${segment.id}"`)
+  return {
+    segment,
+    advisory,
+    road,
+    hazard: advisory.evidence.some((report) => report.kind === 'hazard') || !!advisory.restriction,
+  }
+}
+
+/**
+ * Filters the store's segments by free text. Matches segment ID (nh7-06),
+ * road code (NH-7, SH-MSR), corridor name, and place names in English or
+ * Hindi, plus district. "A to B" finds seeded routes between two places.
+ * Report descriptions, landmarks and restriction titles also match, but
+ * those results are not counted as road matches.
+ */
+export function searchSegments(
+  query: string,
+  data: {
+    segments: Segment[]
+    corridors: Corridor[]
+    places: Place[]
+    advisories: Map<string, SegmentAdvisory>
+  },
+): SegmentMatch[] {
   const normalized = normalizeQuery(query)
-  const endpoints = routePlaceIds(query)
+  if (!normalized) return []
+
+  const endpoints = routePlaceIds(query, data.places)
   if (endpoints) {
-    return [...new Map(findSeededRoutes(...endpoints).flatMap((route) => route.segments).map((segment) => [segment.id, segment])).values()]
+    const routeSegments = [
+      ...new Map(findSeededRoutes(...endpoints).flatMap((route) => route.segments).map((s) => [s.id, s])).values(),
+    ]
+    return routeSegments.map((segment) => toMatch(segment, true, data.advisories))
   }
 
-  const words = normalized.split(/\s+/).filter((word) => word && word !== 'to')
-  return allSegments.filter((segment) => {
-    const advisory = advisories.get(segment.id)
-    const from = placeById(segment.from)
-    const to = placeById(segment.to)
-    const haystack = normalizeQuery([
-      segment.code,
-      from?.name,
-      from?.nameHi,
-      to?.name,
-      to?.nameHi,
-      ...advisory?.evidence.map((report) => report.description) ?? [],
-      ...advisory?.evidence.map((report) => report.landmark) ?? [],
-      advisory?.restriction?.title,
-    ].filter(Boolean).join(' '))
-    return haystack.includes(normalized) || words.every((word) => haystack.includes(word))
+  const words = normalized.split(' ').filter((word) => word && word !== 'to')
+  const matches = (haystack: string) =>
+    haystack.includes(normalized) || (words.length > 0 && words.every((word) => haystack.includes(word)))
+  const placeText = (id: string) => {
+    const p = data.places.find((candidate) => candidate.id === id)
+    return p ? [p.id, p.name, p.nameHi, p.district] : [id]
+  }
+
+  return data.segments.flatMap((segment) => {
+    const corridor = data.corridors.find((c) => c.id === segment.corridorId)
+    const roadText = normalizeQuery(
+      [segment.id, segment.code, corridor?.code, corridor?.name, ...placeText(segment.from), ...placeText(segment.to)]
+        .filter(Boolean)
+        .join(' '),
+    )
+    if (matches(roadText)) return [toMatch(segment, true, data.advisories)]
+
+    const advisory = data.advisories.get(segment.id)
+    const evidenceText = normalizeQuery(
+      [
+        ...(advisory?.evidence.map((report) => `${report.description} ${report.landmark}`) ?? []),
+        advisory?.restriction?.title,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    )
+    return evidenceText && matches(`${roadText} ${evidenceText}`)
+      ? [toMatch(segment, false, data.advisories)]
+      : []
   })
 }
 
-function routePlaceIds(query: string): [string, string] | undefined {
+function routePlaceIds(query: string, places: Place[]): [string, string] | undefined {
   const parts = query.split(/\s+(?:to|→|–)\s+/i).map((part) => part.trim()).filter(Boolean)
   if (parts.length !== 2) return undefined
-  const start = findPlaceId(parts[0])
-  const end = findPlaceId(parts[1])
+  const start = findPlaceId(parts[0], places)
+  const end = findPlaceId(parts[1], places)
   return start && end ? [start, end] : undefined
 }
 
-function findPlaceId(value: string) {
+function findPlaceId(value: string, places: Place[]) {
   const needle = normalizeQuery(value)
-  return PLACES.find((place) =>
+  return places.find((place) =>
     [place.id, place.name, place.nameHi].some((candidate) => normalizeQuery(candidate) === needle),
   )?.id
 }

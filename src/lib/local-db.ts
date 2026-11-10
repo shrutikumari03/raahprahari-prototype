@@ -79,10 +79,31 @@ export interface OutboxRecord {
   updatedAt: number;
 }
 
+export type ReceiptEventType =
+  | "saved_locally"
+  | "send_failed"
+  | "rejected"
+  | "server_received"
+  | "media_uploaded"
+  | "media_failed";
+
+export interface ReceiptEventRecord {
+  id?: number;
+  reportId: string;
+  accountScope: string;
+  type: ReceiptEventType;
+  at: number;
+  code: string | null;
+  detail: string | null;
+  receiptId: string | null;
+  serverReceivedAt: string | null;
+}
+
 export class RaahPrahariLocalDB extends Dexie {
   drafts!: Table<DraftRecord, string>;
   attachments!: Table<AttachmentRecord, string>;
   outbox!: Table<OutboxRecord, string>;
+  receiptEvents!: Table<ReceiptEventRecord, number>;
 
   constructor(databaseName = "raahprahari-local") {
     super(databaseName);
@@ -141,6 +162,48 @@ export class RaahPrahariLocalDB extends Dexie {
             entry.nextAttemptAt ??= 0;
           });
       });
+    this.version(4).stores({
+      drafts:
+        "&id, accountScope, [accountScope+status], [accountScope+updatedAt], eventTime, createdAt, updatedAt, savedAt",
+      attachments:
+        "&id, draftId, accountScope, [accountScope+uploadState], createdAt",
+      outbox:
+        "&id, reportId, accountScope, [accountScope+state], [accountScope+nextAttemptAt], nextAttemptAt, updatedAt",
+      receiptEvents:
+        "++id, reportId, [accountScope+reportId+at]",
+    }).upgrade(async (transaction) => {
+      const drafts = await transaction.table("drafts").toArray();
+      const events: ReceiptEventRecord[] = drafts
+        .filter((draft) => draft.accountScope && draft.savedAt)
+        .map((draft) => ({
+          reportId: draft.id,
+          accountScope: draft.accountScope,
+          type: "saved_locally",
+          at: draft.savedAt ?? Date.now(),
+          code: "saved",
+          detail: draft.payload?.hazardType || null,
+          receiptId: null,
+          serverReceivedAt: null,
+        }));
+      const outboxEntries = await transaction.table("outbox").toArray();
+      for (const outbox of outboxEntries) {
+        if (outbox.metadataReceipt && outbox.accountScope) {
+          events.push({
+            reportId: outbox.reportId,
+            accountScope: outbox.accountScope,
+            type: "server_received",
+            at: Date.parse(outbox.metadataReceipt.receivedAt) || Date.now(),
+            code: "received",
+            detail: outbox.metadataReceipt.receiptId || null,
+            receiptId: outbox.metadataReceipt.receiptId || null,
+            serverReceivedAt: outbox.metadataReceipt.receivedAt || null,
+          });
+        }
+      }
+      if (events.length) {
+        await transaction.table("receiptEvents").bulkAdd(events);
+      }
+    });
   }
 }
 

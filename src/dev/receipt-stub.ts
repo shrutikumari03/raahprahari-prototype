@@ -18,8 +18,17 @@ interface StoredReport {
   receipt: ReportReceipt;
 }
 
+interface RequestLogEntry {
+  method: string;
+  path: string;
+  headers: Record<string, string>;
+  reportId: string;
+  at: number;
+}
+
 interface StubControls {
   failNext(count: number, kind: SyncErrorKind): void;
+  failAuthNext(count: number): void;
   dropAckNext(count: number): void;
   setLatency(milliseconds: number): void;
   received(): Array<{
@@ -28,10 +37,12 @@ interface StubControls {
     receivedAt: string;
   }>;
   failMediaNext(count: number): void;
+  requests(): RequestLogEntry[];
+  reset(): void;
 }
 
 interface DevHelpers {
-  signIn(userId: string): void;
+  signIn(userId: string, options?: { expiresInMs?: number }): void;
   signOut(): void;
 }
 
@@ -44,11 +55,13 @@ declare global {
 
 const reports = new Map<string, StoredReport>();
 let failuresRemaining = 0;
+let authFailuresRemaining = 0;
 let failureKind: SyncErrorKind = "network";
 let droppedAcksRemaining = 0;
 let mediaFailuresRemaining = 0;
 let latencyMs = 0;
 let receiptSequence = 0;
+const requestLog: RequestLogEntry[] = [];
 
 const failureMessages: Record<SyncErrorKind, string> = {
   network: "Could not reach the development receipt stub.",
@@ -95,13 +108,40 @@ async function wait(signal: AbortSignal) {
   }
 }
 
+function logRequest(
+  method: string,
+  path: string,
+  reportId: string,
+  headers: Record<string, string>,
+) {
+  requestLog.push({
+    method,
+    path,
+    headers: Object.fromEntries(
+      Object.entries(headers).map(([key, value]) => [
+        key,
+        key.toLowerCase() === "authorization" ? "******" : value,
+      ]),
+    ),
+    reportId,
+    at: Date.now(),
+  });
+}
+
 const stub: ReportSyncTransport & AttachmentUploadTransport = {
   async sendMetadata(
     payload: ReportMetadataPayload,
-    { signal }: TransportContext,
+    { signal, accessToken }: TransportContext,
   ) {
     await wait(signal);
     if (signal.aborted) return failure("aborted");
+    logRequest("PUT", `/reports/${payload.reportId}`, payload.reportId, {
+      Authorization: accessToken ? "******" : "none",
+    });
+    if (authFailuresRemaining > 0) {
+      authFailuresRemaining -= 1;
+      return failure("auth_required");
+    }
     if (failuresRemaining > 0) {
       failuresRemaining -= 1;
       return failure(failureKind);
@@ -132,12 +172,18 @@ const stub: ReportSyncTransport & AttachmentUploadTransport = {
   },
 
   async requestUploadTarget(
-    _reportId: string,
-    _attachmentId: string,
-    { signal },
+    reportId: string,
+    attachmentId: string,
+    { signal, accessToken },
   ) {
     await wait(signal);
     if (signal.aborted) return failure("aborted");
+    logRequest(
+      "POST",
+      `/reports/${reportId}/attachments/${attachmentId}/upload-target`,
+      reportId,
+      { Authorization: accessToken ? "******" : "none" },
+    );
     const target: UploadTarget = {
       uploadUrl: "https://dev.invalid/upload",
       method: "PUT",
@@ -163,6 +209,9 @@ const controls: StubControls = {
     failuresRemaining = Math.max(0, Math.floor(count));
     failureKind = kind;
   },
+  failAuthNext(count) {
+    authFailuresRemaining = Math.max(0, Math.floor(count));
+  },
   dropAckNext(count) {
     droppedAcksRemaining = Math.max(0, Math.floor(count));
   },
@@ -179,17 +228,53 @@ const controls: StubControls = {
   failMediaNext(count) {
     mediaFailuresRemaining = Math.max(0, Math.floor(count));
   },
+  requests() {
+    return requestLog.map((entry) => ({ ...entry, headers: { ...entry.headers } }));
+  },
+  reset() {
+    reports.clear();
+    requestLog.length = 0;
+    failuresRemaining = 0;
+    authFailuresRemaining = 0;
+    droppedAcksRemaining = 0;
+    mediaFailuresRemaining = 0;
+    latencyMs = 0;
+    receiptSequence = 0;
+    setAccessTokenProvider(null);
+    setAccountSession({ status: "signed_out", userId: null });
+  },
 };
 
 if (typeof window !== "undefined") {
   window.__rpDevStub = controls;
   window.__rpDev = {
-    signIn(userId: string) {
+    signIn(userId: string, options: { expiresInMs?: number } = {}) {
       if (!userId.trim()) {
         throw new Error("A user ID is required to sign in to the dev stub.");
       }
-      setAccessTokenProvider(async () => "dev-receipt-stub-token");
-      setAccountSession({ status: "authenticated", userId });
+      const expiresAt =
+        typeof options.expiresInMs === "number" && options.expiresInMs > 0
+          ? Date.now() + options.expiresInMs
+          : undefined;
+      setAccessTokenProvider(async () => {
+        if (
+          typeof expiresAt === "number" &&
+          expiresAt <= Date.now()
+        ) {
+          setAccountSession({ status: "signed_out", userId: null });
+          return null;
+        }
+        return "dev-receipt-stub-token";
+      });
+      const nextSession = { status: "authenticated", userId } as {
+        status: "authenticated";
+        userId: string;
+        expiresAt?: number | null;
+      };
+      if (typeof expiresAt === "number") {
+        nextSession.expiresAt = expiresAt;
+      }
+      setAccountSession(nextSession);
     },
     signOut() {
       setAccessTokenProvider(null);

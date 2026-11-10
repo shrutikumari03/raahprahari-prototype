@@ -1,6 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { useRef, useState, useSyncExternalStore } from 'react'
-import { House, ListChecks, Map, Menu, Monitor, Moon, Search, Sun, TriangleAlert, UserRound, WifiOff } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { House, ListChecks, Map, Menu, Monitor, Moon, Search, Sun, TriangleAlert, UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { usePrefs } from '@/i18n/preferences'
+import { OfflineBanner } from '@/components/offline-banner'
 import { cn } from '@/lib/utils'
 
 export function Logo({ className }: { className?: string }) {
@@ -29,23 +30,6 @@ export function Logo({ className }: { className?: string }) {
       </span>
     </span>
   )
-}
-
-function subscribeToOnlineStatus(onChange: () => void) {
-  window.addEventListener('online', onChange)
-  window.addEventListener('offline', onChange)
-  return () => {
-    window.removeEventListener('online', onChange)
-    window.removeEventListener('offline', onChange)
-  }
-}
-
-function getOnlineStatus() {
-  return typeof navigator === 'undefined' || navigator.onLine
-}
-
-export function useOnline() {
-  return useSyncExternalStore(subscribeToOnlineStatus, getOnlineStatus, () => true)
 }
 
 function LangSwitch() {
@@ -134,7 +118,6 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const loginReturnFocusRef = useRef<HTMLButtonElement>(null)
   const menuTriggerRef = useRef<HTMLButtonElement>(null)
-  const online = useOnline()
   const { pathname, view } = useRouterState({
     select: (s) => ({
       pathname: s.location.pathname,
@@ -269,15 +252,8 @@ export function SiteHeader() {
             </Sheet>
           </div>
         </div>
-        {!online && (
-          <div role="status" className="border-t border-border bg-raised">
-            <p className="rp-container flex items-center gap-2 py-2 text-sm">
-              <WifiOff aria-hidden className="size-4 text-muted-foreground" />
-              {t('offline.banner')}
-            </p>
-          </div>
-        )}
       </header>
+      <OfflineBanner />
       <nav
         aria-label={t('nav.primary')}
         className={cn(

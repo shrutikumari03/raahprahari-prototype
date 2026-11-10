@@ -5,6 +5,7 @@ import {
   subscribeAccountSession,
 } from "@/lib/account-session";
 import {
+  appendReceiptEvent,
   enqueueReport,
   getNextOutboxAttemptAt,
   listOutbox,
@@ -166,42 +167,80 @@ async function updateOutbox(
   });
 }
 
+async function blockAuthForScope(scope: string, ownerUserId: string) {
+  await localDb.transaction("rw", localDb.outbox, async () => {
+    const entries = await localDb.outbox
+      .where("accountScope")
+      .equals(scope)
+      .toArray();
+    for (const entry of entries) {
+      if (
+        entry.ownerUserId === ownerUserId &&
+        !entry.authBlocked &&
+        (entry.state === "pending" || entry.state === "failed")
+      ) {
+        await localDb.outbox.put({
+          ...entry,
+          authBlocked: true,
+          state: "failed",
+          nextAttemptAt: 0,
+          updatedAt: Date.now(),
+        });
+      }
+    }
+  });
+}
+
 async function saveFailure(
   scope: string,
   entry: OutboxRecord,
   error: SyncError,
   signal: AbortSignal,
 ) {
-  await localDb.transaction("rw", localDb.outbox, async () => {
-    const current = await localDb.outbox.get(entry.id);
-    if (
-      !current ||
-      !currentEntryIsOwned(current, scope) ||
-      !currentScopeIs(scope, signal)
-    )
-      return;
-    const authBlocked = error.kind === "auth_required";
-    const attempts = authBlocked ? current.attempts : current.attempts + 1;
-    const delay = error.retryable
-      ? nextDelay(attempts || 1, error.retryAfterMs)
-      : 0;
-    const retryAt = error.retryAfterMs ? Date.now() + error.retryAfterMs : null;
-    await localDb.outbox.put({
-      ...current,
-      state:
-        error.kind === "rejected" || !error.retryable ? "rejected" : "failed",
-      attempts,
-      nextAttemptAt:
-        error.retryable && !authBlocked
-          ? Math.max(Date.now() + delay, retryAt ?? 0)
-          : 0,
-      lastErrorCode: error.kind,
-      lastErrorMessage: error.message,
-      retryAfterAt: retryAt,
-      authBlocked,
-      updatedAt: Date.now(),
-    });
-  });
+  await localDb.transaction(
+    "rw",
+    localDb.outbox,
+    localDb.receiptEvents,
+    async () => {
+      const current = await localDb.outbox.get(entry.id);
+      if (
+        !current ||
+        !currentEntryIsOwned(current, scope) ||
+        !currentScopeIs(scope, signal)
+      )
+        return;
+      const authBlocked = error.kind === "auth_required";
+      const attempts = authBlocked ? current.attempts : current.attempts + 1;
+      const delay = error.retryable
+        ? nextDelay(attempts || 1, error.retryAfterMs)
+        : 0;
+      const retryAt = error.retryAfterMs ? Date.now() + error.retryAfterMs : null;
+      const nextState =
+        error.kind === "rejected" || !error.retryable ? "rejected" : "failed";
+      await localDb.outbox.put({
+        ...current,
+        state: nextState,
+        attempts,
+        nextAttemptAt:
+          error.retryable && !authBlocked
+            ? Math.max(Date.now() + delay, retryAt ?? 0)
+            : 0,
+        lastErrorCode: error.kind,
+        lastErrorMessage: error.message,
+        retryAfterAt: retryAt,
+        authBlocked,
+        updatedAt: Date.now(),
+      });
+      await appendReceiptEvent(current.reportId, scope, {
+        type: nextState === "rejected" ? "rejected" : "send_failed",
+        at: Date.now(),
+        code: error.kind,
+        detail: error.message,
+        receiptId: null,
+        serverReceivedAt: null,
+      });
+    },
+  );
 }
 
 async function persistInvalidReport(
@@ -239,6 +278,7 @@ async function persistReceipt(
     "rw",
     localDb.outbox,
     localDb.attachments,
+    localDb.receiptEvents,
     async () => {
       const current = await localDb.outbox.get(entry.id);
       if (
@@ -262,6 +302,14 @@ async function persistReceipt(
         retryAfterAt: null,
         authBlocked: false,
         updatedAt: now,
+      });
+      await appendReceiptEvent(current.reportId, scope, {
+        type: "server_received",
+        at: now,
+        code: "received",
+        detail: receipt.receiptId || null,
+        receiptId: receipt.receiptId || null,
+        serverReceivedAt: receipt.receivedAt || null,
       });
       for (const target of receipt.attachmentUploads ?? []) {
         const attachment = await localDb.attachments.get(target.attachmentId);
@@ -292,21 +340,34 @@ async function saveMediaFailure(
   error: SyncError,
   signal: AbortSignal,
 ) {
-  await localDb.transaction("rw", localDb.attachments, async () => {
-    const current = await localDb.attachments.get(attachment.id);
-    if (
-      !current ||
-      current.accountScope !== scope ||
-      !currentScopeIs(scope, signal)
-    )
-      return;
-    await localDb.attachments.put({
-      ...current,
-      uploadState: "failed",
-      uploadError: error.message,
-      uploadAttempts: current.uploadAttempts + 1,
-    });
-  });
+  await localDb.transaction(
+    "rw",
+    localDb.attachments,
+    localDb.receiptEvents,
+    async () => {
+      const current = await localDb.attachments.get(attachment.id);
+      if (
+        !current ||
+        current.accountScope !== scope ||
+        !currentScopeIs(scope, signal)
+      )
+        return;
+      await localDb.attachments.put({
+        ...current,
+        uploadState: "failed",
+        uploadError: error.message,
+        uploadAttempts: current.uploadAttempts + 1,
+      });
+      await appendReceiptEvent(current.draftId, scope, {
+        type: "media_failed",
+        at: Date.now(),
+        code: error.kind,
+        detail: current.name,
+        receiptId: null,
+        serverReceivedAt: null,
+      });
+    },
+  );
 }
 
 async function uploadAttachment(
@@ -368,6 +429,14 @@ async function uploadAttachment(
     uploadedAt: Date.now(),
     uploadAttempts: attachment.uploadAttempts + 1,
     uploadError: null,
+  });
+  await appendReceiptEvent(reportId, scope, {
+    type: "media_uploaded",
+    at: Date.now(),
+    code: "uploaded",
+    detail: attachment.name,
+    receiptId: null,
+    serverReceivedAt: null,
   });
   return true;
 }
@@ -643,6 +712,9 @@ export async function syncNow({
     const scope = getActiveAccountScope();
     const token = await getAccessToken();
     if (!token) {
+      if (session.status === "authenticated") {
+        await blockAuthForScope(scope, session.userId);
+      }
       const result = summary(
         "signed_out",
         0,

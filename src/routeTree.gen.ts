@@ -25,6 +25,8 @@ import { Route as ReportLocationRouteImport } from './routes/report.location'
 import { Route as ReportPhotoRouteImport } from './routes/report.photo'
 import { Route as ReportReceivedRouteImport } from './routes/report.received'
 import { Route as ReportReviewRouteImport } from './routes/report.review'
+import { Route as ReportsIndexRouteImport } from './routes/reports.index'
+import { Route as ReportsIdRouteImport } from './routes/reports.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -106,6 +108,16 @@ const ReportReviewRoute = ReportReviewRouteImport.update({
   path: '/review',
   getParentRoute: () => ReportRoute,
 } as any)
+const ReportsIndexRoute = ReportsIndexRouteImport.update({
+  id: '/reports/',
+  path: '/reports/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsIdRoute = ReportsIdRouteImport.update({
+  id: '/reports/$id',
+  path: '/reports/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -122,8 +134,10 @@ export interface FileRoutesByFullPath {
   '/report/photo': typeof ReportPhotoRoute
   '/report/received': typeof ReportReceivedRoute
   '/report/review': typeof ReportReviewRoute
+  '/reports/$id': typeof ReportsIdRoute
   '/advisories/': typeof AdvisoriesIndexRoute
   '/report/': typeof ReportIndexRoute
+  '/reports/': typeof ReportsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -139,8 +153,10 @@ export interface FileRoutesByTo {
   '/report/photo': typeof ReportPhotoRoute
   '/report/received': typeof ReportReceivedRoute
   '/report/review': typeof ReportReviewRoute
+  '/reports/$id': typeof ReportsIdRoute
   '/advisories': typeof AdvisoriesIndexRoute
   '/report': typeof ReportIndexRoute
+  '/reports': typeof ReportsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -158,8 +174,10 @@ export interface FileRoutesById {
   '/report/photo': typeof ReportPhotoRoute
   '/report/received': typeof ReportReceivedRoute
   '/report/review': typeof ReportReviewRoute
+  '/reports/$id': typeof ReportsIdRoute
   '/advisories/': typeof AdvisoriesIndexRoute
   '/report/': typeof ReportIndexRoute
+  '/reports/': typeof ReportsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -178,8 +196,10 @@ export interface FileRouteTypes {
     | '/report/photo'
     | '/report/received'
     | '/report/review'
+    | '/reports/$id'
     | '/advisories/'
     | '/report/'
+    | '/reports/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -195,8 +215,10 @@ export interface FileRouteTypes {
     | '/report/photo'
     | '/report/received'
     | '/report/review'
+    | '/reports/$id'
     | '/advisories'
     | '/report'
+    | '/reports'
   id:
     | '__root__'
     | '/'
@@ -213,8 +235,10 @@ export interface FileRouteTypes {
     | '/report/photo'
     | '/report/received'
     | '/report/review'
+    | '/reports/$id'
     | '/advisories/'
     | '/report/'
+    | '/reports/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -227,7 +251,9 @@ export interface RootRouteChildren {
   ReportRoute: typeof ReportRouteWithChildren
   TravellerRoute: typeof TravellerRoute
   AdvisoriesSegmentIdRoute: typeof AdvisoriesSegmentIdRoute
+  ReportsIdRoute: typeof ReportsIdRoute
   AdvisoriesIndexRoute: typeof AdvisoriesIndexRoute
+  ReportsIndexRoute: typeof ReportsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -344,6 +370,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportReviewRouteImport
       parentRoute: typeof ReportRoute
     }
+    '/reports/': {
+      id: '/reports/'
+      path: '/reports'
+      fullPath: '/reports/'
+      preLoaderRoute: typeof ReportsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports/$id': {
+      id: '/reports/$id'
+      path: '/reports/$id'
+      fullPath: '/reports/$id'
+      preLoaderRoute: typeof ReportsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -386,7 +426,9 @@ const rootRouteChildren: RootRouteChildren = {
   ReportRoute: ReportRouteWithChildren,
   TravellerRoute: TravellerRoute,
   AdvisoriesSegmentIdRoute: AdvisoriesSegmentIdRoute,
+  ReportsIdRoute: ReportsIdRoute,
   AdvisoriesIndexRoute: AdvisoriesIndexRoute,
+  ReportsIndexRoute: ReportsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

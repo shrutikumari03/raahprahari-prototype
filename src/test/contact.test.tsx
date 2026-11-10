@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { ContactPage } from "./contact";
+import { ContactPage } from "../routes/contact";
 
 describe("contact form validation", () => {
   it("does not show field errors before submit or blur", () => {

@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState, useSyncExternalStore } from 'react'
 import { House, ListChecks, Map, Menu, Monitor, Moon, Search, Sun, TriangleAlert, UserRound, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -31,20 +31,21 @@ export function Logo({ className }: { className?: string }) {
   )
 }
 
+function subscribeToOnlineStatus(onChange: () => void) {
+  window.addEventListener('online', onChange)
+  window.addEventListener('offline', onChange)
+  return () => {
+    window.removeEventListener('online', onChange)
+    window.removeEventListener('offline', onChange)
+  }
+}
+
+function getOnlineStatus() {
+  return typeof navigator === 'undefined' || navigator.onLine
+}
+
 export function useOnline() {
-  const [online, setOnline] = useState(true)
-  useEffect(() => {
-    setOnline(navigator.onLine)
-    const on = () => setOnline(true)
-    const off = () => setOnline(false)
-    window.addEventListener('online', on)
-    window.addEventListener('offline', off)
-    return () => {
-      window.removeEventListener('online', on)
-      window.removeEventListener('offline', off)
-    }
-  }, [])
-  return online
+  return useSyncExternalStore(subscribeToOnlineStatus, getOnlineStatus, () => true)
 }
 
 function LangSwitch() {

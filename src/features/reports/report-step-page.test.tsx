@@ -68,6 +68,15 @@ describe('report step flow', () => {
     expect(window.localStorage.getItem(STORAGE_KEYS.reportDraft)).toContain('Debris is blocking one lane.')
   })
 
+  it('allows keyboard placement of a pin when no location is selected', async () => {
+    render(<ReportStepPage step="location" navigate={navigate} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Adjust location' }))
+    fireEvent.keyDown(screen.getByRole('button', { name: /Map preview/ }), { key: 'ArrowRight' })
+
+    expect(await screen.findByText('Approximate pin location')).toBeInTheDocument()
+  })
+
   it('submits locally and never renders prohibited status wording for a community report', async () => {
     const draft = {
       ...createEmptyReportDraft(),

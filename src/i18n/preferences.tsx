@@ -28,6 +28,8 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
   const [theme, setThemeState] = useState<Theme>('dark')
 
   useEffect(() => {
+    // Restore device preferences after hydration to keep the server and first client render aligned.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLangState(readLocal<Lang>(STORAGE_KEYS.lang, 'en'))
     const storedTheme = readLocal<unknown>(STORAGE_KEYS.theme, 'dark')
     setThemeState(

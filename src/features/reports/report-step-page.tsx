@@ -859,14 +859,10 @@ export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate:
                           setMapPoint(31.5 - y * (31.5 - 28.7), 77.5 + x * (81.1 - 77.5))
                         }}
                         onKeyDown={(event) => {
-                          if (
-                            !draft.location ||
-                            !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)
-                          )
-                            return
+                          if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return
                           event.preventDefault()
-                          const lat = draft.location.lat ?? 30.1
-                          const lon = draft.location.lon ?? 79.3
+                          const lat = draft.location?.lat ?? 30.1
+                          const lon = draft.location?.lon ?? 79.3
                           const delta = 0.005
                           setMapPoint(
                             lat + (event.key === 'ArrowUp' ? delta : event.key === 'ArrowDown' ? -delta : 0),

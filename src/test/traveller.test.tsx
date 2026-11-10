@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { PreferencesProvider } from '@/i18n/preferences'
 import { segmentById } from '@/data/fixtures'
 import { advisoryFor } from '@/lib/data'
-import { ResultRow } from './traveller'
+import { ResultRow } from '../routes/traveller'
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@tanstack/react-router')>()

@@ -99,7 +99,7 @@ describe('SH-15 map provider fallback', () => {
       fireEvent.click(roadSelection)
       expect(roadSelection).toHaveAttribute('aria-pressed', 'true')
 
-      const list = container.querySelector('.traveller-map-list')
+      const list = container.querySelector<HTMLElement>('.traveller-map-list')
       if (!list) throw new Error('Missing traveller fallback list')
       const detailLink = within(list).getByRole('link', { name: 'View details' })
       expect(detailLink).toHaveAttribute('href', '/advisories/msr-01')

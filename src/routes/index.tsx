@@ -9,11 +9,21 @@ export const Route = createFileRoute('/')({
   component: Home,
 })
 
+/** Each feature opens the help topic that explains it (slugs from data/help-topics). */
+const FEATURES = [
+  { topic: 'report', icon: UsersRound, title: 'Community Reporting', body: 'Real people. Real observations.' },
+  { topic: 'freshness', icon: ShieldCheck, title: 'Evidence & Freshness', body: 'See what’s current. Know what’s real.' },
+  { topic: 'map-offline', icon: CloudDownload, title: 'Offline-Aware Access', body: 'Stay informed, even off the network.' },
+] as const
+
+/** The featured card shows this seeded segment and links to its detail page. */
+const HOME_SAMPLE_SEGMENT_ID = 'nh107-02'
+
 function Home() {
   const { t } = usePrefs()
   const { segments } = useAppStore()
-  const sampleSegment = segments.find((s) => s.id === 'nh107-02')
-  if (!sampleSegment) throw new Error('Missing sample segment "nh107-02"')
+  const sampleSegment = segments.find((s) => s.id === HOME_SAMPLE_SEGMENT_ID)
+  if (!sampleSegment) throw new Error(`Missing sample segment "${HOME_SAMPLE_SEGMENT_ID}"`)
 
   return (
     <div className="home-page">
@@ -48,27 +58,17 @@ function Home() {
         </div>
 
         <ul aria-label="RaahPrahari features" className="home-features">
-          <li>
-            <UsersRound aria-hidden />
-            <span>
-              <strong>Community Reporting</strong>
-              <small>Real people. Real observations.</small>
-            </span>
-          </li>
-          <li>
-            <ShieldCheck aria-hidden />
-            <span>
-              <strong>Evidence &amp; Freshness</strong>
-              <small>See what’s current. Know what’s real.</small>
-            </span>
-          </li>
-          <li>
-            <CloudDownload aria-hidden />
-            <span>
-              <strong>Offline-Aware Access</strong>
-              <small>Stay informed, even off the network.</small>
-            </span>
-          </li>
+          {FEATURES.map(({ topic, icon: Icon, title, body }) => (
+            <li key={topic}>
+              <Link to="/help/$topic" params={{ topic }}>
+                <Icon aria-hidden />
+                <span>
+                  <strong>{title}</strong>
+                  <small>{body}</small>
+                </span>
+              </Link>
+            </li>
+          ))}
         </ul>
 
         <p className="home-prototype-label">PROTOTYPE · SYNTHETIC DEMO DATA</p>

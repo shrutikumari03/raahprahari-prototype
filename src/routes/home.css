@@ -357,9 +357,31 @@
 .home-features li {
   display: flex;
   min-height: 3.5rem;
+  align-items: stretch;
+  padding: 0 1.25rem;
+}
+
+/* Each feature is a link to its help topic. */
+.home-features li > a {
+  display: flex;
+  min-width: 0;
+  min-height: 2.75rem;
+  flex: 1;
   align-items: center;
   gap: 0.85rem;
-  padding: 0 1.25rem;
+  border-radius: 0.4rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-features li > a:hover strong {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.home-features li > a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
 }
 
 .home-features li:first-child {
@@ -370,7 +392,7 @@
   border-left: 1px solid rgb(230 228 220 / 38%);
 }
 
-.home-features li > svg {
+.home-features li svg {
   width: 1.7rem;
   height: 1.7rem;
   flex: none;

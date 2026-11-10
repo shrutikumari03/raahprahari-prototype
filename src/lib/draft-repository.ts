@@ -8,6 +8,8 @@ import {
   type DraftRecord,
   type DraftStatus,
   type OutboxRecord,
+  type ReceiptEventRecord,
+  type ReceiptEventType,
 } from "@/lib/local-db";
 import { makeLocalReference, type ReportDraft } from "@/lib/report-store";
 
@@ -422,6 +424,100 @@ async function ensureScopeData(scope: string) {
   await migrateLegacyData(scope);
 }
 
+export async function listReceiptEvents(
+  reportId: string,
+  scope = getActiveAccountScope(),
+) {
+  if (!reportId || scope === "anonymous") return [];
+  try {
+    const eventList = await localDb.receiptEvents
+      .where("reportId")
+      .equals(reportId)
+      .toArray();
+    return eventList.filter((event) => event.accountScope === scope);
+  } catch (error) {
+    if (error instanceof Error && error.name === "NotFoundError") return [];
+    throw error;
+  }
+}
+
+export function useReceiptEvents(reportId: string | null | undefined) {
+  return liveQuery(() => {
+    if (!reportId) return [];
+    return listReceiptEvents(reportId, getActiveAccountScope());
+  });
+}
+
+export async function appendReceiptEvent(
+  reportId: string,
+  scope = getActiveAccountScope(),
+  event: Omit<ReceiptEventRecord, "id" | "reportId" | "accountScope"> & {
+    type: ReceiptEventType;
+  },
+) {
+  if (!reportId || scope === "anonymous") return null;
+
+  try {
+    const record: ReceiptEventRecord = {
+      reportId,
+      accountScope: scope,
+      ...event,
+    };
+
+    const existing = await localDb.receiptEvents
+      .where("reportId")
+      .equals(reportId)
+      .toArray();
+    const scoped = existing.filter((item) => item.accountScope === scope);
+    const sorted = [...scoped].sort((a, b) => a.at - b.at);
+    const overflow = sorted.length + 1 - 50;
+    if (overflow > 0) {
+      const idsToDelete = new Set<number>();
+      const sendFailed = sorted.filter((item) => item.type === "send_failed");
+      for (const item of sendFailed) {
+        if (idsToDelete.size >= overflow) break;
+        if (item.id !== undefined) idsToDelete.add(item.id);
+      }
+      if (idsToDelete.size < overflow) {
+        for (const item of sorted) {
+          if (idsToDelete.size >= overflow) break;
+          if (item.type === "send_failed") continue;
+          if (item.id !== undefined) idsToDelete.add(item.id);
+        }
+      }
+      if (idsToDelete.size > 0) {
+        await localDb.receiptEvents.bulkDelete([...idsToDelete]);
+      }
+    }
+
+    const id = await localDb.receiptEvents.add(record);
+    return { id, ...record };
+  } catch (error) {
+    if (error instanceof Error && error.name === "NotFoundError") return null;
+    throw error;
+  }
+}
+
+export async function listReportsForScope(scope = getActiveAccountScope()) {
+  const drafts = await localDb.drafts
+    .where("accountScope")
+    .equals(scope)
+    .sortBy("updatedAt");
+
+  const reportIds = drafts.map((draft) => draft.id);
+  const outboxes = await localDb.outbox
+    .where("accountScope")
+    .equals(scope)
+    .filter((entry) => reportIds.includes(entry.reportId))
+    .toArray();
+  const byId = new Map(outboxes.map((entry) => [entry.reportId, entry]));
+
+  return drafts.map((draft) => ({
+    draft,
+    outbox: byId.get(draft.id) ?? null,
+  }));
+}
+
 export async function createDraft(
   input: DraftInput = {},
 ): Promise<RepositoryWriteResult> {
@@ -459,6 +555,14 @@ export async function createDraft(
 
   try {
     await localDb.drafts.put(record);
+    await appendReceiptEvent(id, scope, {
+      type: "saved_locally",
+      at: record.savedAt ?? Date.now(),
+      code: "saved",
+      detail: record.payload.hazardType || null,
+      receiptId: null,
+      serverReceivedAt: null,
+    });
     if (typeof window !== "undefined") {
       window.localStorage.setItem(activeDraftPointerKey(scope), id);
       window.localStorage.setItem(
@@ -519,6 +623,14 @@ export async function saveDraft(
       schemaVersion: input.schemaVersion ?? existing?.schemaVersion ?? 1,
     };
     await localDb.drafts.put(next);
+    await appendReceiptEvent(id, scope, {
+      type: "saved_locally",
+      at: next.savedAt ?? now,
+      code: "saved",
+      detail: next.payload.hazardType || null,
+      receiptId: null,
+      serverReceivedAt: null,
+    });
     if (typeof window !== "undefined") {
       window.localStorage.setItem(activeDraftPointerKey(scope), id);
       window.localStorage.setItem(

@@ -386,6 +386,11 @@ export const en = {
     "You are offline. The report is queued on this device and will not be sent until you are back online.",
   "delivery.demoStop":
     "In local demo mode there is no server, so the report stops here — saved on this device, not received by anyone. Review happens once a backend is connected.",
+  "offline.lastSync": "Last successful sync",
+  "offline.pending": "Pending reports",
+  "offline.notSynced": "Not synced on this device yet",
+  "offline.cachedWarning": "This app may be offline or using cached data. Information can be old or incomplete.",
+  "offline.viewReports": "View my reports",
   "progress.title": "Report progress",
   "progress.submitted": "Submitted",
   "progress.received": "Received by server",
@@ -875,6 +880,11 @@ export const hi: Record<TranslationKey, string> = {
     "आप ऑफ़लाइन हैं। रिपोर्ट इस डिवाइस पर कतार में है और ऑनलाइन होने तक नहीं भेजी जाएगी।",
   "delivery.demoStop":
     "स्थानीय डेमो मोड में कोई सर्वर नहीं है, इसलिए रिपोर्ट यहीं रुकती है — इस डिवाइस पर सहेजी गई, किसी को प्राप्त नहीं हुई। बैकएंड जुड़ने पर समीक्षा होगी।",
+  "offline.lastSync": "अंतिम सफल सिंक",
+  "offline.pending": "लंबित रिपोर्टें",
+  "offline.notSynced": "इस डिवाइस पर अभी तक सिंक नहीं हुआ",
+  "offline.cachedWarning": "यह ऐप ऑफ़लाइन हो सकता है या कैश्ड डेटा का उपयोग कर रहा है। जानकारी पुरानी या अधूरी हो सकती है।",
+  "offline.viewReports": "मेरी रिपोर्टें देखें",
   "progress.title": "रिपोर्ट की प्रगति",
   "progress.submitted": "भेजी गई",
   "progress.received": "सर्वर को प्राप्त",

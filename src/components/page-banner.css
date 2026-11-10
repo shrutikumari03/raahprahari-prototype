@@ -1,0 +1,218 @@
+.rp-info-page {
+  --background: #04131b;
+  --foreground: #e6e4dc;
+  --card: #0a202b;
+  --card-foreground: #e6e4dc;
+  --surface: var(--background);
+  --surface-raised: var(--card);
+  --muted-foreground: #a7bac5;
+  --border: #194459;
+  --link: #40c4ff;
+  min-height: calc(100svh - 4rem);
+  min-width: 0;
+  overflow-x: clip;
+  color: var(--foreground);
+  background:
+    radial-gradient(ellipse at 82% 55%, rgb(10 47 62 / 28%), transparent 42%),
+    var(--background);
+}
+
+.rp-info-container {
+  width: min(100% - 2rem, 76rem);
+  margin-inline: auto;
+}
+
+.rp-info-banner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-bottom: 1px solid rgb(145 174 189 / 20%);
+  background:
+    linear-gradient(
+      90deg,
+      rgb(2 15 22 / 96%),
+      rgb(2 17 26 / 83%) 58%,
+      rgb(2 17 26 / 56%)
+    ),
+    url("/img/banner-strip.png") center 53% / cover;
+}
+
+.rp-info-banner-content {
+  min-height: 12.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: 1.75rem;
+}
+
+.rp-info-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.65rem;
+  color: #d7ecff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.rp-info-eyebrow span {
+  width: 1.75rem;
+  height: 2px;
+  background: #eb5b38;
+}
+
+.rp-info-banner h1 {
+  max-width: 44rem;
+  margin: 0;
+  color: #f0eee8;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 2.85rem);
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.08;
+}
+
+.rp-info-banner-description {
+  max-width: 48rem;
+  margin: 0.75rem 0 0;
+  color: #d1dce2;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.rp-info-content {
+  padding-block: 1.5rem 2rem;
+}
+
+.rp-info-card {
+  min-width: 0;
+  border: 1px solid #194459;
+  border-radius: 0.8rem;
+  background: linear-gradient(115deg, rgb(13 34 46 / 96%), rgb(9 26 36 / 96%));
+  padding: clamp(1rem, 3vw, 1.4rem);
+}
+
+.rp-info-card h2 {
+  margin: 0;
+  color: #e6e4dc;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.rp-info-card p,
+.rp-info-card li {
+  color: #b7c9d4;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.rp-info-card p {
+  margin: 0.65rem 0 0;
+}
+
+.rp-info-card strong {
+  color: #e6e4dc;
+}
+
+.rp-info-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.rp-contact-form {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.rp-contact-field {
+  display: grid;
+  min-width: 0;
+  gap: 0.4rem;
+}
+
+.rp-contact-field label {
+  color: #e6e4dc;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.rp-contact-help {
+  margin: 0;
+  color: #a7bac5;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.rp-contact-control {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.9rem;
+  border: 1px solid #24485b;
+  border-radius: 0.65rem;
+  background: #071923;
+  padding: 0.7rem 0.8rem;
+  color: #e6e4dc;
+  font: inherit;
+}
+
+.rp-contact-control::placeholder {
+  color: #91a5b0;
+  opacity: 1;
+}
+
+.rp-contact-control[aria-invalid="true"] {
+  border-color: #ff8766;
+}
+
+.rp-contact-control:focus-visible {
+  outline: 2px solid #92c5ff;
+  outline-offset: 2px;
+}
+
+.rp-contact-message {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.rp-contact-error {
+  margin: 0;
+  color: #ffad9a;
+  font-size: 0.8rem;
+}
+
+.rp-contact-notice,
+.rp-contact-emergency {
+  border-left: 2px solid #92c5ff;
+  padding: 0.65rem 0.8rem;
+  color: #d1dce2;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.rp-contact-notice {
+  margin: 0;
+  background: rgb(20 61 83 / 42%);
+}
+
+.rp-contact-emergency {
+  margin: 1rem 0 0;
+  border-left-color: #ff8766;
+  background: rgb(78 39 34 / 30%);
+}
+
+.rp-info-page a:focus-visible {
+  outline: 2px solid #92c5ff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 30rem) {
+  .rp-info-actions > * {
+    flex: 1 1 100%;
+  }
+}

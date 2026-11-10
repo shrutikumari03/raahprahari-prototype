@@ -28,6 +28,8 @@ export function useLocalState<T>(key: string, initial: T) {
   const [value, setValue] = useState<T>(initial)
 
   useEffect(() => {
+    // Storage is intentionally read after mount to avoid a hydration mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setValue(readLocal(key, initial))
     const sync = (e: Event) => {
       if ((e as CustomEvent).detail === key) setValue(readLocal(key, initial))
@@ -58,4 +60,5 @@ export const STORAGE_KEYS = {
   savedRoads: 'rp.savedRoads',
   reportDraft: 'rp.reportDraft',
   localReports: 'rp.localReports',
+  lastLocalReport: 'rp.lastLocalReport',
 } as const

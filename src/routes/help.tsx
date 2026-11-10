@@ -1,82 +1,167 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
 import {
-  Ban,
+  createFileRoute,
+  Link,
+  Outlet,
+  useRouterState,
+} from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import {
+  ArrowLeft,
+  ArrowRight,
   Clock3,
+  FileText,
+  Landmark,
   LockKeyhole,
   Map,
+  Mountain,
   Search,
   ShieldAlert,
+  ShieldCheck,
   TriangleAlert,
-} from 'lucide-react'
-import { MountainBanner } from '@/components/mountain-banner'
-import { Input } from '@/components/ui/input'
-import { usePrefs } from '@/i18n/preferences'
+  type LucideIcon,
+} from "lucide-react";
+import { DemoBadge } from "@/components/advisory";
+import { Input } from "@/components/ui/input";
+import { usePrefs } from "@/i18n/preferences";
+import { helpTopics } from "@/data/help-topics";
+import "./help.css";
 
-export const Route = createFileRoute('/help')({
-  head: () => ({ meta: [{ title: 'Help & Safety Centre · RaahPrahari' }] }),
+export const Route = createFileRoute("/help")({
+  head: () => ({ meta: [{ title: "Help & Safety Centre · RaahPrahari" }] }),
   component: HelpPage,
-})
+});
 
-const topics = [
-  { key: 'report', icon: TriangleAlert },
-  { key: 'status', icon: ShieldAlert },
-  { key: 'freshness', icon: Clock3 },
-  { key: 'map', icon: Map },
-  { key: 'privacy', icon: LockKeyhole },
-  { key: 'restrictions', icon: Ban },
-] as const
+const topicIcons: Record<(typeof helpTopics)[number]["slug"], LucideIcon> = {
+  report: TriangleAlert,
+  status: ShieldAlert,
+  freshness: Clock3,
+  "map-offline": Map,
+  privacy: LockKeyhole,
+  restrictions: Landmark,
+};
 
 function HelpPage() {
-  const { t } = usePrefs()
-  const [query, setQuery] = useState('')
-  const filtered = useMemo(() => {
-    const normalized = query.trim().toLocaleLowerCase()
-    if (!normalized) return topics
-    return topics.filter((topic) =>
-      `${t(`help.${topic.key}`)} ${t(`help.${topic.key}Body`)}`
+  const { t } = usePrefs();
+  const isHelpTopic = useRouterState({
+    select: (state) => state.location.pathname !== "/help",
+  });
+  const [query, setQuery] = useState("");
+  const filteredTopics = useMemo(() => {
+    const normalized = query.trim().toLocaleLowerCase();
+    if (!normalized) return helpTopics;
+    return helpTopics.filter(({ titleKey, descriptionKey }) =>
+      `${t(titleKey)} ${t(descriptionKey)}`
         .toLocaleLowerCase()
         .includes(normalized),
-    )
-  }, [query, t])
+    );
+  }, [query, t]);
+
+  if (isHelpTopic) return <Outlet />;
 
   return (
-    <div className="pb-8">
-      <MountainBanner
-        eyebrow={t('hero.eyebrow')}
-        title={t('help.title')}
-        description={t('help.subtitle')}
-      />
-      <div className="rp-container max-w-6xl space-y-6 py-6">
-        <p className="max-w-3xl text-muted-foreground">{t('help.body')}</p>
-        <label className="relative block max-w-xl">
-          <Search aria-hidden className="absolute top-3.5 left-3.5 size-4 text-muted-foreground" />
-          <Input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t('help.search')}
-            className="h-12 rounded-xl pl-10"
-          />
-        </label>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map(({ key, icon: Icon }) => (
-            <article key={key} className="rounded-2xl border border-border bg-card p-5">
-              <Icon aria-hidden className="mb-3 size-5 text-brand-orange" />
-              <h2 className="font-display text-lg font-semibold">{t(`help.${key}`)}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t(`help.${key}Body`)}</p>
-            </article>
-          ))}
-          {filtered.length === 0 && (
-            <p className="rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground">
-              {t('adv.empty')}
-            </p>
-          )}
+    <div className="help-page">
+      <header className="help-banner">
+        <div className="help-container help-banner-content">
+          <p className="help-eyebrow">
+            <span aria-hidden />
+            {t("help.eyebrow")}
+          </p>
+          <h1>{t("help.title")}</h1>
+          <p className="help-banner-description">{t("help.subtitle")}</p>
         </div>
-        <p className="rounded-xl border-l-4 border-brand-orange bg-raised p-4 text-sm font-medium">
-          {t('help.reminder')}
-        </p>
+      </header>
+
+      <div className="help-container help-content">
+        <section className="help-topics" aria-label={t("help.topics")}>
+          <label className="help-search">
+            <span className="sr-only">{t("help.search")}</span>
+            <Search aria-hidden className="help-search-icon" />
+            <Input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t("help.search")}
+              className="help-search-input"
+            />
+          </label>
+
+          <div className="help-topic-grid">
+            {filteredTopics.map(({ slug, titleKey, descriptionKey }) => {
+              const Icon = topicIcons[slug];
+              return (
+                <Link
+                  key={slug}
+                  to="/help/$topic"
+                  params={{ topic: slug }}
+                  className="help-topic-card"
+                >
+                  <span
+                    className={`help-topic-icon help-topic-icon-${slug}`}
+                    aria-hidden
+                  >
+                    <Icon />
+                  </span>
+                  <span className="help-topic-copy">
+                    <span className="help-topic-title">
+                      {t(titleKey)}
+                      {slug === "map-offline" && (
+                        <span className="help-planned">
+                          {t("help.planned")}
+                        </span>
+                      )}
+                    </span>
+                    <span className="help-topic-description">
+                      {t(descriptionKey)}
+                    </span>
+                  </span>
+                  <ArrowRight aria-hidden className="help-topic-arrow" />
+                </Link>
+              );
+            })}
+            {filteredTopics.length === 0 && (
+              <p className="help-empty" role="status">
+                {t("help.empty")}
+              </p>
+            )}
+          </div>
+        </section>
+
+        <aside className="help-reminder" aria-labelledby="help-reminder-title">
+          <div className="help-reminder-content">
+            <p className="help-reminder-label">
+              <ShieldAlert aria-hidden />
+              {t("help.reminderLabel")}
+            </p>
+            <h2 id="help-reminder-title">{t("help.reminderTitle")}</h2>
+            <p className="help-reminder-body">{t("help.reminderBody")}</p>
+            <span className="help-reminder-rule" aria-hidden />
+            <ul className="help-reminder-items">
+              <li>
+                <Mountain aria-hidden />
+                <span>{t("help.reminderConditions")}</span>
+              </li>
+              <li>
+                <FileText aria-hidden />
+                <span>{t("help.reminderUpdates")}</span>
+              </li>
+              <li>
+                <ShieldCheck aria-hidden />
+                <span>{t("help.reminderResponsibly")}</span>
+              </li>
+            </ul>
+          </div>
+        </aside>
       </div>
+
+      <footer className="help-page-footer">
+        <div className="help-container help-footer-content">
+          <Link to="/" className="help-back-link">
+            <ArrowLeft aria-hidden />
+            {t("help.backHome")}
+          </Link>
+          <DemoBadge className="help-demo-badge" />
+        </div>
+      </footer>
     </div>
-  )
+  );
 }

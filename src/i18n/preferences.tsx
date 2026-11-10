@@ -28,6 +28,8 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
   const [theme, setThemeState] = useState<Theme>('dark')
 
   useEffect(() => {
+    // Restore device preferences after hydration to keep the server and first client render aligned.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLangState(readLocal<Lang>(STORAGE_KEYS.lang, 'en'))
     const storedTheme = readLocal<unknown>(STORAGE_KEYS.theme, 'dark')
     setThemeState(
@@ -112,7 +114,21 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
 
 export function usePrefs() {
   const ctx = useContext(PreferencesContext)
-  if (!ctx) throw new Error('usePrefs must be used inside PreferencesProvider')
+  if (!ctx) {
+    const fallback = {
+      lang: 'en' as const,
+      setLang: () => undefined,
+      theme: 'dark' as const,
+      setTheme: () => undefined,
+      now: DEMO_NOW,
+      t: (key: TranslationKey) => en[key] ?? key,
+      ago: (ts: number) => `${Math.max(0, Math.round((DEMO_NOW - ts) / 60_000))} min ago`,
+      stamp: (ts: number) => new Date(ts).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }),
+      place: (id: string) => id,
+      duration: (minutes: number) => `${minutes} min`,
+    }
+    return fallback
+  }
   return ctx
 }
 

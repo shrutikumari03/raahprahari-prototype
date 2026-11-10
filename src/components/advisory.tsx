@@ -97,6 +97,7 @@ export function FreshnessChip({
   const Icon = meta.icon
   return (
     <span
+      data-testid="freshness-chip"
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium text-foreground',
         meta.chip,
@@ -106,6 +107,15 @@ export function FreshnessChip({
       <Icon aria-hidden className="size-3.5" style={{ color: meta.color }} />
       {t(`freshness.${state}`)}
       {sourceTimestamp && state !== 'unknown' ? ` · ${ago(sourceTimestamp)}` : ''}
+    </span>
+  )
+}
+
+export function CacheTimeLabel({ timestamp }: { timestamp: number }) {
+  const { stamp } = usePrefs()
+  return (
+    <span className="text-xs text-muted-foreground" data-testid="cache-time">
+      Cached: <time dateTime={new Date(timestamp).toISOString()}>{stamp(timestamp)}</time>
     </span>
   )
 }

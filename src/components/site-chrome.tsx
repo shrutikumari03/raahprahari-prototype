@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useRef, useState, useSyncExternalStore } from 'react'
 import { House, ListChecks, Map, Menu, Monitor, Moon, Search, Sun, TriangleAlert, UserRound, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -31,20 +31,21 @@ export function Logo({ className }: { className?: string }) {
   )
 }
 
+function subscribeToOnlineStatus(onChange: () => void) {
+  window.addEventListener('online', onChange)
+  window.addEventListener('offline', onChange)
+  return () => {
+    window.removeEventListener('online', onChange)
+    window.removeEventListener('offline', onChange)
+  }
+}
+
+function getOnlineStatus() {
+  return typeof navigator === 'undefined' || navigator.onLine
+}
+
 export function useOnline() {
-  const [online, setOnline] = useState(true)
-  useEffect(() => {
-    setOnline(navigator.onLine)
-    const on = () => setOnline(true)
-    const off = () => setOnline(false)
-    window.addEventListener('online', on)
-    window.addEventListener('offline', off)
-    return () => {
-      window.removeEventListener('online', on)
-      window.removeEventListener('offline', off)
-    }
-  }, [])
-  return online
+  return useSyncExternalStore(subscribeToOnlineStatus, getOnlineStatus, () => true)
 }
 
 function LangSwitch() {
@@ -93,11 +94,26 @@ function ThemeSwitch() {
   )
 }
 
-function LoginDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+function LoginDialog({
+  open,
+  onOpenChange,
+  returnFocusRef,
+}: {
+  open: boolean
+  onOpenChange: (o: boolean) => void
+  returnFocusRef: React.RefObject<HTMLButtonElement | null>
+}) {
   const { t } = usePrefs()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        onCloseAutoFocus={(event) => {
+          if (returnFocusRef.current?.isConnected) {
+            event.preventDefault()
+            returnFocusRef.current.focus()
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="font-display">{t('login.title')}</DialogTitle>
           <DialogDescription>{t('login.body')}</DialogDescription>
@@ -116,6 +132,8 @@ export function SiteHeader() {
   const { t } = usePrefs()
   const [loginOpen, setLoginOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const loginReturnFocusRef = useRef<HTMLButtonElement>(null)
+  const menuTriggerRef = useRef<HTMLButtonElement>(null)
   const online = useOnline()
   const { pathname, view } = useRouterState({
     select: (s) => ({
@@ -188,9 +206,13 @@ export function SiteHeader() {
               {isHome || isTraveller ? <HomeLanguageSelect /> : <LangSwitch />}
               {!isHome && !isTraveller && <ThemeSwitch />}
               <Button
+                ref={loginReturnFocusRef}
                 variant={isHome ? 'outline' : 'ghost'}
                 className={cn('h-10 rounded-full', isHome && 'home-login-button')}
-                onClick={() => setLoginOpen(true)}
+                onClick={(event) => {
+                  loginReturnFocusRef.current = event.currentTarget
+                  setLoginOpen(true)
+                }}
               >
                 <UserRound />
                 {t('nav.login')}
@@ -207,7 +229,13 @@ export function SiteHeader() {
             )}
             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon-lg" className="rounded-full lg:hidden" aria-label={t('nav.menu')}>
+                <Button
+                  ref={menuTriggerRef}
+                  variant="ghost"
+                  size="icon-lg"
+                  className="rounded-full lg:hidden"
+                  aria-label={t('nav.menu')}
+                >
                   <Menu />
                 </Button>
               </SheetTrigger>
@@ -228,6 +256,7 @@ export function SiteHeader() {
                     variant="outline"
                     className="h-11 w-full rounded-full"
                     onClick={() => {
+                      loginReturnFocusRef.current = menuTriggerRef.current
                       setMenuOpen(false)
                       setLoginOpen(true)
                     }}
@@ -252,31 +281,44 @@ export function SiteHeader() {
       <nav
         aria-label={t('nav.primary')}
         className={cn(
-          'fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md lg:hidden',
+          'fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md lg:hidden',
           (isHome || isTraveller) && 'hidden',
         )}
       >
         {([
-          { to: '/', label: 'nav.home', icon: House, active: pathname === '/' },
-          { to: '/traveller', label: 'nav.traveller', icon: Search, active: pathname === '/traveller' },
-          { to: '/map', label: 'nav.map', icon: Map, active: isMap },
-          { to: '/advisories', label: 'nav.advisories', icon: ListChecks, active: isList },
-        ] as const).map(({ to, label, icon: Icon, active }) => (
+          { to: '/', label: 'nav.home', icon: House, active: pathname === '/', raised: false },
+          { to: '/traveller', label: 'nav.traveller', icon: Search, active: pathname === '/traveller', raised: false },
+          { to: '/report', label: 'nav.report', icon: TriangleAlert, active: pathname.startsWith('/report'), raised: true },
+          { to: '/map', label: 'nav.map', icon: Map, active: isMap, raised: false },
+          { to: '/advisories', label: 'nav.advisories', icon: ListChecks, active: isList, raised: false },
+        ] as const).map(({ to, label, icon: Icon, active, raised }) => (
           <Link
             key={to}
             to={to}
             aria-current={current(active)}
             className={cn(
               'flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-medium',
+              raised && '-mt-4',
               active ? 'text-link' : 'text-muted-foreground',
             )}
           >
-            <Icon aria-hidden className="size-5" />
+            <Icon
+              aria-hidden
+              className={cn(
+                'size-5',
+                raised &&
+                  '-mt-1 size-12 rounded-full border-4 border-background bg-brand-orange p-2.5 text-[#111719] shadow-lg',
+              )}
+            />
             <span>{t(label)}</span>
           </Link>
         ))}
       </nav>
-      <LoginDialog open={loginOpen} onOpenChange={setLoginOpen} />
+      <LoginDialog
+        open={loginOpen}
+        onOpenChange={setLoginOpen}
+        returnFocusRef={loginReturnFocusRef}
+      />
     </>
   )
 }

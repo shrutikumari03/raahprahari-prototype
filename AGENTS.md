@@ -14,7 +14,7 @@ Architecture:
 - `src/i18n/` holds the EN/HI dictionaries and `usePrefs()` (t, ago, stamp, place, theme). Never inline UI strings.
 - `src/lib/storage.ts`: `useLocalState` (localStorage read after mount, SSR-safe).
 - `src/components/advisory.tsx`: status badges. Status colours always come with an icon and a label.
-- `/report` and `/about` routes are linked but not yet created (see PLAN.md).
+- `/report` implements the Phase A hazard-report flow; `/about` remains linked but is not yet created (see PLAN.md).
 
 ### Tech Stack
 

@@ -1,47 +1,27 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import {
   CircleHelp,
   Crosshair,
-  FileText,
-  House,
   List,
   Map as MapIcon,
-  Menu,
   Minus,
   Plus,
   Search,
   Shield,
   TriangleAlert,
-  UserRound,
   X,
 } from 'lucide-react'
 import { AdvisoryCard } from '@/components/advisory-card'
-import { Logo } from '@/components/site-chrome'
 import { SegmentMap } from '@/features/routes/schematic-map'
 import { SegmentDetail } from '@/features/routes/segment-detail'
 import { usePrefs } from '@/i18n/preferences'
 import { useAppStore } from '@/lib/app-store'
 import { cn } from '@/lib/utils'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
 import './map.css'
 
 type MapSearch = { seg?: string; view?: 'map' | 'list' }
 type ViewMode = 'map' | 'list'
-
-const navigation = [
-  { label: 'Home', to: '/' as const, icon: House },
-  { label: 'Live Map', to: '/map' as const, icon: MapIcon, active: true },
-  { label: 'Advisories', to: '/advisories' as const, icon: TriangleAlert },
-  { label: 'Reports', to: '/report' as const, icon: FileText },
-]
 
 export const Route = createFileRoute('/map')({
   validateSearch: (search: Record<string, unknown>): MapSearch => ({
@@ -63,7 +43,6 @@ function MapPage() {
   const [view, setView] = useState<ViewMode>(search.view ?? 'map')
   const [query, setQuery] = useState('')
   const [zoom, setZoom] = useState(1.35)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mapFailed, setMapFailed] = useState(false)
 
   const filteredSegments = useMemo(() => {
@@ -100,10 +79,8 @@ function MapPage() {
 
   return (
     <div className="rp-map-page">
-      <header className="rp-map-header">
-        <Link to="/" className="rp-map-brand" aria-label="RaahPrahari home">
-          <Logo />
-        </Link>
+      {/* Page tools only. Site navigation comes from the shared SiteHeader. */}
+      <div className="rp-map-toolbar" role="search" aria-label="Search road segments">
         <label className="rp-map-search">
           <Search aria-hidden className="size-4 shrink-0" />
           <span className="sr-only">Search by road, place, or location</span>
@@ -134,50 +111,23 @@ function MapPage() {
             </button>
           )}
         </label>
-        <div className="rp-map-header-actions">
-          <div className="rp-map-toggle" role="group" aria-label="Map or list view">
-            {(['map', 'list'] as const).map((nextView) => (
-              <button
-                key={nextView}
-                type="button"
-                aria-pressed={view === nextView}
-                disabled={nextView === 'map' && mapFailed}
-                onClick={() => changeView(nextView)}
-              >
-                {nextView === 'map' ? <MapIcon aria-hidden /> : <List aria-hidden />}
-                {nextView === 'map' ? 'Map' : 'List'}
-              </button>
-            ))}
-          </div>
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <button
-                type="button"
-                className="rp-map-mobile-menu"
-                aria-label="Open navigation menu"
-              >
-                <Menu aria-hidden />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[min(17rem,85vw)]">
-              <SheetHeader>
-                <SheetTitle>Navigation</SheetTitle>
-                <SheetDescription className="sr-only">
-                  Main navigation
-                </SheetDescription>
-              </SheetHeader>
-              <MapNavigation onNavigate={() => setMobileMenuOpen(false)} />
-            </SheetContent>
-          </Sheet>
+        <div className="rp-map-toggle" role="group" aria-label="Map or list view">
+          {(['map', 'list'] as const).map((nextView) => (
+            <button
+              key={nextView}
+              type="button"
+              aria-pressed={view === nextView}
+              disabled={nextView === 'map' && mapFailed}
+              onClick={() => changeView(nextView)}
+            >
+              {nextView === 'map' ? <MapIcon aria-hidden /> : <List aria-hidden />}
+              {nextView === 'map' ? 'Map' : 'List'}
+            </button>
+          ))}
         </div>
-      </header>
+      </div>
 
       <div className="rp-map-layout">
-        <aside className="rp-map-sidebar" aria-label="Main navigation">
-          <MapNavigation />
-          <MapSidebarBanner />
-        </aside>
-
         <div className="rp-map-main">
           {view === 'map' && <h1 className="sr-only">Live road map</h1>}
           {mapFailed && (
@@ -295,39 +245,6 @@ function MapPage() {
           )}
         </div>
       </div>
-    </div>
-  )
-}
-
-function MapNavigation({ onNavigate }: { onNavigate?: () => void }) {
-  return (
-    <nav className="rp-map-nav">
-      {navigation.map(({ label, to, icon: Icon, active }) => (
-        <Link
-          key={label}
-          to={to}
-          onClick={onNavigate}
-          aria-current={active ? 'page' : undefined}
-          className={cn('rp-map-nav-link', active && 'is-active')}
-        >
-          <Icon aria-hidden />
-          <span>{label}</span>
-        </Link>
-      ))}
-      <button type="button" className="rp-map-nav-link rp-map-profile" disabled>
-        <UserRound aria-hidden />
-        <span>Profile</span>
-        <span className="sr-only">Profile is not available in this prototype.</span>
-      </button>
-    </nav>
-  )
-}
-
-function MapSidebarBanner() {
-  return (
-    <div className="rp-map-sidebar-banner">
-      <img src="/img/banner-strip.png" alt="" />
-      <p>Safer roads<br />Stronger journeys</p>
     </div>
   )
 }

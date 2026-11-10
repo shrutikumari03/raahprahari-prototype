@@ -75,7 +75,8 @@ describe('SH-15 map provider fallback', () => {
       fireEvent.click(selectors[0])
       expect(selectors[0]).toHaveAttribute('aria-pressed', 'true')
 
-      const reportLink = await screen.findByRole('link', { name: 'Reports' })
+      // /map no longer has its own sidebar; the shared site navigation provides the report link.
+      const [reportLink] = await screen.findAllByRole('link', { name: 'Report Hazard' })
       expect(reportLink).toHaveAttribute('href', '/report')
       expect(routePaths).toContain(new URL(reportLink.getAttribute('href')!, 'http://localhost').pathname)
     } finally {

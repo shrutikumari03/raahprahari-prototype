@@ -111,16 +111,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <PreferencesProvider>
           <TooltipProvider>
             <SkipLink>Skip to content</SkipLink>
-            <div className="flex min-h-svh flex-col">
-              {!isMap && <SiteHeader />}
-              <main
-                id="main"
-                className={
-                  isHome || isTraveller || isMap
-                    ? "flex-1"
-                    : "flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0"
-                }
-              >
+            {/* One shared header on every route. Below xl the fixed bottom
+                navigation is shown, so the shell reserves room for it. */}
+            <div className="flex min-h-svh flex-col overflow-x-clip pb-[calc(5rem+env(safe-area-inset-bottom))] xl:pb-0">
+              <SiteHeader />
+              <main id="main" className="min-w-0 flex-1">
                 {children}
               </main>
               {!isHome && !isTraveller && !isMap && !isHelp && <SiteFooter />}
@@ -131,7 +126,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               !isHelp &&
               !isNotFound &&
               !isAdvisories && (
-                <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
+                <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 xl:bottom-2">
                   <DemoBadge />
                 </div>
               )}

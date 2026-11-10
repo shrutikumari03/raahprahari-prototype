@@ -70,7 +70,7 @@ function AboutPage() {
             </p>
           </article>
         </div>
-        <nav className="rp-info-actions" aria-label="Explore RaahPrahari">
+        <div className="rp-info-actions" role="group" aria-label="Explore RaahPrahari">
           <Button asChild className="min-h-11 rounded-xl">
             <Link to="/traveller">
               Check a road <ArrowRight aria-hidden />
@@ -82,7 +82,7 @@ function AboutPage() {
           <Button asChild variant="outline" className="min-h-11 rounded-xl">
             <Link to="/help">Help</Link>
           </Button>
-        </nav>
+        </div>
       </div>
     </div>
   );

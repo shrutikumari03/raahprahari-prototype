@@ -1,38 +1,32 @@
+/* Fills the viewport below the shared site header (4rem). Below xl the shared
+   bottom navigation (5rem, reserved by <main>) is subtracted as well. */
 .rp-map-page {
-  position: fixed;
-  z-index: 50;
-  inset: 0;
+  position: relative;
   display: grid;
-  grid-template-rows: 64px minmax(0, 1fr);
+  height: calc(100svh - 4rem);
+  min-height: 420px;
+  grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
   color: #e6e4dc;
   background: #06141d;
 }
 
-.rp-map-header {
+@media (max-width: 1279px) {
+  .rp-map-page {
+    height: calc(100svh - 9rem - env(safe-area-inset-bottom));
+  }
+}
+
+/* Page tools (search + map/list view). Not navigation. */
+.rp-map-toolbar {
   z-index: 3;
   display: grid;
-  grid-template-columns: 220px minmax(180px, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 20px;
-  padding: 0 24px;
+  gap: 12px;
+  padding: 10px 24px;
   border-bottom: 1px solid rgb(126 160 178 / 18%);
   background: rgb(3 17 26 / 97%);
-}
-
-.rp-map-brand {
-  min-width: 0;
-  color: inherit;
-  text-decoration: none;
-}
-
-.rp-map-brand > span {
-  gap: 8px;
-}
-
-.rp-map-brand svg {
-  width: 34px;
-  height: 34px;
 }
 
 .rp-map-search {
@@ -68,8 +62,7 @@
   color: #93a6b1;
 }
 
-.rp-map-clear,
-.rp-map-mobile-menu {
+.rp-map-clear {
   display: inline-flex;
   width: 36px;
   height: 36px;
@@ -83,15 +76,8 @@
   cursor: pointer;
 }
 
-.rp-map-clear:hover,
-.rp-map-mobile-menu:hover {
+.rp-map-clear:hover {
   background: #17313e;
-}
-
-.rp-map-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .rp-map-toggle {
@@ -135,115 +121,9 @@
   height: 15px;
 }
 
-.rp-map-mobile-menu {
-  display: none;
-}
-
 .rp-map-layout {
-  display: grid;
   min-height: 0;
-  grid-template-columns: 172px minmax(0, 1fr);
-}
-
-.rp-map-sidebar {
-  z-index: 2;
-  display: flex;
-  min-height: 0;
-  flex-direction: column;
-  justify-content: space-between;
-  border-right: 1px solid rgb(126 160 178 / 16%);
-  background: rgb(3 17 26 / 97%);
-}
-
-.rp-map-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 14px 9px;
-}
-
-.rp-map-nav-link {
-  position: relative;
-  display: flex;
-  min-height: 42px;
-  align-items: center;
-  gap: 13px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 7px;
-  color: #c6d1d8;
-  background: transparent;
-  font: inherit;
-  font-size: 13px;
-  text-align: left;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.rp-map-nav-link svg {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 auto;
-}
-
-.rp-map-nav-link:hover {
-  color: white;
-  background: #102a38;
-}
-
-.rp-map-nav-link.is-active {
-  color: #60c8ff;
-  background: #102a38;
-}
-
-.rp-map-nav-link.is-active::before {
-  position: absolute;
-  inset: 5px auto 5px 0;
-  width: 2px;
-  border-radius: 2px;
-  background: #16a0f4;
-  content: '';
-}
-
-.rp-map-profile:disabled {
-  cursor: not-allowed;
-  opacity: 0.75;
-}
-
-.rp-map-sidebar-banner {
-  position: relative;
-  min-height: 126px;
-  overflow: hidden;
-  padding: 0 16px 18px;
-  isolation: isolate;
-}
-
-.rp-map-sidebar-banner img {
-  position: absolute;
-  z-index: -2;
-  inset: 0;
-  width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: 35% center;
-  opacity: 0.34;
-}
-
-.rp-map-sidebar-banner::after {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  background: linear-gradient(0deg, #03111a 2%, rgb(3 17 26 / 20%) 100%);
-  content: '';
-}
-
-.rp-map-sidebar-banner p {
-  margin: 0;
-  color: #c8d3d9;
-  font-size: 10px;
-  line-height: 1.5;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
 }
 
 .rp-map-main {
@@ -907,48 +787,13 @@
 }
 
 @media (max-width: 767px) {
-  .rp-map-page {
-    grid-template-rows: 96px minmax(0, 1fr);
-  }
-
-  .rp-map-header {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: 38px 40px;
-    gap: 6px 10px;
-    padding: 7px 12px;
-  }
-
-  .rp-map-brand {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .rp-map-brand > span {
-    gap: 6px;
-  }
-
-  .rp-map-brand svg {
-    width: 30px;
-    height: 30px;
-  }
-
-  .rp-map-brand span span {
-    font-size: 15px;
+  .rp-map-toolbar {
+    gap: 8px;
+    padding: 8px 12px;
   }
 
   .rp-map-search {
-    grid-column: 1;
-    grid-row: 2;
     height: 38px;
-  }
-
-  .rp-map-header-actions {
-    display: contents;
-  }
-
-  .rp-map-toggle {
-    grid-column: 2;
-    grid-row: 2;
   }
 
   .rp-map-toggle button {
@@ -962,24 +807,6 @@
   .rp-map-toggle svg {
     width: 13px;
     height: 13px;
-  }
-
-  .rp-map-mobile-menu {
-    display: inline-flex;
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-    border: 1px solid #244253;
-    background: #0c202c;
-  }
-
-  .rp-map-layout {
-    display: block;
-    min-height: 0;
-  }
-
-  .rp-map-sidebar {
-    display: none;
   }
 
   .rp-map-main {
@@ -1057,7 +884,8 @@
     position: fixed;
     z-index: 20;
     right: 0;
-    bottom: 0;
+    /* Sit above the shared bottom navigation. */
+    bottom: calc(5rem + env(safe-area-inset-bottom));
     left: 0;
     width: 100%;
     max-height: min(55%, 500px);
@@ -1066,12 +894,8 @@
 }
 
 @media (max-width: 390px) {
-  .rp-map-page {
-    grid-template-rows: 96px minmax(0, 1fr);
-  }
-
-  .rp-map-header {
-    column-gap: 8px;
+  .rp-map-toolbar {
+    column-gap: 6px;
   }
 
   .rp-map-search {

@@ -127,6 +127,43 @@ function LoginDialog({
   )
 }
 
+/**
+ * The single site navigation. Same items, same order on every route.
+ * Desktop (xl and up): logo, primary links, then language, theme, login, report.
+ * Below xl: logo + menu button on top, plus the fixed bottom navigation.
+ */
+export const PRIMARY_NAV = [
+  { to: '/', label: 'nav.home' },
+  { to: '/traveller', label: 'nav.traveller' },
+  { to: '/map', label: 'nav.map' },
+  { to: '/advisories', label: 'nav.advisories' },
+  { to: '/help', label: 'nav.help' },
+  { to: '/about', label: 'nav.about' },
+] as const
+
+export const BOTTOM_NAV = [
+  { to: '/', label: 'nav.home', icon: House, raised: false },
+  { to: '/traveller', label: 'nav.traveller', icon: Search, raised: false },
+  { to: '/report', label: 'nav.report', icon: TriangleAlert, raised: true },
+  { to: '/map', label: 'nav.map', icon: Map, raised: false },
+  { to: '/advisories', label: 'nav.advisories', icon: ListChecks, raised: false },
+] as const
+
+type NavTarget = (typeof PRIMARY_NAV)[number]['to'] | (typeof BOTTOM_NAV)[number]['to']
+
+/** Which nav item a pathname belongs to. /check is the route explorer: map view → Live Map, list view → Advisories. */
+export function activeNavTarget(pathname: string, view?: string): NavTarget | null {
+  const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
+  if (path === '/') return '/'
+  if (path === '/traveller') return '/traveller'
+  if (path === '/map' || (path === '/check' && view !== 'list')) return '/map'
+  if (path === '/advisories' || path.startsWith('/advisories/') || path === '/check') return '/advisories'
+  if (path === '/help' || path.startsWith('/help/')) return '/help'
+  if (path === '/about') return '/about'
+  if (path === '/report' || path.startsWith('/report/')) return '/report'
+  return null
+}
+
 export function SiteHeader() {
   const { t } = usePrefs()
   const [loginOpen, setLoginOpen] = useState(false)
@@ -140,133 +177,121 @@ export function SiteHeader() {
       view: (s.location.search as { view?: string }).view,
     }),
   })
+  const active = activeNavTarget(pathname, view)
+  const current = (to: NavTarget) => (active === to ? ('page' as const) : undefined)
 
-  const linkClass = (active: boolean) =>
-    cn(
-      'relative inline-flex min-h-11 items-center rounded-none px-3.5 text-sm font-medium transition-colors after:absolute after:right-3 after:bottom-0 after:left-3 after:h-0.5 after:origin-left after:scale-x-0 after:bg-brand-orange after:transition-transform',
-      active ? 'text-foreground after:scale-x-100' : 'text-muted-foreground hover:text-foreground',
-    )
-  const current = (active: boolean) => (active ? ('page' as const) : undefined)
-  const isMap = pathname === '/map' || (pathname === '/check' && view !== 'list')
-  const isList = pathname === '/advisories' || pathname === '/advisories/' || pathname.startsWith('/advisories/') || (pathname === '/check' && view === 'list')
-  const isHome = pathname === '/'
-  const isTraveller = pathname === '/traveller'
+  // Close the mobile menu whenever the route changes (e.g. browser back).
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [pathname])
 
-  const navLinks = (onClick?: () => void) => (
-    <>
-      <Link to="/" onClick={onClick} aria-current={current(pathname === '/')} className={linkClass(pathname === '/')}>
-        {t('nav.home')}
-      </Link>
-      <Link to="/map" onClick={onClick} aria-current={current(isMap)} className={linkClass(isMap)}>
-        {t('nav.map')}
-      </Link>
-      <Link to="/advisories" onClick={onClick} aria-current={current(isList)} className={linkClass(isList)}>
-        {t('nav.advisories')}
-      </Link>
-      {isHome || isTraveller ? (
-        <Link to="/about" onClick={onClick} className={linkClass(false)}>
-          {t('nav.about')}
-        </Link>
-      ) : (
-        <>
-          <Link to="/traveller" onClick={onClick} aria-current={current(pathname === '/traveller')} className={linkClass(pathname === '/traveller')}>
-            {t('nav.traveller')}
-          </Link>
-          <Link to="/help" onClick={onClick} aria-current={current(pathname === '/help')} className={linkClass(pathname === '/help')}>
-            {t('nav.help')}
-          </Link>
-        </>
-      )}
-    </>
-  )
+  const openLogin = (returnTo: HTMLButtonElement | null) => {
+    loginReturnFocusRef.current = returnTo
+    setLoginOpen(true)
+  }
 
   return (
     <>
-      <header className={cn(
-        'sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md',
-        isHome && 'home-header',
-        isTraveller && 'traveller-header',
-      )}>
-        <div className="rp-container flex h-16 items-center gap-3">
-          <Link to="/" className="mr-2 rounded-md" aria-label="RaahPrahari — home">
-            <span className={cn('home-brand', isTraveller && 'traveller-brand', !isHome && !isTraveller && 'hidden')}>
-              <Logo />
-              <span lang="hi">सफ़र से पहले सुरक्षा की ख़बर</span>
-            </span>
-            <span className={cn((isHome || isTraveller) && 'hidden')}>
-              <Logo />
-            </span>
+      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md">
+        <div className="rp-container flex h-16 min-w-0 items-center gap-3">
+          <Link to="/" className="shrink-0 rounded-md" aria-label="RaahPrahari — home">
+            <Logo />
           </Link>
-          <nav aria-label={t('nav.primary')} className="hidden items-center gap-0.5 lg:flex">
-            {navLinks()}
-          </nav>
-          <div className="ml-auto flex items-center gap-1.5">
-            <div className="hidden items-center gap-1.5 md:flex">
-              {isHome || isTraveller ? <HomeLanguageSelect /> : <LangSwitch />}
-              {!isHome && !isTraveller && <ThemeSwitch />}
-              <Button
-                ref={loginReturnFocusRef}
-                variant={isHome ? 'outline' : 'ghost'}
-                className={cn('h-10 rounded-full', isHome && 'home-login-button')}
-                onClick={(event) => {
-                  loginReturnFocusRef.current = event.currentTarget
-                  setLoginOpen(true)
-                }}
+
+          <nav aria-label={t('nav.primary')} className="hidden min-w-0 items-center xl:flex">
+            {PRIMARY_NAV.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                aria-current={current(to)}
+                className={cn(
+                  'relative inline-flex min-h-11 items-center px-2.5 text-sm font-medium whitespace-nowrap transition-colors 2xl:px-3.5',
+                  'after:absolute after:right-2.5 after:bottom-0 after:left-2.5 after:h-0.5 after:origin-left after:scale-x-0 after:bg-brand-orange after:transition-transform',
+                  active === to ? 'text-foreground after:scale-x-100' : 'text-muted-foreground hover:text-foreground',
+                )}
               >
-                <UserRound />
-                {t('nav.login')}
-              </Button>
-            </div>
-            {!isHome && !isTraveller && (
-              <Button asChild className="h-10 rounded-full px-4 font-semibold">
-                <Link to="/report" search={{ segment: undefined }}>
-                  <TriangleAlert />
-                  <span className="hidden sm:inline">{t('nav.report')}</span>
-                  <span className="sr-only sm:hidden">{t('hero.report')}</span>
-                </Link>
-              </Button>
-            )}
-            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  ref={menuTriggerRef}
-                  variant="ghost"
-                  size="icon-lg"
-                  className="rounded-full lg:hidden"
-                  aria-label={t('nav.menu')}
-                >
-                  <Menu />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[min(20rem,90vw)]">
-                <SheetHeader>
-                  <SheetTitle>
-                    <Logo />
-                  </SheetTitle>
-                  <SheetDescription className="sr-only">{t('nav.primary')}</SheetDescription>
-                </SheetHeader>
-                <nav aria-label={t('nav.primary')} className="flex flex-col gap-1 px-4">
-                  {navLinks(() => setMenuOpen(false))}
-                </nav>
-                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border px-4 pt-4">
-                  {isHome || isTraveller ? <HomeLanguageSelect /> : <LangSwitch />}
-                  {!isHome && !isTraveller && <ThemeSwitch />}
-                  <Button
-                    variant="outline"
-                    className="h-11 w-full rounded-full"
-                    onClick={() => {
-                      loginReturnFocusRef.current = menuTriggerRef.current
-                      setMenuOpen(false)
-                      setLoginOpen(true)
-                    }}
-                  >
-                    <UserRound />
-                    {t('nav.login')}
-                  </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
+                {t(label)}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="ml-auto hidden shrink-0 items-center gap-1.5 xl:flex">
+            <LangSwitch />
+            <ThemeSwitch />
+            <Button
+              variant="ghost"
+              className="h-10 rounded-full whitespace-nowrap"
+              onClick={(event) => openLogin(event.currentTarget)}
+            >
+              <UserRound />
+              {t('nav.login')}
+            </Button>
+            <Button asChild className="h-10 rounded-full px-4 font-semibold whitespace-nowrap">
+              <Link to="/report" search={{ segment: undefined }} aria-current={current('/report')}>
+                <TriangleAlert />
+                {t('nav.report')}
+              </Link>
+            </Button>
           </div>
+
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                ref={menuTriggerRef}
+                variant="ghost"
+                size="icon-lg"
+                className="ml-auto shrink-0 rounded-full xl:hidden"
+                aria-label={t('nav.menu')}
+              >
+                <Menu />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[min(20rem,90vw)] overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>
+                  <Logo />
+                </SheetTitle>
+                <SheetDescription className="sr-only">{t('nav.primary')}</SheetDescription>
+              </SheetHeader>
+              <nav aria-label={t('nav.primary')} className="flex flex-col gap-1 px-4">
+                {PRIMARY_NAV.map(({ to, label }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={() => setMenuOpen(false)}
+                    aria-current={current(to)}
+                    className={cn(
+                      'inline-flex min-h-11 items-center rounded-lg px-3 text-base font-medium',
+                      active === to ? 'bg-raised text-foreground' : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    {t(label)}
+                  </Link>
+                ))}
+              </nav>
+              <div className="flex flex-wrap items-center gap-2 border-t border-border px-4 pt-4 pb-6">
+                <LangSwitch />
+                <ThemeSwitch />
+                <Button
+                  variant="outline"
+                  className="h-11 w-full rounded-full"
+                  onClick={() => {
+                    setMenuOpen(false)
+                    openLogin(menuTriggerRef.current)
+                  }}
+                >
+                  <UserRound />
+                  {t('nav.login')}
+                </Button>
+                <Button asChild className="h-11 w-full rounded-full font-semibold">
+                  <Link to="/report" search={{ segment: undefined }} onClick={() => setMenuOpen(false)}>
+                    <TriangleAlert />
+                    {t('nav.report')}
+                  </Link>
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
         {!online && (
           <div role="status" className="border-t border-border bg-raised">
@@ -277,61 +302,41 @@ export function SiteHeader() {
           </div>
         )}
       </header>
+
       <nav
-        aria-label={t('nav.primary')}
-        className={cn(
-          'fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md lg:hidden',
-          (isHome || isTraveller) && 'hidden',
-        )}
+        aria-label={t('nav.bottom')}
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md xl:hidden"
       >
-        {([
-          { to: '/', label: 'nav.home', icon: House, active: pathname === '/', raised: false },
-          { to: '/traveller', label: 'nav.traveller', icon: Search, active: pathname === '/traveller', raised: false },
-          { to: '/report', label: 'nav.report', icon: TriangleAlert, active: pathname.startsWith('/report'), raised: true },
-          { to: '/map', label: 'nav.map', icon: Map, active: isMap, raised: false },
-          { to: '/advisories', label: 'nav.advisories', icon: ListChecks, active: isList, raised: false },
-        ] as const).map(({ to, label, icon: Icon, active, raised }) => (
+        {BOTTOM_NAV.map(({ to, label, icon: Icon, raised }) => (
           <Link
             key={to}
             to={to}
-            aria-current={current(active)}
+            aria-current={current(to)}
             className={cn(
-              'flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-lg text-[11px] font-medium',
+              'flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-0.5 text-center text-[11px] leading-tight font-medium',
               raised && '-mt-4',
-              active ? 'text-link' : 'text-muted-foreground',
+              active === to ? 'text-link' : 'text-muted-foreground',
             )}
           >
             <Icon
               aria-hidden
               className={cn(
-                'size-5',
+                'size-5 shrink-0',
                 raised &&
                   '-mt-1 size-12 rounded-full border-4 border-background bg-brand-orange p-2.5 text-[#111719] shadow-lg',
               )}
             />
-            <span>{t(label)}</span>
+            <span className="max-w-full truncate">{t(label)}</span>
           </Link>
         ))}
       </nav>
+
       <LoginDialog
         open={loginOpen}
         onOpenChange={setLoginOpen}
         returnFocusRef={loginReturnFocusRef}
       />
     </>
-  )
-}
-
-function HomeLanguageSelect() {
-  const { lang, setLang, t } = usePrefs()
-  return (
-    <label className="home-language-control">
-      <span className="sr-only">{t('lang.label')}</span>
-      <select value={lang} onChange={(event) => setLang(event.target.value as 'en' | 'hi')} aria-label={t('lang.label')}>
-        <option value="en">English</option>
-        <option value="hi">हिन्दी</option>
-      </select>
-    </label>
   )
 }
 
@@ -345,7 +350,7 @@ export function SiteFooter() {
     ['footer.contact', '/contact'],
   ] as const
   return (
-    <footer className="border-t border-border bg-card/40 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0">
+    <footer className="border-t border-border bg-card/40">
       <div className="rp-container flex flex-col gap-6 py-10 md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm space-y-3">
           <Logo />

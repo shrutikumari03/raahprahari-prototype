@@ -1,58 +1,3 @@
-.traveller-header {
-  height: 4rem;
-  border-color: rgb(145 174 189 / 20%);
-  background:
-    linear-gradient(90deg, rgb(2 15 22 / 94%), rgb(2 17 26 / 84%)),
-    url('/img/banner-strip.png') center 53% / cover;
-  color: #e6e4dc;
-  backdrop-filter: blur(8px);
-}
-
-.traveller-header > div {
-  height: 100%;
-}
-
-.traveller-header .traveller-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.traveller-header .traveller-brand > span:last-child {
-  display: block;
-  margin-top: -0.15rem;
-  color: rgb(230 228 220 / 84%);
-  font-size: 0.7rem;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
-.traveller-header .traveller-brand > span:first-child > svg {
-  width: 2.7rem;
-  height: 2.7rem;
-}
-
-.traveller-header .traveller-brand > span:first-child > span {
-  color: #e6e4dc;
-  font-family: var(--font-body);
-  font-size: 1.2rem;
-  font-weight: 700;
-}
-
-.traveller-header .traveller-brand > span:first-child > span > span {
-  color: #e6e4dc;
-}
-
-.traveller-header nav a,
-.traveller-header .home-language-control select,
-.traveller-header .traveller-account {
-  color: #e6e4dc;
-}
-
-.traveller-header nav a[aria-current='page'] {
-  color: #77c9ff;
-}
-
 .traveller-page {
   --traveller-panel: #061822;
   --traveller-panel-raised: #0a202b;
@@ -1183,31 +1128,6 @@
 }
 
 @media (max-width: 767px) {
-  .traveller-header .rp-container {
-    padding-inline: 1rem;
-  }
-
-  .traveller-header .traveller-brand {
-    gap: 0.45rem;
-  }
-
-  .traveller-header .traveller-brand > span:first-child > svg {
-    width: 2.3rem;
-    height: 2.3rem;
-  }
-
-  .traveller-header .traveller-brand > span:first-child > span {
-    font-size: 1rem;
-  }
-
-  .traveller-header .traveller-brand > span:last-child {
-    font-size: 0.6rem;
-  }
-
-  .traveller-header .rp-container > div:last-child > div:first-child {
-    display: none;
-  }
-
   .traveller-landing {
     display: flex;
     min-height: unset;
@@ -1366,10 +1286,6 @@
 }
 
 @media (max-width: 390px) {
-  .traveller-header .traveller-brand > span:last-child {
-    display: none;
-  }
-
   .traveller-location-actions {
     grid-template-columns: 1fr;
   }

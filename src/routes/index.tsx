@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowRight, CloudDownload, MapPin, Search, ShieldCheck, TriangleAlert, UsersRound } from 'lucide-react'
 import { AdvisoryCard } from '@/components/advisory-card'
-import { segmentById } from '@/data/fixtures'
+import { useAppStore } from '@/lib/app-store'
 import { usePrefs } from '@/i18n/preferences'
 import './home.css'
 
@@ -11,7 +11,8 @@ export const Route = createFileRoute('/')({
 
 function Home() {
   const { t } = usePrefs()
-  const sampleSegment = segmentById('nh107-02')
+  const { segments } = useAppStore()
+  const sampleSegment = segments.find((s) => s.id === 'nh107-02')
   if (!sampleSegment) throw new Error('Missing sample segment "nh107-02"')
 
   return (

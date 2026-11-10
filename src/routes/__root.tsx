@@ -12,6 +12,7 @@ import { NotFoundPage } from "@/components/error-pages";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { DemoBadge } from "@/components/advisory";
 import { PreferencesProvider, themeBootScript } from "@/i18n/preferences";
+import { AppStoreProvider } from "@/lib/app-store";
 
 import "../styles.css";
 
@@ -106,6 +107,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <AppStoreProvider>
         <PreferencesProvider>
           <TooltipProvider>
             <SkipLink>Skip to content</SkipLink>
@@ -135,6 +137,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               )}
           </TooltipProvider>
         </PreferencesProvider>
+        </AppStoreProvider>
         <Toaster />
         <Scripts />
       </body>

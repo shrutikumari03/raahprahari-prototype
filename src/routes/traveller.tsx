@@ -21,12 +21,11 @@ import {
 } from 'lucide-react'
 import { ActionBadge, FreshnessChip } from '@/components/advisory'
 import { Button } from '@/components/ui/button'
-import { SEGMENTS, PLACES, placeById, placeById as getPlace } from '@/data/fixtures'
+import { PLACES, placeById, placeById as getPlace } from '@/data/fixtures'
 import { getCurrentPosition, inCoverage, nearestPlace } from '@/lib/geo'
 import { getAdvisorySourceTimestamp } from '@/lib/advisory'
 import type { AdvisoryLevel, SegmentAdvisory } from '@/lib/advisory'
-import { advisoryFor } from '@/lib/data'
-import { STORAGE_KEYS, useLocalState } from '@/lib/storage'
+import { useAppStore } from '@/lib/app-store'
 import { usePrefs } from '@/i18n/preferences'
 import { findSeededRoutes } from '@/features/routes/routing'
 import type { Segment } from '@/lib/types'
@@ -49,8 +48,6 @@ type RecentTravellerSearch = {
 type ResultFilter = 'all' | 'roads' | 'hazards'
 type SearchStatus = 'idle' | 'loading' | 'failure'
 
-const RECENT_TRAVELLER_SEARCHES = `${STORAGE_KEYS.recentSearches}.traveller`
-
 export const Route = createFileRoute('/traveller')({
   validateSearch: (search: Record<string, unknown>): TravellerSearch => ({
     q: typeof search.q === 'string' ? search.q : undefined,
@@ -65,10 +62,10 @@ export const Route = createFileRoute('/traveller')({
 
 function TravellerPage() {
   const { place, ago } = usePrefs()
+  const { segments, advisories, recentSearches: recent, setRecentSearches: setRecent } = useAppStore()
   const navigate = useNavigate()
   const search = Route.useSearch()
   const inputRef = useRef<HTMLInputElement>(null)
-  const [recent, setRecent] = useLocalState<RecentTravellerSearch[]>(RECENT_TRAVELLER_SEARCHES, [])
   const from = search.from && placeById(search.from) ? search.from : undefined
   const to = search.to && placeById(search.to) ? search.to : undefined
   const journey = !!from && !!to && from !== to
@@ -95,10 +92,10 @@ function TravellerPage() {
     if (journey && from && to) {
       return [...new Map(routeOptions.flatMap((route) => route.segments).map((segment) => [segment.id, segment])).values()]
     }
-    return activeQuery ? segmentsForQuery(activeQuery) : []
-  }, [activeQuery, from, journey, routeOptions, to])
+    return activeQuery ? segmentsForQuery(activeQuery, segments, advisories) : []
+  }, [activeQuery, from, journey, routeOptions, to, segments, advisories])
   const matchingAdvisories = matchingSegments.map((segment) => {
-    const advisory = advisoryFor(segment.id)
+    const advisory = advisories.get(segment.id)
     if (!advisory) throw new Error(`Missing advisory for segment "${segment.id}"`)
     return { segment, advisory }
   })
@@ -394,7 +391,8 @@ export function ResultRow({
   reason: string
 }) {
   const { place } = usePrefs()
-  const advisory = advisoryFor(segment.id)
+  const { advisories } = useAppStore()
+  const advisory = advisories.get(segment.id)
   if (!advisory) throw new Error(`Missing advisory for segment "${segment.id}"`)
   const action = getTravellerResultAction(advisory)
   const sourceLabel = advisory.evidence.length
@@ -628,7 +626,11 @@ function TravellerFooter() {
   )
 }
 
-function segmentsForQuery(query: string): Segment[] {
+function segmentsForQuery(
+  query: string,
+  allSegments: Segment[],
+  advisories: Map<string, SegmentAdvisory>,
+): Segment[] {
   const normalized = normalizeQuery(query)
   const endpoints = routePlaceIds(query)
   if (endpoints) {
@@ -636,8 +638,8 @@ function segmentsForQuery(query: string): Segment[] {
   }
 
   const words = normalized.split(/\s+/).filter((word) => word && word !== 'to')
-  return SEGMENTS.filter((segment) => {
-    const advisory = advisoryFor(segment.id)
+  return allSegments.filter((segment) => {
+    const advisory = advisories.get(segment.id)
     const from = placeById(segment.from)
     const to = placeById(segment.to)
     const haystack = normalizeQuery([

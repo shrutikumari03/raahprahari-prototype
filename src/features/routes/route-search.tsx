@@ -5,15 +5,9 @@ import { Button } from '@/components/ui/button'
 import { QUICK_PICKS } from '@/data/fixtures'
 import { usePrefs } from '@/i18n/preferences'
 import { getCurrentPosition, inCoverage, nearestPlace } from '@/lib/geo'
-import { STORAGE_KEYS, useLocalState } from '@/lib/storage'
+import { useAppStore } from '@/lib/app-store'
 import { cn } from '@/lib/utils'
 import { PlaceInput } from '@/features/routes/place-input'
-
-interface RecentSearch {
-  from: string
-  to: string
-  at: number
-}
 
 export function RouteSearchCard({
   initialFrom = null,
@@ -34,7 +28,11 @@ export function RouteSearchCard({
   const [to, setTo] = useState<string | null>(initialTo)
   const [locMsg, setLocMsg] = useState<string | null>(null)
   const [locating, setLocating] = useState(false)
-  const [recent, setRecent] = useLocalState<RecentSearch[]>(STORAGE_KEYS.recentSearches, [])
+  const { places, recentSearches, setRecentSearches: setRecent } = useAppStore()
+  // Only route picks (with both ends) can refill the from/to inputs.
+  const recent = recentSearches.filter(
+    (r): r is typeof r & { from: string; to: string } => !!r.from && !!r.to,
+  )
 
   useEffect(() => {
     setFrom(initialFrom)
@@ -47,7 +45,14 @@ export function RouteSearchCard({
   const submit = (e?: React.FormEvent) => {
     e?.preventDefault()
     if (!valid) return
-    setRecent((prev) => [{ from, to, at: Date.now() }, ...prev.filter((r) => !(r.from === from && r.to === to))].slice(0, 5))
+    const name = (id: string) => places.find((p) => p.id === id)?.name ?? id
+    const query = `${name(from)} to ${name(to)}`
+    setRecent((prev) =>
+      [
+        { query, from, to, at: Date.now() },
+        ...prev.filter((r) => r.query.toLowerCase() !== query.toLowerCase()),
+      ].slice(0, 5),
+    )
     if (destination === 'traveller') {
       void navigate({ to: '/traveller', search: { from, to } })
     } else {
@@ -163,7 +168,7 @@ export function RouteSearchCard({
         <div>
           <div className="mb-1 flex items-center justify-between">
             <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{t('search.recent')}</p>
-            <Button type="button" variant="ghost" size="sm" className="h-9 text-muted-foreground" onClick={() => setRecent([])}>
+            <Button type="button" variant="ghost" size="sm" className="h-9 text-muted-foreground" onClick={() => setRecent((prev) => prev.filter((r) => !r.from || !r.to))}>
               <X />
               {t('search.clearRecent')}
             </Button>

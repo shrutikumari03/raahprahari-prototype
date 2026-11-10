@@ -20,8 +20,8 @@ import { AdvisoryCard } from '@/components/advisory-card'
 import { Logo } from '@/components/site-chrome'
 import { SegmentMap } from '@/features/routes/schematic-map'
 import { SegmentDetail } from '@/features/routes/segment-detail'
-import { corridorById, SEGMENTS, segmentById } from '@/data/fixtures'
 import { usePrefs } from '@/i18n/preferences'
+import { useAppStore } from '@/lib/app-store'
 import { cn } from '@/lib/utils'
 import {
   Sheet,
@@ -54,6 +54,9 @@ export const Route = createFileRoute('/map')({
 
 function MapPage() {
   const { place } = usePrefs()
+  const { segments: SEGMENTS, corridors } = useAppStore()
+  const corridorById = (id: string) => corridors.find((c) => c.id === id)
+  const segmentById = (id: string) => SEGMENTS.find((s) => s.id === id)
   const search = Route.useSearch()
   const initialSegment = search.seg && segmentById(search.seg) ? search.seg : 'nh7-06'
   const [selectedSegmentId, setSelectedSegmentId] = useState<string | undefined>(initialSegment)
@@ -67,7 +70,7 @@ function MapPage() {
     const term = query.trim().toLocaleLowerCase()
     if (!term) return SEGMENTS
     return SEGMENTS.filter((segment) => {
-      const corridor = corridorById(segment.corridorId)
+      const corridor = corridors.find((c) => c.id === segment.corridorId)
       return [
         segment.code,
         corridor?.name,
@@ -75,7 +78,7 @@ function MapPage() {
         place(segment.to),
       ].some((value) => value?.toLocaleLowerCase().includes(term))
     })
-  }, [place, query])
+  }, [place, query, SEGMENTS, corridors])
   const selectedSegment = selectedSegmentId ? segmentById(selectedSegmentId) : undefined
   const selectedCorridor = selectedSegment ? corridorById(selectedSegment.corridorId) : undefined
   const highlightedSegments = selectedSegment

@@ -21,22 +21,17 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { PLACES, SEGMENTS, placeById } from '@/data/fixtures'
+import { placeById } from '@/data/fixtures'
+import { useAppStore } from '@/lib/app-store'
+import type { Place, Segment } from '@/lib/types'
 import {
   createEmptyReportDraft,
-  clearReportDraft,
   loadReportPhoto,
   makeLocalReference,
-  readLastLocalReport,
-  readLocalReports,
-  readReportDraft,
   removeReportPhoto,
   saveReportPhoto,
   validateObservation,
   validatePhoto,
-  writeLastLocalReport,
-  writeLocalReports,
-  writeReportDraft,
   type LocalReport,
   type ReportDraft,
   type ReportHazard,
@@ -78,17 +73,17 @@ const formatBytes = (size: number) =>
 const formatCoordinates = (lat: number, lon: number) =>
   `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(4)}° ${lon >= 0 ? 'E' : 'W'}`
 
-function optionsFor(query: string): SearchOption[] {
+function optionsFor(query: string, places: Place[], segments: Segment[]): SearchOption[] {
   const search = query.trim().toLocaleLowerCase()
   if (!search) return []
-  const placeOptions = PLACES.filter((place) => place.name.toLocaleLowerCase().includes(search)).map((place) => ({
+  const placeOptions = places.filter((place) => place.name.toLocaleLowerCase().includes(search)).map((place) => ({
     key: `place-${place.id}`,
     label: place.name,
     lat: place.lat,
     lon: place.lon,
     segment: nearbySegments(place.lat, place.lon, 15)[0]?.segment.code ?? 'Road segment not identified',
   }))
-  const segmentOptions = SEGMENTS.filter((segment) => {
+  const segmentOptions = segments.filter((segment) => {
     const from = placeById(segment.from)?.name ?? ''
     const to = placeById(segment.to)?.name ?? ''
     return `${segment.code} ${from} ${to}`.toLocaleLowerCase().includes(search)
@@ -130,6 +125,16 @@ function makeLocation(
 }
 
 export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate: (path: ReportPath) => void }) {
+  const {
+    places,
+    segments,
+    localReports,
+    saveLocalReport,
+    loadLastLocalReport,
+    saveReportDraft,
+    clearReportDraft,
+    loadReportDraft,
+  } = useAppStore()
   const [draft, setDraft] = useState<ReportDraft>(() => ({
     ...createEmptyReportDraft(),
     observedAt: '',
@@ -154,7 +159,7 @@ export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate:
 
   useEffect(() => {
     try {
-      const saved = readReportDraft()
+      const saved = loadReportDraft()
       if (saved) {
         // Browser storage is loaded after hydration to keep server and client markup aligned.
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -168,23 +173,23 @@ export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate:
     }
     if (step === 'received') {
       try {
-        setLocalReport(readLastLocalReport())
+        setLocalReport(loadLastLocalReport())
       } catch {
         setStorageError('Could not read the saved report from this device.')
       }
     }
     setLoaded(true)
-  }, [step])
+  }, [step, loadReportDraft, loadLastLocalReport])
 
   useEffect(() => {
     if (!loaded || step === 'received') return
     try {
-      writeReportDraft(draft)
+      saveReportDraft(draft)
     } catch {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setStorageError('This browser could not save the draft. Check available device storage.')
     }
-  }, [draft, loaded, step])
+  }, [draft, loaded, step, saveReportDraft])
 
   useEffect(() => {
     let active = true
@@ -247,7 +252,7 @@ export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate:
 
   const saveDraft = () => {
     try {
-      writeReportDraft(draft)
+      saveReportDraft(draft)
       setNotice('Saved on this device. This draft has not been sent to a server.')
       setStorageError('')
     } catch {
@@ -352,7 +357,7 @@ export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate:
     const next = { ...draft, location: { ...draft.location, confirmed: true } }
     setDraft(next)
     try {
-      writeReportDraft(next)
+      saveReportDraft(next)
       setStorageError('')
       setErrors({})
       go('/report/review')
@@ -380,9 +385,7 @@ export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate:
       synthetic: true,
     }
     try {
-      const existing = readLocalReports()
-      writeLocalReports([report, ...existing].slice(0, 50))
-      writeLastLocalReport(report)
+      saveLocalReport(report)
       clearReportDraft()
       setLocalReport(report)
       go('/report/received')
@@ -391,11 +394,21 @@ export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate:
     }
   }
 
-  const matchingOptions = useMemo(() => optionsFor(locationSearch), [locationSearch])
+  const matchingOptions = useMemo(
+    () => optionsFor(locationSearch, places, segments),
+    [locationSearch, places, segments],
+  )
   const currentStep = step === 'observation' || step === 'photo' ? 1 : step === 'location' ? 2 : 3
 
   if (step === 'received') {
-    return <ReceivedReport report={localReport} navigate={navigate} storageError={storageError} />
+    return (
+      <ReceivedReport
+        report={localReport}
+        savedReports={localReports}
+        navigate={navigate}
+        storageError={storageError}
+      />
+    )
   }
 
   const title =
@@ -1130,13 +1143,16 @@ function ReviewSection({ title, edit, children }: { title: string; edit: () => v
 
 function ReceivedReport({
   report,
+  savedReports,
   navigate,
   storageError,
 }: {
   report: LocalReport | null
+  savedReports: LocalReport[]
   navigate: (path: ReportPath) => void
   storageError: string
 }) {
+  const otherReports = savedReports.filter((item) => item.reference !== report?.reference)
   return (
     <div
       className="relative flex min-h-[70svh] items-center justify-center overflow-hidden bg-cover bg-center px-4 py-10"
@@ -1181,15 +1197,33 @@ function ReceivedReport({
             {storageError}
           </p>
         )}
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <div>
-            <Button type="button" variant="secondary" className="w-full" disabled>
-              View my reports
-            </Button>
-            <p className="mt-1 text-center text-xs text-muted-foreground">
-              Available in Phase B; not built in this phase.
+        {otherReports.length > 0 && (
+          <section aria-labelledby="device-reports-heading" className="mt-5">
+            <h2 id="device-reports-heading" className="text-sm font-semibold">
+              Other reports saved on this device ({otherReports.length})
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              None of these have been sent to a server or reviewed.
             </p>
-          </div>
+            <ul className="mt-2 space-y-1.5">
+              {otherReports.slice(0, 5).map((item) => (
+                <li
+                  key={item.reference}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-xs"
+                >
+                  <span className="break-all font-mono">{item.reference}</span>
+                  <span className="text-muted-foreground">
+                    {item.status} · {new Date(item.savedAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <Button type="button" variant="secondary" className="w-full" onClick={() => navigate('/report')}>
+            Report another hazard
+          </Button>
           <Button type="button" variant="outline" className="w-full" onClick={() => navigate('/')}>
             Back to home
           </Button>

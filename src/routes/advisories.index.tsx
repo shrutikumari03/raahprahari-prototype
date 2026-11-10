@@ -4,9 +4,8 @@ import { AdvisoryCard } from "@/components/advisory-card";
 import { DemoBadge } from "@/components/advisory";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/feedback";
-import { SEGMENTS } from "@/data/fixtures";
 import { usePrefs } from "@/i18n/preferences";
-import { advisoryFor } from "@/lib/data";
+import { useAppStore } from "@/lib/app-store";
 import { cn } from "@/lib/utils";
 import "./advisories.index.css";
 
@@ -19,9 +18,10 @@ export const Route = createFileRoute("/advisories/")({
 
 function AdvisoriesPage() {
   const { t } = usePrefs();
+  const { segments, advisories } = useAppStore();
   const [filter, setFilter] = useState<Filter>("all");
-  const segments = SEGMENTS.filter((segment) => {
-    const advisory = advisoryFor(segment.id);
+  const filteredSegments = segments.filter((segment) => {
+    const advisory = advisories.get(segment.id);
     if (!advisory)
       throw new Error(`Missing advisory for segment "${segment.id}"`);
     if (filter === "issues")
@@ -87,9 +87,9 @@ function AdvisoriesPage() {
             )}
           </div>
         </div>
-        {segments.length ? (
+        {filteredSegments.length ? (
           <div className="grid min-w-0 grid-cols-1 items-stretch gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {segments.map((segment) => (
+            {filteredSegments.map((segment) => (
               <AdvisoryCard
                 key={segment.id}
                 segment={segment}

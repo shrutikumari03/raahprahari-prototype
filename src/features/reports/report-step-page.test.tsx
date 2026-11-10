@@ -1,6 +1,16 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ReportStepPage } from '@/features/reports/report-step-page'
+import { ReportStepPage as BareReportStepPage } from '@/features/reports/report-step-page'
+import { AppStoreProvider } from '@/lib/app-store'
+
+// The report flow reads and writes drafts and local reports through the shared store.
+function ReportStepPage(props: React.ComponentProps<typeof BareReportStepPage>) {
+  return (
+    <AppStoreProvider>
+      <BareReportStepPage {...props} />
+    </AppStoreProvider>
+  )
+}
 import {
   createEmptyReportDraft,
   MAX_PHOTO_BYTES,

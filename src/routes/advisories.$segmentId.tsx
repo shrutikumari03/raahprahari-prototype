@@ -27,10 +27,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SegmentMap } from '@/features/routes/schematic-map'
 import { SegmentDetail, StatusTimeline } from '@/features/routes/segment-detail'
 import { RouteErrorPage } from '@/components/error-pages'
-import { REPORTS, segmentById } from '@/data/fixtures'
-import { advisoryFor, reportByRef } from '@/lib/data'
+import { segmentById } from '@/data/fixtures'
+// Loaders run outside React, so they resolve ids through the module-level layer.
+import { reportByRef } from '@/lib/data'
 import { getAdvisorySourceTimestamp, type AdvisoryLevel } from '@/lib/advisory'
 import { usePrefs } from '@/i18n/preferences'
+import { useAppStore } from '@/lib/app-store'
 import type { CommunityReport, Segment } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -184,17 +186,18 @@ function SummaryItem({
 
 function SegmentOverview({ segment }: { segment: Segment }) {
   const { place, stamp } = usePrefs()
+  const { reports, advisories } = useAppStore()
   const [tab, setTab] = useState('overview')
-  const advisory = advisoryFor(segment.id)
+  const advisory = advisories.get(segment.id)
   if (!advisory) throw new Error(`Missing advisory for segment "${segment.id}"`)
 
-  const reports = REPORTS.filter(
+  const reports_for_segment = reports.filter(
     (report) =>
       report.segmentId === segment.id &&
       report.status !== 'duplicate' &&
       report.status !== 'rejected',
   )
-  const hazards = reports.filter((report) => report.kind === 'hazard')
+  const hazards = reports_for_segment.filter((report) => report.kind === 'hazard')
   const sourceTimestamp = getAdvisorySourceTimestamp(advisory)
 
   return (
@@ -280,7 +283,7 @@ function SegmentOverview({ segment }: { segment: Segment }) {
                       onClick={() => setTab('hazards')}
                     />
                     <CountLink
-                      count={reports.length}
+                      count={reports_for_segment.length}
                       label="Total reports"
                       icon={FileText}
                       onClick={() => setTab('hazards')}
@@ -469,7 +472,8 @@ function OfficialRestrictionCard({
   segmentId: string
   className?: string
 }) {
-  const advisory = advisoryFor(segmentId)
+  const { advisories } = useAppStore()
+  const advisory = advisories.get(segmentId)
   if (!advisory) throw new Error(`Missing advisory for segment "${segmentId}"`)
   return (
     <section

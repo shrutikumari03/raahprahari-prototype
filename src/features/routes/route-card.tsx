@@ -3,7 +3,7 @@ import { Bookmark, BookmarkCheck, Info, List, Map as MapIcon, TriangleAlert } fr
 import { Button } from '@/components/ui/button'
 import { ActionBadge, FreshnessChip, LEVEL_META } from '@/components/advisory'
 import { usePrefs } from '@/i18n/preferences'
-import { advisoryFor } from '@/lib/data'
+import { useAppStore } from '@/lib/app-store'
 import type { RouteAdvisorySummary } from '@/lib/advisory'
 import type { RouteOption } from '@/features/routes/routing'
 import { routeLabel } from '@/features/routes/routing'
@@ -42,6 +42,8 @@ export function RouteCard({
 }) {
   const { t, lang, ago, duration } = usePrefs()
   const letter = String.fromCharCode(65 + index)
+  const { advisories: advisoryMap } = useAppStore()
+  const advisoryFor = (id: string) => advisoryMap.get(id)
   const advisories = route.segments.map((segment) => advisoryFor(segment.id)).filter((advisory) => advisory !== undefined)
   const timestamps = advisories
     .map(getAdvisorySourceTimestamp)

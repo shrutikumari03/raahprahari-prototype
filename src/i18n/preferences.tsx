@@ -1,10 +1,10 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo } from 'react'
 import { en, hi, type TranslationKey } from '@/i18n/dictionary'
 import { DEMO_NOW, placeById } from '@/data/fixtures'
-import { STORAGE_KEYS, readLocal, writeLocal } from '@/lib/storage'
+import { STORAGE_KEYS } from '@/lib/storage'
+import { AppStoreProvider, useAppStore, type Lang, type Theme } from '@/lib/app-store'
 
-export type Lang = 'en' | 'hi'
-export type Theme = 'system' | 'dark' | 'light'
+export type { Lang, Theme }
 
 interface Preferences {
   lang: Lang
@@ -23,19 +23,17 @@ interface Preferences {
 
 const PreferencesContext = createContext<Preferences | null>(null)
 
+/** Language and theme live in the app store; this layer adds formatting helpers. */
 export function PreferencesProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('en')
-  const [theme, setThemeState] = useState<Theme>('dark')
+  return (
+    <AppStoreProvider>
+      <PreferencesBridge>{children}</PreferencesBridge>
+    </AppStoreProvider>
+  )
+}
 
-  useEffect(() => {
-    setLangState(readLocal<Lang>(STORAGE_KEYS.lang, 'en'))
-    const storedTheme = readLocal<unknown>(STORAGE_KEYS.theme, 'dark')
-    setThemeState(
-      storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system'
-        ? storedTheme
-        : 'dark',
-    )
-  }, [])
+function PreferencesBridge({ children }: { children: React.ReactNode }) {
+  const { lang, setLang, theme, setTheme } = useAppStore()
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -59,15 +57,6 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     media.addEventListener('change', applyTheme)
     return () => media.removeEventListener('change', applyTheme)
   }, [theme])
-
-  const setLang = useCallback((l: Lang) => {
-    setLangState(l)
-    writeLocal(STORAGE_KEYS.lang, l)
-  }, [])
-  const setTheme = useCallback((t: Theme) => {
-    setThemeState(t)
-    writeLocal(STORAGE_KEYS.theme, t)
-  }, [])
 
   const value = useMemo<Preferences>(() => {
     const dict = lang === 'hi' ? hi : en

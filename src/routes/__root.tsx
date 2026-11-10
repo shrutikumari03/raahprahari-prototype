@@ -11,9 +11,17 @@ import { SkipLink } from "@/components/ui/feedback";
 import { NotFoundPage } from "@/components/error-pages";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { DemoBadge } from "@/components/advisory";
+import { AccountScopeBoundary } from "@/components/account-scope-boundary";
+import { SyncProvider } from "@/components/sync-provider";
 import { PreferencesProvider, themeBootScript } from "@/i18n/preferences";
 
 import "../styles.css";
+
+if (import.meta.env.DEV && import.meta.env.VITE_DEV_RECEIPT_STUB === "true") {
+  void import("@/dev/receipt-stub").catch((error: unknown) => {
+    console.error("Unable to initialize the development receipt stub", error);
+  });
+}
 
 const siteName = "RaahPrahari — Know before you go";
 const siteDescription =
@@ -108,31 +116,37 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <PreferencesProvider>
           <TooltipProvider>
-            <SkipLink>Skip to content</SkipLink>
-            <div className="flex min-h-svh flex-col">
-              {!isMap && <SiteHeader />}
-              <main
-                id="main"
-                className={
-                  isHome || isTraveller || isMap
-                    ? "flex-1"
-                    : "flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0"
-                }
-              >
-                {children}
-              </main>
-              {!isHome && !isTraveller && !isMap && !isHelp && <SiteFooter />}
-            </div>
-            {!isHome &&
-              !isTraveller &&
-              !isMap &&
-              !isHelp &&
-              !isNotFound &&
-              !isAdvisories && (
-                <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
-                  <DemoBadge />
+            <AccountScopeBoundary>
+              <SyncProvider>
+                <SkipLink>Skip to content</SkipLink>
+                <div className="flex min-h-svh flex-col">
+                  {!isMap && <SiteHeader />}
+                  <main
+                    id="main"
+                    className={
+                      isHome || isTraveller || isMap
+                        ? "flex-1"
+                        : "flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0"
+                    }
+                  >
+                    {children}
+                  </main>
+                  {!isHome && !isTraveller && !isMap && !isHelp && (
+                    <SiteFooter />
+                  )}
                 </div>
-              )}
+                {!isHome &&
+                  !isTraveller &&
+                  !isMap &&
+                  !isHelp &&
+                  !isNotFound &&
+                  !isAdvisories && (
+                    <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
+                      <DemoBadge />
+                    </div>
+                  )}
+              </SyncProvider>
+            </AccountScopeBoundary>
           </TooltipProvider>
         </PreferencesProvider>
         <Toaster />

@@ -105,3 +105,19 @@ describe("mobile navigation keyboard accessibility", () => {
     );
   });
 });
+
+describe("community login dialog", () => {
+  it("opens, explains login is not available, closes and returns focus", async () => {
+    location.pathname = "/";
+    const user = userEvent.setup();
+    render(header());
+
+    const trigger = screen.getAllByRole("button", { name: "Community Login" })[0];
+    await user.click(trigger);
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toHaveTextContent("Community login");
+    await user.click(within(dialog).getByRole("button", { name: "Got it" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(trigger).toHaveFocus();
+  });
+});

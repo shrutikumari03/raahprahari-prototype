@@ -29,3 +29,41 @@ Segment lines are approximate, synthetic data generated in `src/data/fixtures.ts
 | Client-only Leaflet (no SSR crash) | `/map`, `/traveller` and `/advisories/:id` render on the server without `window`; no Leaflet DOM in server HTML | `src/test/map-ssr.test.tsx` | Implemented |
 
 jsdom has no layout, so map tests give elements a size (`clientWidth`/`clientHeight`) so that Leaflet computes a viewport and requests tiles. Real tile loading, map rendering and keyboard panning were checked in a browser, not in the automated suite.
+
+## Click audit (every button, link and form on every route)
+
+Each route is mounted with the real router. In the page content, every enabled button, link, tab and `summary` gets clicked, each on a fresh mount. A click must change the URL, the DOM or local storage. If it changes none of these, it counts as dead.
+
+Some controls are skipped or checked a different way:
+
+- Disabled controls are skipped.
+- Already-selected toggles (`aria-pressed`, `aria-selected` or `aria-current` set) are skipped, because clicking them again is correctly a no-op.
+- External links are checked for `rel="noopener"`. Leaflet's own attribution links are the exception.
+- The photo-picker buttons are checked by confirming they open their hidden file input.
+
+Routes covered: `/`, `/traveller`, `/map`, `/advisories`, `/advisories/nh7-06`, `/help`, `/help/report`, `/about`, `/contact`, `/report`, `/report/photo`, `/report/location`, `/report/review`, `/report/received`, `/check` and an unknown path (404).
+
+| Scenario | Expected result | Test file | Status |
+|---|---|---|---|
+| Page-content controls on every route | No dead buttons, links or tabs | `src/test/click-audit.test.tsx` | Implemented |
+| Header links, logo, Report Hazard | Each opens its route | `src/test/chrome-click-audit.test.tsx`, `src/test/navigation-consistency.test.tsx` | Implemented |
+| Bottom navigation | Each item opens its route | `src/test/chrome-click-audit.test.tsx` | Implemented |
+| Language and theme switches | EN/हिन्दी changes labels; the theme button cycles and relabels itself | `src/test/chrome-click-audit.test.tsx` | Implemented |
+| Community Login | Opens a dialog that says login is not available yet. "Got it" closes it and focus returns to the trigger. Login itself is not built (PLAN.md) | `src/test/chrome-click-audit.test.tsx`, `src/components/site-chrome.a11y.test.tsx` | Implemented (stub by design) |
+| Mobile menu | Opens; its links navigate and close it; Login and Report Hazard work from inside it | `src/test/chrome-click-audit.test.tsx`, `src/components/site-chrome.a11y.test.tsx` | Implemented |
+| Footer links | About, Contact, and `/about#privacy`, `#terms`, `#accessibility` resolve to existing targets | `src/test/chrome-click-audit.test.tsx` | Implemented |
+| Help search | Filtering reduces topics; no match shows an empty state | `src/test/chrome-click-audit.test.tsx` | Implemented |
+| Advisory filters and sort | Filter buttons toggle `aria-pressed`; sort select changes value | `src/test/chrome-click-audit.test.tsx` | Implemented |
+| Report flow form | Hazard type plus description enables Continue, which opens `/report/photo`; save and submit stay on the device | `src/test/chrome-click-audit.test.tsx`, `src/features/reports/report-step-page.test.tsx` | Implemented |
+| Contact form | Validates; for valid input it shows "not sent" notice (no backend) | `src/routes/contact.test.tsx` | Implemented (no backend by design) |
+| Traveller search form | Submitting a place shows result links to segment details | `src/test/chrome-click-audit.test.tsx`, `src/test/traveller-search.test.tsx` | Implemented |
+| Route search swap (`/check`) | Disabled while both places are empty; once a place is chosen it swaps From and To | `src/test/chrome-click-audit.test.tsx` | Fixed. It used to be enabled and do nothing |
+| Error page buttons | "Try again" reloads the route; "Back to home" goes home | `src/components/error-pages.test.tsx` | Implemented |
+
+Findings from the audit:
+
+- Fixed: the route-search swap button on `/check` did nothing while both places were empty. It is now disabled until there is something to swap.
+- By design, not dead: Community Login, the contact form and report submission are honest prototype stubs. Each says it is not connected and does not pretend to send anything.
+- Not a dead control, but worth knowing: no nav item links to `/check`. Only its own controls reach it. `src/features/reports/report-flow.tsx` is unused code with no route.
+
+Test-environment note: the shell renders `<html>`/`<body>`. Tests that close a dialog therefore mount into `document`, the same way the app hydrates. Mounting into a `<div>` makes React's focus handling loop forever in jsdom.

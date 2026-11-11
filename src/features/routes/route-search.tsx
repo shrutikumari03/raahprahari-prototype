@@ -100,6 +100,7 @@ export function RouteSearchCard({
               setFrom(to)
               setTo(from)
             }}
+            disabled={!from && !to}
             aria-label={t('search.swap')}
             title={t('search.swap')}
           >

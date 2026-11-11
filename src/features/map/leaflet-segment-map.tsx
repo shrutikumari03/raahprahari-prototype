@@ -8,7 +8,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import type * as Leaflet from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Crosshair, LocateFixed, Minus, Plus } from 'lucide-react'
-import { DemoBadge } from '@/components/advisory'
+import { PrototypeRibbon } from "@/components/prototype-ribbon"
 import { SEGMENT_GEOMETRY_NOTE } from '@/data/fixtures'
 import { usePrefs } from '@/i18n/preferences'
 import { useAppStore } from '@/lib/app-store'
@@ -46,6 +46,7 @@ export function LeafletSegmentMap({
   onUnavailable,
   label,
   className,
+  showRibbon = true,
 }: {
   /** Segments to draw. Official closures from the store are always drawn too. */
   segments: Segment[]
@@ -59,6 +60,8 @@ export function LeafletSegmentMap({
   /** Accessible name for the map. */
   label: string
   className?: string
+  /** Set false when the page already shows the shared PrototypeRibbon itself. */
+  showRibbon?: boolean
 }) {
   const { t, place } = usePrefs()
   const { segments: allSegments, advisories, now } = useAppStore()
@@ -364,7 +367,7 @@ export function LeafletSegmentMap({
         </p>
       )}
       <div className="rp-lmap-labels">
-        <DemoBadge />
+        {showRibbon && <PrototypeRibbon />}
         <span className="rp-lmap-note">{SEGMENT_GEOMETRY_NOTE}</span>
       </div>
     </div>

@@ -33,7 +33,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { DemoBadge, RoadCode } from '@/components/advisory'
+import { RoadCode } from '@/components/advisory'
+import { PrototypeRibbon } from '@/components/prototype-ribbon'
 import { placeById, segmentById } from '@/data/fixtures'
 import { PlaceInput } from '@/features/routes/place-input'
 import { SchematicMap } from '@/features/routes/schematic-map'
@@ -917,7 +918,7 @@ function Submission({ report, onAnother }: { report: LocalReport; onAnother: () 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
-        <DemoBadge />
+        <PrototypeRibbon />
         <p className="mt-4 text-sm text-muted-foreground">{t('report.ref')}</p>
         <p className="font-mono text-3xl font-medium tracking-tight">{report.ref}</p>
         <p className="mt-1 text-xs text-muted-foreground">{t('report.refNote')}</p>

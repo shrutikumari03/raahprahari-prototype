@@ -20,7 +20,7 @@ import {
   TriangleAlert,
   type LucideIcon,
 } from "lucide-react";
-import { DemoBadge } from "@/components/advisory";
+import { PrototypeRibbon } from "@/components/prototype-ribbon";
 import { Input } from "@/components/ui/input";
 import { usePrefs } from "@/i18n/preferences";
 import { helpTopics } from "@/data/help-topics";
@@ -159,7 +159,7 @@ function HelpPage() {
             <ArrowLeft aria-hidden />
             {t("help.backHome")}
           </Link>
-          <DemoBadge className="help-demo-badge" />
+          <PrototypeRibbon />
         </div>
       </footer>
     </div>

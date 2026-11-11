@@ -11,7 +11,7 @@ import { SkipLink } from "@/components/ui/feedback";
 import { NotFoundPage } from "@/components/error-pages";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { BackToTop, PageTransition, RevealObserver } from "@/components/motion";
-import { DemoBadge } from "@/components/advisory";
+import { PrototypeRibbon } from "@/components/prototype-ribbon";
 import { PreferencesProvider, themeBootScript } from "@/i18n/preferences";
 import { AppStoreProvider } from "@/lib/app-store";
 
@@ -59,9 +59,11 @@ export const Route = createRootRoute({
           name: "twitter:card",
           content: "summary_large_image",
         },
-        { name: "theme-color", content: "#111719" },
+        { name: "theme-color", content: "#07151f" },
       ],
       links: [
+        // Web app manifest only. There is no service worker, so nothing is cached for offline use.
+        { rel: "manifest", href: "/manifest.webmanifest" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         {
           rel: "preconnect",
@@ -80,9 +82,11 @@ export const Route = createRootRoute({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { isHome, isTraveller, isMap, isHelp, isNotFound, isAdvisories } =
+  // These routes render the shared PrototypeRibbon inside their own layout.
+  const { isHome, isTraveller, isMap, isHelp, isNotFound, isAdvisories, isReport } =
     useRouterState({
       select: (state) => ({
+        isReport: state.location.pathname.startsWith("/report"),
         isHome: state.location.pathname === "/",
         isTraveller: state.location.pathname === "/traveller",
         isMap: state.location.pathname === "/map",
@@ -129,9 +133,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               !isMap &&
               !isHelp &&
               !isNotFound &&
+              !isReport &&
               !isAdvisories && (
                 <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 xl:bottom-2">
-                  <DemoBadge />
+                  <PrototypeRibbon />
                 </div>
               )}
           </TooltipProvider>

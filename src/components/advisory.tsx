@@ -3,7 +3,6 @@ import {
   CircleCheck,
   CircleQuestionMark,
   Clock,
-  FlaskConical,
   OctagonAlert,
   OctagonX,
   ShieldCheck,
@@ -116,10 +115,10 @@ export function FreshnessChip({
 }
 
 export function CacheTimeLabel({ timestamp }: { timestamp: number }) {
-  const { stamp } = usePrefs()
+  const { stamp, t } = usePrefs()
   return (
     <span className="text-xs text-muted-foreground" data-testid="cache-time">
-      Cached: <time dateTime={new Date(timestamp).toISOString()}>{stamp(timestamp)}</time>
+      {t('time.cached')} <time dateTime={new Date(timestamp).toISOString()}>{stamp(timestamp)}</time>
     </span>
   )
 }
@@ -151,21 +150,6 @@ export function OfficialBadge({ label, className }: { label?: string; className?
     >
       <ShieldCheck aria-hidden className="size-3.5 text-status-official" />
       {label ?? t('level.official')}
-    </span>
-  )
-}
-
-export function DemoBadge({ className }: { className?: string }) {
-  const { t } = usePrefs()
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1.5 rounded-md border border-border bg-background/70 px-2 py-0.5 font-mono text-[11px] font-medium tracking-wide text-muted-foreground',
-        className,
-      )}
-    >
-      <FlaskConical aria-hidden className="size-3" />
-      {t('demo.badge')}
     </span>
   )
 }

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo } from 'react'
 import { en, hi, type TranslationKey } from '@/i18n/dictionary'
-import { DEMO_NOW, placeById } from '@/data/fixtures'
+import { placeById } from '@/data/fixtures'
 import { STORAGE_KEYS } from '@/lib/storage'
 import { AppStoreProvider, useAppStore, type Lang, type Theme } from '@/lib/app-store'
 
@@ -13,7 +13,7 @@ interface Preferences {
   setTheme: (t: Theme) => void
   now: number
   t: (key: TranslationKey) => string
-  /** Human age relative to the demo clock, e.g. "3 h ago" */
+  /** Human age relative to the injected clock (the store's now). */
   ago: (ts: number) => string
   /** Absolute local time, e.g. "25 Oct, 14:30" */
   stamp: (ts: number) => string
@@ -33,7 +33,8 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
 }
 
 function PreferencesBridge({ children }: { children: React.ReactNode }) {
-  const { lang, setLang, theme, setTheme } = useAppStore()
+  // The clock comes from the store (the seeded 2026 demo clock, or an injected one).
+  const { lang, setLang, theme, setTheme, now } = useAppStore()
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -66,10 +67,10 @@ function PreferencesBridge({ children }: { children: React.ReactNode }) {
       setLang,
       theme,
       setTheme,
-      now: DEMO_NOW,
+      now,
       t,
       ago: (ts) => {
-        const mins = Math.max(0, Math.round((DEMO_NOW - ts) / 60_000))
+        const mins = Math.max(0, Math.round((now - ts) / 60_000))
         if (mins < 5) return t('time.justNow')
         if (mins < 60) return `${mins} ${t('time.minAgo')}`
         const h = Math.round(mins / 60)
@@ -94,7 +95,7 @@ function PreferencesBridge({ children }: { children: React.ReactNode }) {
         return h ? `${h} ${t('common.hr')} ${m ? `${m} ${t('common.min')}` : ''}`.trim() : `${m} ${t('common.min')}`
       },
     }
-  }, [lang, theme, setLang, setTheme])
+  }, [lang, theme, setLang, setTheme, now])
 
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>
 }

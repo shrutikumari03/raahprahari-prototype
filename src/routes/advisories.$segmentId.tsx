@@ -671,7 +671,7 @@ function HazardDetail({
                 icon={RouteIcon}
               />
               <Fact
-                label="Observation time"
+                label={t('segment.observationTime')}
                 value={`${ago(report.observedAt)} · ${stamp(report.observedAt)}`}
                 icon={Clock3}
               />

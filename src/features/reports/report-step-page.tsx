@@ -18,11 +18,13 @@ import {
   Wind,
   X,
 } from 'lucide-react'
+import { PrototypeRibbon } from '@/components/prototype-ribbon'
 import { Button } from '@/components/ui/button'
 import { CharCounter } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { placeById } from '@/data/fixtures'
+import { en, hi, type TranslationKey } from '@/i18n/dictionary'
 import { useAppStore } from '@/lib/app-store'
 import type { Place, Segment } from '@/lib/types'
 import {
@@ -160,7 +162,10 @@ export function ReportStepPage({
     saveReportDraft,
     clearReportDraft,
     loadReportDraft,
+    lang,
   } = useAppStore()
+  // This page can render without the preference layer, so it reads the dictionary directly.
+  const t = (key: TranslationKey) => (lang === 'hi' ? hi : en)[key]
   const [draft, setDraft] = useState<ReportDraft>(() => ({
     ...createEmptyReportDraft(),
     observedAt: '',
@@ -455,7 +460,7 @@ export function ReportStepPage({
         }}
       >
         <div className="rp-container relative py-6 sm:py-8">
-          <p className="text-xs font-semibold tracking-wide text-orange-on-dark">Prototype mockup, synthetic data</p>
+          <PrototypeRibbon />
           <div className="mt-1 flex flex-wrap items-end justify-between gap-5">
             <div>
               <p className="text-sm text-muted-foreground">Report a hazard</p>
@@ -1085,7 +1090,7 @@ export function ReportStepPage({
                         </p>
                       )}
                   </ReviewSection>
-                  <ReviewSection title="Observation time" edit={() => go('/report')}>
+                  <ReviewSection title={t('segment.observationTime')} edit={() => go('/report')}>
                     <p>{draft.observedAt ? new Date(draft.observedAt).toLocaleString() : 'Not specified'}</p>
                   </ReviewSection>
                 </div>
@@ -1188,7 +1193,7 @@ function ReceivedReport({
         aria-labelledby="report-saved-heading"
         className="w-full max-w-xl rounded-2xl border border-border bg-background/95 p-5 shadow-xl backdrop-blur sm:p-8"
       >
-        <p className="text-xs font-semibold tracking-wide text-orange-on-dark">Prototype mockup, synthetic data</p>
+        <PrototypeRibbon />
         <div className="mt-5 flex size-14 items-center justify-center rounded-full border border-brand-orange text-brand-orange">
           <Check aria-hidden className="rp-pop size-7" />
         </div>

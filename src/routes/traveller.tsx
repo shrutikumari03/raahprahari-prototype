@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { ActionBadge, FreshnessChip } from '@/components/advisory'
 import { useExitGhosts } from '@/components/motion'
+import { PrototypeRibbon } from '@/components/prototype-ribbon'
 import { Button } from '@/components/ui/button'
 import { SkeletonList } from '@/components/ui/skeleton'
 import { placeById } from '@/data/fixtures'
@@ -69,7 +70,7 @@ export const Route = createFileRoute('/traveller')({
 })
 
 function TravellerPage() {
-  const { place, ago } = usePrefs()
+  const { t, place, ago } = usePrefs()
   const {
     segments,
     corridors,
@@ -301,7 +302,7 @@ function TravellerPage() {
       {/* Stays enabled while a typed search is pending so Enter can run it immediately. */}
       <Button type="submit" className="traveller-search-submit" disabled={!query.trim() || searchStatus === 'loading'}>
         <Search aria-hidden />
-        {searchStatus === 'loading' || pending ? 'Searching…' : 'Search road'}
+        {searchStatus === 'loading' || pending ? t('common.searching') : 'Search road'}
       </Button>
       <div className="traveller-location-actions">
         <Button type="button" variant="outline" onClick={() => void requestCurrentLocation()} disabled={locating}>
@@ -504,7 +505,7 @@ export function ResultRow({
   selected?: boolean
   onSelect?: () => void
 }) {
-  const { place } = usePrefs()
+  const { t, place } = usePrefs()
   const { advisories } = useAppStore()
   const advisory = advisories.get(segment.id)
   if (!advisory) throw new Error(`Missing advisory for segment "${segment.id}"`)
@@ -564,7 +565,7 @@ export function ResultRow({
         )}
         <Button asChild type="button" variant="outline" className="traveller-view-details">
           <Link to="/advisories/$segmentId" params={{ segmentId: segment.id }}>
-            View details
+            {t('common.viewDetails')}
             <ArrowRight aria-hidden />
           </Link>
         </Button>
@@ -648,7 +649,7 @@ function TravellerMap({
   routeTo?: string
   summary: string
 }) {
-  const { place } = usePrefs()
+  const { t, place } = usePrefs()
   const { segments, advisories } = useAppStore()
   const [mode, setMode] = useState<'map' | 'list'>('map')
   const [mapUnavailable, setMapUnavailable] = useState(false)
@@ -673,6 +674,7 @@ function TravellerMap({
             }}
             label="Interactive map of matching road sections"
             className="traveller-leaflet"
+            showRibbon={false}
           />
         ) : (
           <>
@@ -694,10 +696,10 @@ function TravellerMap({
                     {place(segment.from)} – {place(segment.to)}
                   </button>
                   <Link to="/advisories/$segmentId" params={{ segmentId: segment.id }}>
-                    View details
+                    {t('common.viewDetails')}
                   </Link>
                   <Link to="/report" search={{ segment: segment.id }}>
-                    Report this road
+                    {t('common.reportRoad')}
                   </Link>
                 </div>
               )) : <p>Search manually to view matching road sections.</p>}
@@ -727,7 +729,7 @@ function TravellerMap({
           </strong>
           <ActionBadge level={getTravellerResultAction(selectedAdvisory)} />
           <Link to="/advisories/$segmentId" params={{ segmentId: selected.id }}>
-            View details
+            {t('common.viewDetails')}
           </Link>
         </div>
       ) : (
@@ -752,7 +754,9 @@ function TravellerFooter() {
   return (
     <footer className="traveller-page-footer">
       <span><TriangleAlert aria-hidden /> Synthetic demo data, not current road conditions.</span>
-      <span>PROTOTYPE · SYNTHETIC DEMO DATA</span>
+      <span>
+        <PrototypeRibbon />
+      </span>
     </footer>
   )
 }

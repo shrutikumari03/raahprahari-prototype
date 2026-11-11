@@ -786,3 +786,10 @@
   }
 
 }
+
+.rp-map-state {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  padding: 1rem;
+}

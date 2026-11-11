@@ -4,9 +4,11 @@ import { List, Map as MapIcon, Search, X } from 'lucide-react'
 import { AdvisoryCard } from '@/components/advisory-card'
 import { useSlidingHighlight } from '@/components/motion'
 import { LeafletMapLegend, LeafletSegmentMap } from '@/features/map/leaflet-segment-map'
+import { ScreenEmpty, ScreenError, ScreenLoading } from '@/components/screen-states'
 import { SegmentDetail } from '@/features/routes/segment-detail'
 import { usePrefs } from '@/i18n/preferences'
 import { useAppStore } from '@/lib/app-store'
+import { useScreenState } from '@/lib/use-screen-state'
 import { cn } from '@/lib/utils'
 import './map.css'
 
@@ -23,8 +25,9 @@ export const Route = createFileRoute('/map')({
 })
 
 function MapPage() {
-  const { place } = usePrefs()
-  const { segments: SEGMENTS, corridors } = useAppStore()
+  const { t, place } = usePrefs()
+  const { segments: SEGMENTS, corridors, advisories } = useAppStore()
+  const { status, retry } = useScreenState(() => SEGMENTS.every((segment) => advisories.has(segment.id)))
   const corridorById = (id: string) => corridors.find((c) => c.id === id)
   const segmentById = (id: string) => SEGMENTS.find((s) => s.id === id)
   const search = Route.useSearch()
@@ -129,7 +132,13 @@ function MapPage() {
             </p>
           )}
 
-          {view === 'map' ? (
+          {status === 'loading' ? (
+            <div className="rp-map-state"><ScreenLoading /></div>
+          ) : status === 'error' ? (
+            <div className="rp-map-state"><ScreenError onRetry={retry} /></div>
+          ) : !SEGMENTS.length ? (
+            <div className="rp-map-state"><ScreenEmpty title={t('map.emptyTitle')} message={t('map.emptyBody')} /></div>
+          ) : view === 'map' ? (
             <section className="rp-map-canvas" aria-label="Live road map">
               <LeafletSegmentMap
                 segments={SEGMENTS}

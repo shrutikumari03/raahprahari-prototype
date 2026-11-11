@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AdvisoryCard } from "@/components/advisory-card";
-import { DemoBadge } from "@/components/advisory";
+import { PrototypeRibbon } from "@/components/prototype-ribbon";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/feedback";
+import { ScreenEmpty, ScreenError, ScreenLoading } from "@/components/screen-states";
+import { useScreenState } from "@/lib/use-screen-state";
 import { usePrefs } from "@/i18n/preferences";
 import { useAppStore } from "@/lib/app-store";
 import { getAdvisorySourceTimestamp } from "@/lib/advisory";
@@ -22,10 +23,13 @@ function AdvisoriesPage() {
   const { segments, advisories } = useAppStore();
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<"default" | "freshness">("default");
+  // A section without an advisory is a data error: show the error state, never a guess.
+  const { status, retry } = useScreenState(() =>
+    segments.every((segment) => advisories.has(segment.id)),
+  );
   const filteredSegments = segments.filter((segment) => {
     const advisory = advisories.get(segment.id);
-    if (!advisory)
-      throw new Error(`Missing advisory for segment "${segment.id}"`);
+    if (!advisory) return false;
     if (filter === "issues")
       return (
         advisory.level === "caution" ||
@@ -61,7 +65,7 @@ function AdvisoriesPage() {
           <p className="mt-3 max-w-3xl text-sm text-muted-foreground sm:text-base">
             {t("adv.body")}
           </p>
-          <DemoBadge className="mt-4" />
+          <div className="mt-4"><PrototypeRibbon /></div>
         </div>
       </header>
       <div className="rp-container space-y-5 py-6">
@@ -112,7 +116,13 @@ function AdvisoriesPage() {
             <option value="freshness">{t("adv.sortFreshness")}</option>
           </select>
         </div>
-        {visibleSegments.length ? (
+        {status === "loading" ? (
+          <ScreenLoading />
+        ) : status === "error" ? (
+          <ScreenError onRetry={retry} />
+        ) : !segments.length ? (
+          <ScreenEmpty title={t("map.emptyTitle")} message={t("map.emptyBody")} />
+        ) : visibleSegments.length ? (
           <div className="grid min-w-0 grid-cols-1 items-stretch gap-3 md:grid-cols-2 xl:grid-cols-3">
             {visibleSegments.map((segment) => (
               <AdvisoryCard
@@ -123,7 +133,7 @@ function AdvisoriesPage() {
             ))}
           </div>
         ) : (
-          <EmptyState title={t("adv.empty")} message={t("help.reminder")} />
+          <ScreenEmpty title={t("adv.empty")} message={t("help.reminder")} />
         )}
       </div>
     </div>

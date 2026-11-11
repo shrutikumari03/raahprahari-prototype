@@ -1,7 +1,6 @@
 // UI strings. Components read text through `t(key)`; add keys here, never inline.
 
 export const en = {
-<<<<<<< HEAD
   'nav.home': 'Home',
   'nav.map': 'Live Map',
   'nav.advisories': 'Advisories',
@@ -19,7 +18,6 @@ export const en = {
   'theme.dark': 'Dark theme',
   'theme.useSystem': 'Use system theme',
   'lang.label': 'Language',
-=======
   "nav.home": "Home",
   "nav.map": "Live Map",
   "nav.advisories": "Advisories",
@@ -35,7 +33,6 @@ export const en = {
   "theme.dark": "Dark theme",
   "theme.useSystem": "Use system theme",
   "lang.label": "Language",
->>>>>>> upstream/main
 
   "demo.badge": "Prototype mockup, synthetic data",
   "demo.mode": "Local demo mode",
@@ -252,7 +249,6 @@ export const en = {
   "map.layers":
     "Terrain, Satellite and Roads layers become available once a basemap is configured.",
 
-<<<<<<< HEAD
   'adv.title': 'Road advisories',
   'adv.body':
     'Every seeded corridor across Uttarakhand, section by section. Select a section to see what was observed, what to do and who said so.',
@@ -312,7 +308,6 @@ export const en = {
   'state.retry': 'Try again',
   'map.emptyTitle': 'No road segments to show.',
   'map.emptyBody': 'No road information is available here. That does not mean the roads are clear.',
-=======
   "adv.title": "Road advisories",
   "adv.body":
     "Every seeded corridor across Uttarakhand, section by section. Select a section to see what was observed, what to do and who said so.",
@@ -347,7 +342,6 @@ export const en = {
   "segment.duplicate": "Possible duplicate of",
   "segment.locConf": "Location confidence",
   "segment.close": "Close details",
->>>>>>> upstream/main
 
   "status.under_review": "Under review",
   "status.verified": "Reviewed",
@@ -491,7 +485,6 @@ export const en = {
   "common.hr": "h",
   "common.min": "min",
 
-<<<<<<< HEAD
   'about.title': 'About RaahPrahari',
   'about.body':
     'RaahPrahari is a prototype for presenting synthetic road observations, information freshness, and official restrictions. It is not a live road-condition service.',
@@ -627,8 +620,6 @@ export const en = {
   'footer.tagline': 'Know before you go.',
   'nav.homeLabel': 'RaahPrahari — home',
   'nav.footer': 'Footer',
-} as const
-=======
   "about.title": "About RaahPrahari",
   "about.body":
     "RaahPrahari is a prototype for presenting synthetic road observations, information freshness, and official restrictions. It is not a live road-condition service.",
@@ -717,12 +708,10 @@ export const en = {
   "contact.body":
     "Contact details are not configured in this synthetic prototype.",
 } as const;
->>>>>>> upstream/main
 
 export type TranslationKey = keyof typeof en;
 
 export const hi: Record<TranslationKey, string> = {
-<<<<<<< HEAD
   'nav.home': 'होम',
   'nav.map': 'लाइव मानचित्र',
   'nav.advisories': 'परामर्श',
@@ -740,7 +729,6 @@ export const hi: Record<TranslationKey, string> = {
   'theme.dark': 'गहरी थीम',
   'theme.useSystem': 'सिस्टम थीम अपनाएँ',
   'lang.label': 'भाषा',
-=======
   "nav.home": "होम",
   "nav.map": "लाइव मानचित्र",
   "nav.advisories": "परामर्श",
@@ -756,7 +744,6 @@ export const hi: Record<TranslationKey, string> = {
   "theme.dark": "गहरी थीम",
   "theme.useSystem": "सिस्टम थीम अपनाएँ",
   "lang.label": "भाषा",
->>>>>>> upstream/main
 
   "demo.badge": "Prototype mockup, synthetic data",
   "demo.mode": "स्थानीय डेमो मोड",
@@ -834,7 +821,6 @@ export const hi: Record<TranslationKey, string> = {
   "footer.note":
     "प्रदर्शन हेतु प्रोटोटाइप। दिखाई गई सभी रिपोर्ट, प्रतिबंध और मार्ग कृत्रिम हैं।",
 
-<<<<<<< HEAD
   'level.clear': 'खोला गया (स्वीकृत प्रक्रिया से सत्यापित)',
   'level.caution': 'सावधानी',
   'level.avoid': 'टालें',
@@ -853,7 +839,6 @@ export const hi: Record<TranslationKey, string> = {
   'action.avoid': 'इस हिस्से पर ग़ैर-ज़रूरी यात्रा टालें।',
   'action.do_not_travel': 'यात्रा न करें। आधिकारिक निर्देशों का पालन करें।',
   'action.unknown': 'यात्रा से पहले स्थानीय रूप से पता करें।',
-=======
   "level.clear": "स्वीकृत प्रक्रिया से सत्यापित: मार्ग खुला",
   "level.caution": "सावधानी",
   "level.avoid": "टालें",
@@ -873,7 +858,6 @@ export const hi: Record<TranslationKey, string> = {
   "action.avoid": "इस हिस्से पर ग़ैर-ज़रूरी यात्रा टालें।",
   "action.do_not_travel": "यात्रा न करें। आधिकारिक निर्देशों का पालन करें।",
   "action.unknown": "यात्रा से पहले स्थानीय रूप से पता करें।",
->>>>>>> upstream/main
 
   "basis.official": "आधिकारिक प्रतिबंध लागू",
   "basis.corroborated": "कई रिपोर्ट, कम से कम एक समीक्षित",
@@ -990,7 +974,6 @@ export const hi: Record<TranslationKey, string> = {
   "map.selected": "चुना गया मार्ग",
   "map.layers": "बेसमैप जुड़ने पर भू-भाग, उपग्रह और सड़क परतें उपलब्ध होंगी।",
 
-<<<<<<< HEAD
   'adv.title': 'सड़क परामर्श',
   'adv.body':
     'उत्तराखंड के हर पूर्व-निर्धारित मार्ग का हिस्सा-दर-हिस्सा विवरण। क्या देखा गया, क्या करें और किसने बताया — यह जानने के लिए कोई हिस्सा चुनें।',
@@ -1050,7 +1033,6 @@ export const hi: Record<TranslationKey, string> = {
   'state.retry': 'फिर कोशिश करें',
   'map.emptyTitle': 'दिखाने के लिए कोई सड़क खंड नहीं।',
   'map.emptyBody': 'यहाँ सड़क की कोई जानकारी उपलब्ध नहीं। इसका मतलब यह नहीं कि सड़कें साफ़ हैं।',
-=======
   "adv.title": "सड़क परामर्श",
   "adv.body":
     "उत्तराखंड के हर पूर्व-निर्धारित मार्ग का हिस्सा-दर-हिस्सा विवरण। क्या देखा गया, क्या करें और किसने बताया — यह जानने के लिए कोई हिस्सा चुनें।",
@@ -1085,7 +1067,6 @@ export const hi: Record<TranslationKey, string> = {
   "segment.duplicate": "संभावित दोहराव",
   "segment.locConf": "स्थान विश्वसनीयता",
   "segment.close": "विवरण बंद करें",
->>>>>>> upstream/main
 
   "status.under_review": "समीक्षाधीन",
   "status.verified": "समीक्षित",
@@ -1227,7 +1208,6 @@ export const hi: Record<TranslationKey, string> = {
   "common.hr": "घं",
   "common.min": "मि",
 
-<<<<<<< HEAD
   'about.title': 'राहप्रहरी के बारे में',
   'about.body':
     'राहप्रहरी सड़क अवलोकनों, जानकारी की ताज़गी और आधिकारिक प्रतिबंधों को दिखाने वाला एक प्रोटोटाइप है। इसमें सभी जानकारी कृत्रिम है; यह लाइव सड़क स्थिति सेवा नहीं है।',
@@ -1363,7 +1343,6 @@ export const hi: Record<TranslationKey, string> = {
   'nav.homeLabel': 'राहप्रहरी — होम',
   'nav.footer': 'फ़ुटर',
 }
-=======
   "about.title": "राहप्रहरी के बारे में",
   "about.body":
     "राहप्रहरी सड़क अवलोकनों, जानकारी की ताज़गी और आधिकारिक प्रतिबंधों को दिखाने वाला एक प्रोटोटाइप है। इसमें सभी जानकारी कृत्रिम है; यह लाइव सड़क स्थिति सेवा नहीं है।",
@@ -1451,4 +1430,3 @@ export const hi: Record<TranslationKey, string> = {
   "contact.title": "संपर्क",
   "contact.body": "इस कृत्रिम प्रोटोटाइप में संपर्क विवरण उपलब्ध नहीं हैं।",
 };
->>>>>>> upstream/main

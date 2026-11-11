@@ -3,10 +3,11 @@ import {
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router'
-import { fireEvent, render, screen, within } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { routeTree } from '@/routeTree.gen'
 import { NotFoundPage } from '@/components/error-pages'
+import { TILE_FAILURE_THRESHOLD } from '@/features/map/leaflet-segment-map'
 
 const routePaths = [
   '/',
@@ -51,6 +52,14 @@ async function mountAt(path: string) {
   return { router, ...rendered }
 }
 
+/** Fails every OpenStreetMap tile the real Leaflet map requested. */
+async function failMapTiles(container: HTMLElement) {
+  await waitFor(() =>
+    expect(container.querySelectorAll('img.leaflet-tile').length).toBeGreaterThanOrEqual(TILE_FAILURE_THRESHOLD),
+  )
+  container.querySelectorAll('img.leaflet-tile').forEach((tile) => fireEvent.error(tile))
+}
+
 function openPageMenu(container: HTMLElement) {
   const menuButton =
     container.querySelector<HTMLButtonElement>('button[aria-label="Open menu"]') ??
@@ -60,12 +69,16 @@ function openPageMenu(container: HTMLElement) {
 }
 
 describe('SH-15 map provider fallback', () => {
+  // jsdom has no layout; give the map a size so Leaflet requests tiles we can fail.
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(800)
+    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600)
+  })
+
   it('switches /map to a selectable list and leaves navigation and report links available', async () => {
     const { container, unmount } = await mountAt('/map')
     try {
-      const terrain = container.querySelector('.rp-map-terrain')
-      expect(terrain).not.toBeNull()
-      fireEvent.error(terrain!)
+      await failMapTiles(container)
 
       expect(await screen.findByRole('status')).toHaveTextContent(
         'Showing the road list instead',
@@ -87,9 +100,7 @@ describe('SH-15 map provider fallback', () => {
   it('switches /traveller to selectable road sections with working detail and report CTAs', async () => {
     const { container, unmount } = await mountAt('/traveller?q=SH-MSR')
     try {
-      const terrain = container.querySelector('.traveller-map-terrain')
-      expect(terrain).not.toBeNull()
-      fireEvent.error(terrain!)
+      await failMapTiles(container)
 
       expect(await screen.findByRole('status')).toHaveTextContent(
         'Showing road sections instead',
@@ -113,7 +124,7 @@ describe('SH-15 map provider fallback', () => {
   it('keeps the report CTA usable from the traveller fallback list', async () => {
     const { container, unmount } = await mountAt('/traveller?q=SH-MSR')
     try {
-      fireEvent.error(container.querySelector('.traveller-map-terrain')!)
+      await failMapTiles(container)
       const reportLink = await screen.findByRole('link', { name: 'Report this road' })
       expect(new URL(reportLink.getAttribute('href')!, 'http://localhost').pathname).toBe('/report')
       expect(routePaths).toContain('/report')

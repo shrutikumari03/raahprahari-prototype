@@ -126,6 +126,11 @@
   height: 100%;
 }
 
+/* The map canvas is absolutely positioned, so this box must have a height of its own. */
+.rp-map-main {
+  height: 100%;
+}
+
 .rp-map-main {
   position: relative;
   min-width: 0;
@@ -141,167 +146,43 @@
   background: #09202b;
 }
 
-.rp-map-canvas-layer {
+/* The interactive map stops where the selected-segment panel starts (right on
+   desktop, bottom on mobile), so the panel never covers map tiles, controls or
+   the OpenStreetMap attribution. */
+.rp-map-leaflet {
   position: absolute;
-  inset: 0;
-  transform-origin: center;
-  transition: transform 160ms ease-out;
+  top: 0;
+  right: min(472px, calc(42% + 24px));
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  min-height: 0;
 }
 
-.rp-map-terrain,
-.rp-map-shade,
-.rp-map-route-overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+/* The selected-segment panel and legend sit above the map. */
+.rp-map-detail {
+  z-index: 600;
 }
 
-.rp-map-terrain {
-  object-fit: cover;
+/* /map has its toggle in the toolbar, so labels go to the top edge; the legend
+   holds the bottom-left, so status messages go under the labels. */
+.rp-map-leaflet .rp-lmap-labels {
+  top: 10px;
 }
 
-.rp-map-shade {
-  background:
-    linear-gradient(90deg, rgb(2 17 25 / 15%), transparent 50%, rgb(2 17 25 / 35%)),
-    linear-gradient(0deg, rgb(2 17 25 / 38%), transparent 56%, rgb(2 17 25 / 12%));
-}
-
-.rp-map-route-overlay {
-  pointer-events: none;
-}
-
-.rp-map-route-overlay svg {
-  pointer-events: auto;
-}
-
-.rp-map-compass {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  display: flex;
-  width: 42px;
-  height: 50px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  border: 1px solid rgb(181 208 220 / 30%);
-  border-radius: 50%;
-  color: #e6e4dc;
-  background: rgb(4 22 32 / 72%);
-  font-family: var(--font-mono-rp);
-  font-size: 10px;
-}
-
-.rp-map-compass-arrow {
-  color: #eaf5fa;
-  font-size: 19px;
-  line-height: 1;
+.rp-map-leaflet .rp-lmap-status {
+  top: 44px;
+  bottom: auto;
 }
 
 .rp-map-legend {
   position: absolute;
-  bottom: 18px;
-  left: 18px;
-  width: 205px;
-  padding: 12px 13px;
-  border: 1px solid rgb(106 149 170 / 38%);
-  border-radius: 10px;
-  background: rgb(4 22 32 / 92%);
+  z-index: 600;
+  bottom: 28px;
+  left: 12px;
+  width: 210px;
   box-shadow: 0 8px 26px rgb(0 0 0 / 24%);
-}
-
-.rp-map-legend h2 {
-  margin: 0 0 9px;
-  color: #e9f1f5;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.rp-map-legend p {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 7px 0 0;
-  color: #d8e2e8;
-  font-size: 11px;
-}
-
-.rp-map-legend svg {
-  width: 19px;
-  height: 19px;
-  flex: 0 0 auto;
-}
-
-.rp-map-legend .reported {
-  color: #ff554d;
-}
-
-.rp-map-legend .official {
-  color: #ffae35;
-}
-
-.rp-map-legend .unknown {
-  color: #a7bfd0;
-}
-
-.rp-map-controls {
-  position: absolute;
-  right: min(460px, calc(42vw + 26px));
-  bottom: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 4px;
-  border: 1px solid rgb(106 149 170 / 35%);
-  border-radius: 9px;
-  background: rgb(4 22 32 / 89%);
-}
-
-.rp-map-controls button {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border: 0;
-  border-radius: 5px;
-  color: white;
-  background: transparent;
-  cursor: pointer;
-}
-
-.rp-map-controls button:hover {
-  background: #153747;
-}
-
-.rp-map-controls svg {
-  width: 18px;
-  height: 18px;
-}
-
-.rp-map-scale {
-  position: absolute;
-  bottom: 24px;
-  left: 250px;
-  display: flex;
-  width: 130px;
-  justify-content: space-between;
-  color: white;
-  font-family: var(--font-mono-rp);
-  font-size: 9px;
-  text-shadow: 0 1px 3px #000;
-}
-
-.rp-map-scale i {
-  position: absolute;
-  top: 14px;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  border-right: 1px solid white;
-  border-bottom: 2px solid white;
-  border-left: 1px solid white;
 }
 
 .rp-map-detail {
@@ -823,46 +704,38 @@
     border-radius: 16px 16px 0 0;
   }
 
-  .rp-map-legend {
-    bottom: calc(min(55%, 500px) + 10px);
-    left: 10px;
-    width: 172px;
-    padding: 9px 10px;
+  .rp-map-leaflet {
+    right: 0;
+    bottom: min(55%, 500px);
   }
 
-  .rp-map-legend h2 {
-    margin-bottom: 6px;
-  }
-
-  .rp-map-legend p {
-    gap: 7px;
-    margin-top: 5px;
+  /* Compact strip so the short mobile map stays usable: icons with text, no line samples
+     (lines are also named in each marker and tooltip). Doubled class beats the component CSS. */
+  .rp-map-legend.rp-lmap-legend {
+    right: 60px;
+    bottom: calc(min(55%, 500px) + 26px);
+    left: 8px;
+    width: auto;
+    padding: 5px 8px;
     font-size: 10px;
   }
 
-  .rp-map-legend svg {
-    width: 17px;
-    height: 17px;
+  .rp-map-legend.rp-lmap-legend h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 
-  .rp-map-compass {
-    top: 10px;
-    left: 10px;
-    width: 36px;
-    height: 42px;
+  .rp-map-legend.rp-lmap-legend ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px 10px;
   }
 
-  .rp-map-controls {
-    right: 10px;
-    bottom: calc(min(55%, 500px) + 10px);
-  }
-
-  .rp-map-scale {
-    bottom: calc(min(55%, 500px) + 18px);
-    left: auto;
-    right: 58px;
-    width: 100px;
-    font-size: 8px;
+  .rp-map-legend.rp-lmap-legend li:has(.rp-lmap-legend-line) {
+    display: none;
   }
 
   .rp-map-list-view {
@@ -912,13 +785,4 @@
     padding-inline: 5px;
   }
 
-  .rp-map-legend {
-    width: 164px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .rp-map-canvas-layer {
-    transition: none;
-  }
 }

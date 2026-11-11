@@ -4,14 +4,10 @@ import {
   ArrowLeft,
   ArrowRight,
   Clock3,
-  Compass,
-  Crosshair,
   List,
   LocateFixed,
   Map as MapIcon,
   MapPin,
-  Minus,
-  Plus,
   RotateCcw,
   Search,
   ShieldCheck,
@@ -21,11 +17,12 @@ import {
 } from 'lucide-react'
 import { ActionBadge, FreshnessChip } from '@/components/advisory'
 import { Button } from '@/components/ui/button'
-import { placeById, placeById as getPlace } from '@/data/fixtures'
+import { placeById } from '@/data/fixtures'
 import { getCurrentPosition, inCoverage, nearestPlace } from '@/lib/geo'
 import { getAdvisorySourceTimestamp } from '@/lib/advisory'
 import type { AdvisoryLevel, SegmentAdvisory } from '@/lib/advisory'
 import { useAppStore } from '@/lib/app-store'
+import { LeafletMapLegend, LeafletSegmentMap } from '@/features/map/leaflet-segment-map'
 import { usePrefs } from '@/i18n/preferences'
 import { findSeededRoutes } from '@/features/routes/routing'
 import type { Corridor, Place, Segment } from '@/lib/types'
@@ -94,6 +91,8 @@ function TravellerPage() {
   /** True while a typed query is waiting for the debounce to fire. */
   const [pending, setPending] = useState(false)
   const [filter, setFilter] = useState<ResultFilter>('all')
+  /** Shared by the map, the result list and the selected-section panel. */
+  const [selectedSegmentId, setSelectedSegmentId] = useState<string | undefined>(search.seg)
   const [locationMessage, setLocationMessage] = useState<string | null>(null)
   const [locating, setLocating] = useState(false)
   const [manualEntry, setManualEntry] = useState(false)
@@ -252,6 +251,14 @@ function TravellerPage() {
     runSearch(name, { keepMessage: true })
   }
 
+  /** Selecting on the map also brings the matching result row into view. */
+  const selectFromMap = (id: string) => {
+    setSelectedSegmentId(id)
+    requestAnimationFrame(() =>
+      document.getElementById(`traveller-result-${id}`)?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' }),
+    )
+  }
+
   const chooseRecent = (value: string) => {
     setQuery(value)
     runSearch(value)
@@ -338,11 +345,11 @@ function TravellerPage() {
             />
           </div>
         </section>
-        <IllustrativeMap
+        <TravellerMap
           results={[]}
-          routeFrom="Dehradun"
-          routeTo="Mussoorie"
-          summary="Illustrative example · approx."
+          selectedSegmentId={selectedSegmentId}
+          onSelectSegment={selectFromMap}
+          summary="All covered road sections · approx."
         />
         <TravellerFooter />
       </div>
@@ -413,6 +420,8 @@ function TravellerPage() {
               <ResultRow
                 key={segment.id}
                 segment={segment}
+                selected={segment.id === selectedSegmentId}
+                onSelect={() => setSelectedSegmentId(segment.id)}
                 observedAt={getAdvisorySourceTimestamp(advisory)}
                 reason={
                   advisory.evidence[0]?.description ??
@@ -452,11 +461,13 @@ function TravellerPage() {
             </div>
           )}
         </section>
-        <IllustrativeMap
+        <TravellerMap
           results={filteredResults}
+          selectedSegmentId={selectedSegmentId}
+          onSelectSegment={selectFromMap}
           routeFrom={routeFrom}
           routeTo={routeTo}
-          summary={routeSummary ? 'Route summary · approx.' : 'Illustrative route · approx.'}
+          summary={routeSummary ? 'Route summary · approx.' : 'Matching road sections · approx.'}
         />
       </div>
       <TravellerFooter />
@@ -477,11 +488,16 @@ export function ResultRow({
   observedAt,
   observedLabel,
   reason,
+  selected = false,
+  onSelect,
 }: {
   segment: Segment
   observedAt?: number
   observedLabel?: string
   reason: string
+  /** Selected on the map or in this list. */
+  selected?: boolean
+  onSelect?: () => void
 }) {
   const { place } = usePrefs()
   const { advisories } = useAppStore()
@@ -495,7 +511,10 @@ export function ResultRow({
       : 'No reported source'
 
   return (
-    <article className={cn('traveller-result-row', `status-${action}`, advisory.stale && 'is-stale')}>
+    <article
+      id={`traveller-result-${segment.id}`}
+      className={cn('traveller-result-row', `status-${action}`, advisory.stale && 'is-stale', selected && 'is-selected')}
+    >
       <div className="traveller-result-badge">
         <ActionBadge level={action} />
       </div>
@@ -526,6 +545,18 @@ export function ResultRow({
           <strong>Freshness:</strong>
           <FreshnessChip sourceTimestamp={observedAt} className="traveller-inline-freshness" />
         </span>
+        {onSelect && (
+          <Button
+            type="button"
+            variant={selected ? 'secondary' : 'ghost'}
+            className="traveller-view-details"
+            aria-pressed={selected}
+            onClick={onSelect}
+          >
+            <MapIcon aria-hidden />
+            {selected ? 'Shown on map' : 'Show on map'}
+          </Button>
+        )}
         <Button asChild type="button" variant="outline" className="traveller-view-details">
           <Link to="/advisories/$segmentId" params={{ segmentId: segment.id }}>
             View details
@@ -587,78 +618,52 @@ function RecentSearches({
   )
 }
 
-function IllustrativeMap({
+function TravellerMap({
   results,
+  selectedSegmentId,
+  onSelectSegment,
   routeFrom,
   routeTo,
   summary,
 }: {
   results: { segment: Segment }[]
+  selectedSegmentId?: string
+  onSelectSegment: (id: string) => void
   routeFrom?: string
   routeTo?: string
   summary: string
 }) {
+  const { place } = usePrefs()
+  const { segments, advisories } = useAppStore()
   const [mode, setMode] = useState<'map' | 'list'>('map')
   const [mapUnavailable, setMapUnavailable] = useState(false)
-  const [selectedSegmentId, setSelectedSegmentId] = useState<string>()
-  const [zoom, setZoom] = useState(1)
+  const resultSegments = results.map(({ segment }) => segment)
+  // With no search yet, show every covered road so the map is still useful.
+  const shown = resultSegments.length ? resultSegments : segments
+  const selected = selectedSegmentId ? segments.find((s) => s.id === selectedSegmentId) : undefined
+  const selectedAdvisory = selected ? advisories.get(selected.id) : undefined
+
   return (
-    <section className="traveller-map-panel" aria-label="Illustrative route map">
-      <div className="traveller-map-surface" style={{ '--map-zoom': zoom } as React.CSSProperties}>
+    <section className="traveller-map-panel" aria-label="Road map">
+      <div className="traveller-map-surface">
         {mode === 'map' ? (
-          <>
-            <img
-              src="/img/map-terrain.png"
-              alt=""
-              className="traveller-map-terrain"
-              onError={() => {
-                setMapUnavailable(true)
-                setMode('list')
-              }}
-            />
-            <p className="traveller-map-disclaimer">ILLUSTRATIVE · NOT FOR NAVIGATION</p>
-            <div className="traveller-map-route" aria-hidden>
-              <span className="route-piece route-piece-one" />
-              <span className="route-piece route-piece-two" />
-              <span className="route-piece route-piece-three" />
-              <span className="route-piece route-piece-four" />
-              <span className="route-piece route-piece-five" />
-              <MapPin className="route-pin route-pin-start" />
-              <MapPin className="route-pin route-pin-end" />
-              <TriangleAlert className="route-hazard route-hazard-one" />
-              <TriangleAlert className="route-hazard route-hazard-two" />
-            </div>
-            {routeFrom && <span className="traveller-map-place map-place-start">{routeFrom}</span>}
-            {routeTo && <span className="traveller-map-place map-place-end">{routeTo}</span>}
-            <div className="traveller-compass" aria-label="North">
-              <Compass aria-hidden />
-              <span>N</span>
-            </div>
-            <div className="traveller-map-tools">
-              <button type="button" aria-label="Zoom in" onClick={() => setZoom((value) => Math.min(value + 0.1, 1.5))}>
-                <Plus aria-hidden />
-              </button>
-              <button type="button" aria-label="Zoom out" onClick={() => setZoom((value) => Math.max(value - 0.1, 0.8))}>
-                <Minus aria-hidden />
-              </button>
-              <button type="button" aria-label="Reset map orientation" onClick={() => setZoom(1)}>
-                <Crosshair aria-hidden />
-              </button>
-            </div>
-            <div className="traveller-map-scale" aria-label="Illustrative scale">
-              <span>0</span><span>25</span><span>50</span><span>100 km</span>
-            </div>
-            <div className="traveller-map-legend" aria-label="Map legend">
-              <span><TriangleAlert aria-hidden /> Reported hazard</span>
-              <span><ShieldCheck aria-hidden /> Official restriction</span>
-              <span><span className="unknown-dot">?</span> Unknown</span>
-            </div>
-          </>
+          <LeafletSegmentMap
+            segments={shown}
+            highlight={resultSegments.length ? resultSegments.map((s) => s.id) : undefined}
+            selectedSegmentId={selectedSegmentId}
+            onSelectSegment={onSelectSegment}
+            onUnavailable={() => {
+              setMapUnavailable(true)
+              setMode('list')
+            }}
+            label="Interactive map of matching road sections"
+            className="traveller-leaflet"
+          />
         ) : (
           <>
             {mapUnavailable && (
               <p className="traveller-map-fallback-notice" role="status">
-                The illustrative map provider is unavailable. Showing road sections instead.
+                The map tiles could not be loaded. Showing road sections instead.
               </p>
             )}
             <div className="traveller-map-list">
@@ -668,10 +673,10 @@ function IllustrativeMap({
                   <button
                     type="button"
                     aria-pressed={selectedSegmentId === segment.id}
-                    onClick={() => setSelectedSegmentId(segment.id)}
+                    onClick={() => onSelectSegment(segment.id)}
                   >
                     {selectedSegmentId === segment.id ? 'Selected: ' : 'Select: '}
-                    {getPlace(segment.from)?.name} – {getPlace(segment.to)?.name}
+                    {place(segment.from)} – {place(segment.to)}
                   </button>
                   <Link to="/advisories/$segmentId" params={{ segmentId: segment.id }}>
                     View details
@@ -698,6 +703,24 @@ function IllustrativeMap({
           </button>
         </div>
       </div>
+
+      {selected && selectedAdvisory ? (
+        <div className="traveller-selected" aria-live="polite">
+          <span className="sr-only">Selected road section:</span>
+          <strong>
+            {place(selected.from)} – {place(selected.to)} ({selected.code})
+          </strong>
+          <ActionBadge level={getTravellerResultAction(selectedAdvisory)} />
+          <Link to="/advisories/$segmentId" params={{ segmentId: selected.id }}>
+            View details
+          </Link>
+        </div>
+      ) : (
+        <p className="traveller-selected-hint">Select a road section on the map or in the list.</p>
+      )}
+
+      {mode === 'map' && <LeafletMapLegend className="traveller-map-legend" />}
+
       <div className="traveller-route-summary">
         <div className="traveller-summary-icon"><ArrowRight aria-hidden /></div>
         <div>

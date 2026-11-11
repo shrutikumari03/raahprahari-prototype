@@ -1,19 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
-import {
-  CircleHelp,
-  Crosshair,
-  List,
-  Map as MapIcon,
-  Minus,
-  Plus,
-  Search,
-  Shield,
-  TriangleAlert,
-  X,
-} from 'lucide-react'
+import { List, Map as MapIcon, Search, X } from 'lucide-react'
 import { AdvisoryCard } from '@/components/advisory-card'
-import { SegmentMap } from '@/features/routes/schematic-map'
+import { LeafletMapLegend, LeafletSegmentMap } from '@/features/map/leaflet-segment-map'
 import { SegmentDetail } from '@/features/routes/segment-detail'
 import { usePrefs } from '@/i18n/preferences'
 import { useAppStore } from '@/lib/app-store'
@@ -42,8 +31,18 @@ function MapPage() {
   const [selectedSegmentId, setSelectedSegmentId] = useState<string | undefined>(initialSegment)
   const [view, setView] = useState<ViewMode>(search.view ?? 'map')
   const [query, setQuery] = useState('')
-  const [zoom, setZoom] = useState(1.35)
   const [mapFailed, setMapFailed] = useState(false)
+  const navigate = Route.useNavigate()
+
+  /** One selection for map, list and detail panel; kept in the URL so it survives reloads. */
+  const selectSegment = (id: string | undefined) => {
+    setSelectedSegmentId(id)
+    void navigate({ search: (prev) => ({ ...prev, seg: id }), replace: true, resetScroll: false })
+  }
+  const onMapUnavailable = () => {
+    setMapFailed(true)
+    setView('list')
+  }
 
   const filteredSegments = useMemo(() => {
     const term = query.trim().toLocaleLowerCase()
@@ -59,17 +58,9 @@ function MapPage() {
     })
   }, [place, query, SEGMENTS, corridors])
   const selectedSegment = selectedSegmentId ? segmentById(selectedSegmentId) : undefined
-  const selectedCorridor = selectedSegment ? corridorById(selectedSegment.corridorId) : undefined
+  // Emphasise the selected segment's corridor; the rest stay visible but dimmed.
   const highlightedSegments = selectedSegment
     ? SEGMENTS.filter((segment) => segment.corridorId === selectedSegment.corridorId).map((segment) => segment.id)
-    : undefined
-  const routeLabels = selectedCorridor && selectedSegment
-    ? [...new Set([
-        selectedCorridor.stops[0],
-        selectedCorridor.stops[selectedCorridor.stops.length - 1],
-        selectedSegment.from,
-        selectedSegment.to,
-      ])]
     : undefined
 
   const changeView = (nextView: ViewMode) => {
@@ -101,7 +92,7 @@ function MapPage() {
                   place(segment.to),
                 ].some((value) => value?.toLocaleLowerCase().includes(normalized))
               })
-              if (matching) setSelectedSegmentId(matching.id)
+              if (matching) selectSegment(matching.id)
             }}
             placeholder="Search by road, place, or location..."
           />
@@ -132,70 +123,30 @@ function MapPage() {
           {view === 'map' && <h1 className="sr-only">Live road map</h1>}
           {mapFailed && (
             <p className="rp-map-fallback-notice" role="status">
-              The terrain map could not be loaded. Showing the road list instead.
+              The map tiles could not be loaded. Showing the road list instead.
             </p>
           )}
 
           {view === 'map' ? (
             <section className="rp-map-canvas" aria-label="Live road map">
-              <div className="rp-map-canvas-layer" style={{ transform: `scale(${zoom})` }}>
-                <img
-                  src="/img/map-terrain.png"
-                  alt=""
-                  className="rp-map-terrain"
-                  onError={() => {
-                    setMapFailed(true)
-                    setView('list')
-                  }}
-                />
-                <div className="rp-map-shade" />
-                <SegmentMap
-                  terrain
-                  highlight={highlightedSegments}
-                  labelPlaces={routeLabels}
-                  selectedSegmentId={selectedSegmentId}
-                  onSelectSegment={setSelectedSegmentId}
-                  className="rp-map-route-overlay"
-                />
-              </div>
+              <LeafletSegmentMap
+                segments={SEGMENTS}
+                highlight={highlightedSegments}
+                fitTo={SEGMENTS.map((segment) => segment.id)}
+                selectedSegmentId={selectedSegmentId}
+                onSelectSegment={selectSegment}
+                onUnavailable={onMapUnavailable}
+                label="Interactive map of road segments"
+                className="rp-map-leaflet"
+              />
 
-              <div className="rp-map-compass" role="img" aria-label="North">
-                <span aria-hidden>N</span>
-                <span aria-hidden className="rp-map-compass-arrow">▲</span>
-              </div>
-
-              <MapLegend />
-
-              <div className="rp-map-controls" aria-label="Map controls">
-                <button
-                  type="button"
-                  aria-label="Zoom in"
-                  onClick={() => setZoom((current) => Math.min(current + 0.15, 1.75))}
-                >
-                  <Plus aria-hidden />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Zoom out"
-                  onClick={() => setZoom((current) => Math.max(current - 0.15, 1))}
-                >
-                  <Minus aria-hidden />
-                </button>
-                <button type="button" aria-label="Recenter map" onClick={() => setZoom(1)}>
-                  <Crosshair aria-hidden />
-                </button>
-              </div>
-
-              <div className="rp-map-scale" aria-label="Approximate map scale">
-                <span>0</span><span>10</span><span>20</span><span>30 km</span>
-                <i aria-hidden />
-              </div>
+              <LeafletMapLegend className="rp-map-legend" />
 
               <SegmentDetail
                 segmentId={selectedSegmentId}
                 variant="map"
                 className="rp-map-detail"
-                onClose={() => setSelectedSegmentId(undefined)}
+                onClose={() => selectSegment(undefined)}
               />
             </section>
           ) : (
@@ -222,7 +173,7 @@ function MapPage() {
                           type="button"
                           className="rp-map-list-select"
                           aria-pressed={segment.id === selectedSegmentId}
-                          onClick={() => setSelectedSegmentId(segment.id)}
+                          onClick={() => selectSegment(segment.id)}
                         >
                           <span>{segment.id === selectedSegmentId ? 'Selected segment' : 'Select segment'}</span>
                           {segment.id === selectedSegmentId && <span aria-hidden>✓</span>}
@@ -239,23 +190,12 @@ function MapPage() {
                 segmentId={selectedSegmentId}
                 variant="map"
                 className="rp-map-list-detail"
-                onClose={() => setSelectedSegmentId(undefined)}
+                onClose={() => selectSegment(undefined)}
               />
             </section>
           )}
         </div>
       </div>
     </div>
-  )
-}
-
-function MapLegend() {
-  return (
-    <aside className="rp-map-legend" aria-label="Map legend">
-      <h2>Map legend</h2>
-      <p><TriangleAlert aria-hidden className="reported" /> Reported hazard</p>
-      <p><Shield aria-hidden className="official" /> Official restriction</p>
-      <p><CircleHelp aria-hidden className="unknown" /> Unknown information</p>
-    </aside>
   )
 }

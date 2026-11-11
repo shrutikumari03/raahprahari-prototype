@@ -36,10 +36,14 @@ export function AdvisoryBadge({
   const { t } = usePrefs()
   const meta = LEVEL_META[level]
   const Icon = meta.icon
+  // One attention pulse on load for AVOID and official closures; never infinite.
+  const attention = level === 'avoid' || level === 'do_not_travel'
   return (
     <span
+      style={attention ? ({ '--rp-attn-color': meta.color } as React.CSSProperties) : undefined}
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border font-semibold text-foreground',
+        'rp-fade-in inline-flex items-center gap-1.5 rounded-full border font-semibold text-foreground',
+        attention && 'rp-attn',
         size === 'lg' ? 'px-3 py-1.5 text-sm' : 'px-2.5 py-0.5 text-xs',
         meta.chip,
         className,
@@ -99,7 +103,7 @@ export function FreshnessChip({
     <span
       data-testid="freshness-chip"
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium text-foreground',
+        'rp-fade-in inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium text-foreground',
         meta.chip,
         className,
       )}
@@ -141,7 +145,7 @@ export function OfficialBadge({ label, className }: { label?: string; className?
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border border-status-official bg-status-official/15 px-2.5 py-0.5 text-xs font-semibold text-foreground',
+        'rp-fade-in rp-attn [--rp-attn-color:var(--status-official)] inline-flex items-center gap-1.5 rounded-full border border-status-official bg-status-official/15 px-2.5 py-0.5 text-xs font-semibold text-foreground',
         className,
       )}
     >

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ArrowUpDown, LocateFixed, RotateCcw, Search, X } from 'lucide-react'
+import { useExitGhosts } from '@/components/motion'
 import { Button } from '@/components/ui/button'
 import { QUICK_PICKS } from '@/data/fixtures'
 import { usePrefs } from '@/i18n/preferences'
@@ -26,6 +27,7 @@ export function RouteSearchCard({
   const navigate = useNavigate()
   const [from, setFrom] = useState<string | null>(initialFrom)
   const [to, setTo] = useState<string | null>(initialTo)
+  const [ghosts, captureGhosts] = useExitGhosts<{ from: string; to: string }>()
   const [locMsg, setLocMsg] = useState<string | null>(null)
   const [locating, setLocating] = useState(false)
   const { places, recentSearches, setRecentSearches: setRecent } = useAppStore()
@@ -152,7 +154,7 @@ export function RouteSearchCard({
                 onClick={() => pick(id)}
                 aria-pressed={selected}
                 className={cn(
-                  'min-h-11 rounded-full border px-3 text-sm transition-colors',
+                  'rp-press min-h-11 rounded-full border px-3 text-sm',
                   selected
                     ? 'border-brand-orange bg-brand-orange/15 text-foreground'
                     : 'border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground',
@@ -169,7 +171,10 @@ export function RouteSearchCard({
         <div>
           <div className="mb-1 flex items-center justify-between">
             <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{t('search.recent')}</p>
-            <Button type="button" variant="ghost" size="sm" className="h-9 text-muted-foreground" onClick={() => setRecent((prev) => prev.filter((r) => !r.from || !r.to))}>
+            <Button type="button" variant="ghost" size="sm" className="h-9 text-muted-foreground" onClick={() => {
+              captureGhosts(recent.map(({ from, to }) => ({ from, to })))
+              setRecent((prev) => prev.filter((r) => !r.from || !r.to))
+            }}>
               <X />
               {t('search.clearRecent')}
             </Button>
@@ -188,6 +193,14 @@ export function RouteSearchCard({
                   <RotateCcw aria-hidden className="size-3.5 text-muted-foreground" />
                   {place(r.from)} → {place(r.to)}
                 </button>
+              </li>
+            ))}
+            {ghosts.map((r) => (
+              <li key={`ghost-${r.from}-${r.to}`} data-leaving="true" aria-hidden>
+                <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-accent px-3 text-sm">
+                  <RotateCcw aria-hidden className="size-3.5 text-muted-foreground" />
+                  {place(r.from)} → {place(r.to)}
+                </span>
               </li>
             ))}
           </ul>

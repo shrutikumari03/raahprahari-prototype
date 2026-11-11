@@ -22,6 +22,7 @@ import {
   X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { CharCounter } from '@/components/ui/field'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
@@ -430,9 +431,7 @@ function StepObservation({
         />
         <div className="mt-1 flex justify-between gap-3">
           <FieldError id="err-desc" msg={errors.description} />
-          <p id="desc-count" className="ml-auto text-xs text-muted-foreground">
-            {draft.description.length}/500
-          </p>
+          <CharCounter id="desc-count" className="ml-auto" length={draft.description.length} max={500} />
         </div>
       </div>
 
@@ -619,7 +618,7 @@ function StepLocation({
     return (
       <div className="rounded-2xl border border-status-clear/60 bg-status-clear/10 p-5">
         <p className="flex items-center gap-2 font-semibold">
-          <CircleCheck aria-hidden className="size-5 text-status-clear" />
+          <CircleCheck aria-hidden className="rp-pop size-5 text-status-clear" />
           {t('report.locConfirmed')}
         </p>
         <LocationSummary location={location} />

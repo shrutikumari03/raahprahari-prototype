@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { List, Map as MapIcon, Search, X } from 'lucide-react'
 import { AdvisoryCard } from '@/components/advisory-card'
+import { useSlidingHighlight } from '@/components/motion'
 import { LeafletMapLegend, LeafletSegmentMap } from '@/features/map/leaflet-segment-map'
 import { SegmentDetail } from '@/features/routes/segment-detail'
 import { usePrefs } from '@/i18n/preferences'
@@ -33,6 +34,7 @@ function MapPage() {
   const [query, setQuery] = useState('')
   const [mapFailed, setMapFailed] = useState(false)
   const navigate = Route.useNavigate()
+  const toggleRef = useSlidingHighlight<HTMLDivElement>(view)
 
   /** One selection for map, list and detail panel; kept in the URL so it survives reloads. */
   const selectSegment = (id: string | undefined) => {
@@ -102,7 +104,7 @@ function MapPage() {
             </button>
           )}
         </label>
-        <div className="rp-map-toggle" role="group" aria-label="Map or list view">
+        <div ref={toggleRef} className="rp-map-toggle rp-segmented" role="group" aria-label="Map or list view">
           {(['map', 'list'] as const).map((nextView) => (
             <button
               key={nextView}

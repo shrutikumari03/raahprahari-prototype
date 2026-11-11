@@ -56,7 +56,8 @@ export function RouteCard({
   return (
     <article
       className={cn(
-        'flex flex-col rounded-2xl border bg-card p-5 transition-colors',
+        'rp-card rp-enter flex flex-col rounded-2xl border bg-card p-5',
+        selected && 'is-selected',
         selected ? 'border-foreground/60 ring-1 ring-foreground/30' : 'border-border',
       )}
       aria-label={`Route ${letter}`}
@@ -128,7 +129,7 @@ export function RouteCard({
           {t('results.details')}
         </Button>
         <Button variant="outline" className="h-auto min-h-11 rounded-xl py-2 whitespace-normal" onClick={onToggleSave} aria-pressed={saved}>
-          {saved ? <BookmarkCheck /> : <Bookmark />}
+          {saved ? <BookmarkCheck key="saved" className="rp-pop" /> : <Bookmark />}
           {saved ? t('results.saved') : t('results.save')}
         </Button>
         <Button asChild variant="outline" className="h-auto min-h-11 rounded-xl py-2 whitespace-normal">

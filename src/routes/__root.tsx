@@ -10,6 +10,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SkipLink } from "@/components/ui/feedback";
 import { NotFoundPage } from "@/components/error-pages";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { BackToTop, PageTransition, RevealObserver } from "@/components/motion";
 import { DemoBadge } from "@/components/advisory";
 import { PreferencesProvider, themeBootScript } from "@/i18n/preferences";
 import { AppStoreProvider } from "@/lib/app-store";
@@ -111,6 +112,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <PreferencesProvider>
           <TooltipProvider>
             <SkipLink>Skip to content</SkipLink>
+            <PageTransition />
+            <RevealObserver />
+            <BackToTop />
             {/* One shared header on every route. Below xl the fixed bottom
                 navigation is shown, so the shell reserves room for it. */}
             <div className="flex min-h-svh flex-col overflow-x-clip pb-[calc(5rem+env(safe-area-inset-bottom))] xl:pb-0">

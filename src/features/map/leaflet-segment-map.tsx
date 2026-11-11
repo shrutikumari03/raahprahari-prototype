@@ -218,7 +218,7 @@ export function LeafletSegmentMap({
           style.dashed && 'is-dashed',
           style.alwaysVisible && 'is-closure',
           dim && 'is-dim',
-          selected && 'is-selected',
+          selected && 'is-selected rp-fade-pulse-once',
         ),
         weight: selected ? 9 : highlightSet.has(segment.id) ? 7 : 5,
         dashArray: style.dashed ? '6 10' : undefined,
@@ -237,7 +237,7 @@ export function LeafletSegmentMap({
         const marker = L.marker(mid, {
           icon: L.divIcon({
             className: 'rp-lmap-marker-wrap',
-            html: markerHtml(kind, cn(selected && 'is-selected', dim && 'is-dim', style.alwaysVisible && 'is-closure')),
+            html: markerHtml(kind, cn(selected && 'is-selected rp-pulse-once', dim && 'is-dim', style.alwaysVisible && 'is-closure')),
             iconSize: [28, 28],
             iconAnchor: [14 - offset, 14],
           }),

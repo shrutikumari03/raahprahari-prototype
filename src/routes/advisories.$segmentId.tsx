@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { ActionBadge, FreshnessChip } from '@/components/advisory'
 import { AdvisoryCard } from '@/components/advisory-card'
+import { useSlidingHighlight } from '@/components/motion'
 import { Button } from '@/components/ui/button'
 import { LoadingState } from '@/components/ui/feedback'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -63,7 +64,7 @@ export const Route = createFileRoute('/advisories/$segmentId')({
     ],
   }),
   pendingComponent: () => (
-    <LoadingState label="Loading road information…" className="min-h-72" />
+    <LoadingState label="Loading road information…" variant="cards" className="rp-container py-8" />
   ),
   errorComponent: RouteErrorPage,
   notFoundComponent: DetailNotFound,
@@ -520,6 +521,7 @@ function TerrainPanel({
   const { segments } = useAppStore()
   const navigate = useNavigate()
   const [view, setView] = useState<'map' | 'list'>('map')
+  const toggleRef = useSlidingHighlight<HTMLDivElement>(view)
   const [mapUnavailable, setMapUnavailable] = useState(false)
   // This segment plus the rest of its corridor for context (closures are always added by the map).
   const corridorSegments = segments.filter((s) => s.corridorId === segment.corridorId)
@@ -586,7 +588,7 @@ function TerrainPanel({
           </div>
         )}
 
-        <div className="absolute top-3 left-3 z-[600] inline-flex rounded-lg border border-white/20 bg-[#07151f]/85 p-1">
+        <div ref={toggleRef} className="rp-segmented absolute top-3 left-3 z-[600] inline-flex rounded-lg border border-white/20 bg-[#07151f]/85 p-1">
           <button
             type="button"
             aria-pressed={view === 'map'}

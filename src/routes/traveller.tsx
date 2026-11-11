@@ -16,7 +16,9 @@ import {
   X,
 } from 'lucide-react'
 import { ActionBadge, FreshnessChip } from '@/components/advisory'
+import { useExitGhosts } from '@/components/motion'
 import { Button } from '@/components/ui/button'
+import { SkeletonList } from '@/components/ui/skeleton'
 import { placeById } from '@/data/fixtures'
 import { getCurrentPosition, inCoverage, nearestPlace } from '@/lib/geo'
 import { getAdvisorySourceTimestamp } from '@/lib/advisory'
@@ -397,15 +399,18 @@ function TravellerPage() {
       <div className="traveller-results-layout">
         <section className="traveller-result-list" aria-label="Search results">
           {searchStatus === 'loading' || pending ? (
-            <div className="traveller-state-card" role="status">
+            <>
+            <div className="traveller-state-card rp-fade-rise" role="status">
               <span className="traveller-loading-mark" aria-hidden />
               <div>
                 <h2>Searching road information…</h2>
                 <p>Checking available synthetic reports and advisories.</p>
               </div>
             </div>
+            <SkeletonList count={2} />
+            </>
           ) : searchStatus === 'failure' || results.error ? (
-            <div className="traveller-state-card" role="alert">
+            <div className="traveller-state-card rp-fade-rise" role="alert">
               <TriangleAlert aria-hidden />
               <div>
                 <h2>Search could not be completed.</h2>
@@ -432,7 +437,7 @@ function TravellerPage() {
               />
             ))
           ) : results.matches.length ? (
-            <div className="traveller-empty-state">
+            <div className="traveller-empty-state rp-fade-rise">
               <MapPin aria-hidden />
               <div>
                 <h2>No {filter === 'roads' ? 'road' : 'hazard'} matches for this search.</h2>
@@ -448,7 +453,7 @@ function TravellerPage() {
               </Button>
             </div>
           ) : (
-            <div className="traveller-empty-state">
+            <div className="traveller-empty-state rp-fade-rise">
               <MapPin aria-hidden />
               <div>
                 <h2>No matching reports found.</h2>
@@ -513,7 +518,7 @@ export function ResultRow({
   return (
     <article
       id={`traveller-result-${segment.id}`}
-      className={cn('traveller-result-row', `status-${action}`, advisory.stale && 'is-stale', selected && 'is-selected')}
+      className={cn('rp-card rp-enter traveller-result-row', `status-${action}`, advisory.stale && 'is-stale', selected && 'is-selected')}
     >
       <div className="traveller-result-badge">
         <ActionBadge level={action} />
@@ -578,6 +583,7 @@ function RecentSearches({
   onClear: () => void
 }) {
   const [showExample, setShowExample] = useState(true)
+  const [ghosts, captureGhosts] = useExitGhosts<RecentTravellerSearch>()
   const example = 'Dehradun to Mussoorie'
   return (
     <section className="traveller-recent" aria-labelledby="traveller-recent-title">
@@ -587,6 +593,7 @@ function RecentSearches({
           type="button"
           variant="ghost"
           onClick={() => {
+            captureGhosts(recent)
             onClear()
             setShowExample(false)
           }}
@@ -599,6 +606,14 @@ function RecentSearches({
         {recent.map(({ query }) => (
           <li key={query}>
             <button type="button" onClick={() => onChoose(query)}>
+              <RotateCcw aria-hidden />
+              {query}
+            </button>
+          </li>
+        ))}
+        {ghosts.map(({ query }) => (
+          <li key={`ghost-${query}`} data-leaving="true" aria-hidden>
+            <button type="button" tabIndex={-1} disabled aria-hidden>
               <RotateCcw aria-hidden />
               {query}
             </button>

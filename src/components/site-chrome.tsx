@@ -1,6 +1,7 @@
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { House, ListChecks, Map, Menu, Monitor, Moon, Search, Sun, TriangleAlert, UserRound, WifiOff } from 'lucide-react'
+import { crossFadeTheme, useScrolled } from '@/components/motion'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -59,7 +60,7 @@ function LangSwitch() {
           onClick={() => setLang(l)}
           lang={l}
           className={cn(
-            'min-h-11 min-w-11 rounded-full px-2.5 font-medium transition-colors',
+            'rp-press min-h-11 min-w-11 rounded-full px-2.5 font-medium',
             lang === l ? 'bg-raised text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
           )}
         >
@@ -84,11 +85,16 @@ function ThemeSwitch() {
       variant="ghost"
       size="icon-lg"
       className="rounded-full"
-      onClick={() => setTheme(next)}
+      onClick={() => {
+        crossFadeTheme()
+        setTheme(next)
+      }}
       aria-label={label}
       title={t('theme.toggle')}
     >
-      {theme === 'system' ? <Monitor /> : theme === 'dark' ? <Sun /> : <Moon />}
+      <span key={theme} className="rp-icon-swap grid place-items-center">
+        {theme === 'system' ? <Monitor /> : theme === 'dark' ? <Sun /> : <Moon />}
+      </span>
     </Button>
   )
 }
@@ -171,6 +177,7 @@ export function SiteHeader() {
   const loginReturnFocusRef = useRef<HTMLButtonElement>(null)
   const menuTriggerRef = useRef<HTMLButtonElement>(null)
   const online = useOnline()
+  const scrolled = useScrolled()
   const { pathname, view } = useRouterState({
     select: (s) => ({
       pathname: s.location.pathname,
@@ -192,7 +199,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md">
+      <header data-scrolled={scrolled} className="rp-header sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md">
         <div className="rp-container flex h-16 min-w-0 items-center gap-3">
           <Link to="/" className="shrink-0 rounded-md" aria-label={t('nav.homeLabel')}>
             <Logo />
@@ -205,9 +212,8 @@ export function SiteHeader() {
                 to={to}
                 aria-current={current(to)}
                 className={cn(
-                  'relative inline-flex min-h-11 items-center px-2.5 text-sm font-medium whitespace-nowrap transition-colors 2xl:px-3.5',
-                  'after:absolute after:right-2.5 after:bottom-0 after:left-2.5 after:h-0.5 after:origin-left after:scale-x-0 after:bg-brand-orange after:transition-transform',
-                  active === to ? 'text-foreground after:scale-x-100' : 'text-muted-foreground hover:text-foreground',
+                  'rp-underline inline-flex min-h-11 items-center px-2.5 text-sm font-medium whitespace-nowrap transition-colors 2xl:px-3.5',
+                  active === to ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 {t(label)}
@@ -226,7 +232,7 @@ export function SiteHeader() {
               <UserRound />
               {t('nav.login')}
             </Button>
-            <Button asChild className="h-10 rounded-full px-4 font-semibold whitespace-nowrap">
+            <Button asChild variant="report" className="h-10 rounded-full px-4 font-semibold whitespace-nowrap">
               <Link to="/report" search={{ segment: undefined }} aria-current={current('/report')}>
                 <TriangleAlert />
                 {t('nav.report')}
@@ -261,7 +267,7 @@ export function SiteHeader() {
                     onClick={() => setMenuOpen(false)}
                     aria-current={current(to)}
                     className={cn(
-                      'inline-flex min-h-11 items-center rounded-lg px-3 text-base font-medium',
+                      'rp-press inline-flex min-h-11 items-center rounded-lg px-3 text-base font-medium',
                       active === to ? 'bg-raised text-foreground' : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
@@ -283,7 +289,7 @@ export function SiteHeader() {
                   <UserRound />
                   {t('nav.login')}
                 </Button>
-                <Button asChild className="h-11 w-full rounded-full font-semibold">
+                <Button asChild variant="report" className="h-11 w-full rounded-full font-semibold">
                   <Link to="/report" search={{ segment: undefined }} onClick={() => setMenuOpen(false)}>
                     <TriangleAlert />
                     {t('nav.report')}
@@ -313,19 +319,19 @@ export function SiteHeader() {
             to={to}
             aria-current={current(to)}
             className={cn(
-              'flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-0.5 text-center text-[11px] leading-tight font-medium',
+              'rp-press flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-0.5 text-center text-[11px] leading-tight font-medium',
+              raised && 'rp-press-gentle',
               raised && '-mt-4',
               active === to ? 'text-link' : 'text-muted-foreground',
             )}
           >
-            <Icon
-              aria-hidden
-              className={cn(
-                'size-5 shrink-0',
-                raised &&
-                  '-mt-1 size-12 rounded-full border-4 border-background bg-brand-orange p-2.5 text-[#111719] shadow-lg',
-              )}
-            />
+            {raised ? (
+              <span className="rp-ripple -mt-1 grid size-12 place-items-center rounded-full border-4 border-background bg-report text-report-foreground shadow-lg">
+                <Icon aria-hidden className="size-5 shrink-0" />
+              </span>
+            ) : (
+              <Icon aria-hidden className="size-5 shrink-0" />
+            )}
             <span className="max-w-full truncate">{t(label)}</span>
           </Link>
         ))}
@@ -350,7 +356,7 @@ export function SiteFooter() {
     ['footer.contact', '/contact', undefined],
   ] as const
   return (
-    <footer className="border-t border-border bg-card/40">
+    <footer data-reveal className="border-t border-border bg-card/40">
       <div className="rp-container flex flex-col gap-6 py-10 md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm space-y-3">
           <Logo />

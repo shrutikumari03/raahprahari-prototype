@@ -32,20 +32,20 @@ function Home() {
           src="/img/hero-mountain.png"
           alt=""
           fetchPriority="high"
-          className="home-hero-image"
+          className="home-hero-image rp-hero-zoom"
         />
         <div aria-hidden className="home-hero-overlay" />
         <div className="home-content">
-          <div className="home-copy">
+          <div className="home-copy rp-hero-stagger">
             <h1 id="hero-title">{t('hero.title')}</h1>
             <p>{t('hero.body')}</p>
             <div className="home-actions">
-              <Link to="/traveller" className="home-action home-action-check">
+              <Link to="/traveller" className="rp-interactive home-action home-action-check">
                 <Search aria-hidden />
                 <span>Check a road</span>
                 <ArrowRight aria-hidden />
               </Link>
-              <Link to="/report" search={{ segment: undefined }} className="home-action home-action-report">
+              <Link to="/report" search={{ segment: undefined }} className="rp-interactive home-action home-action-report">
                 <TriangleAlert aria-hidden />
                 <span>Report a hazard</span>
                 <ArrowRight aria-hidden />

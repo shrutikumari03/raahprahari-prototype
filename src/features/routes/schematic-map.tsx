@@ -126,7 +126,7 @@ export function SchematicMap({
                 strokeLinecap="round"
               />
               {selected && (
-                <line x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke="var(--foreground)" strokeWidth={18} strokeLinecap="round" opacity={0.9} />
+                <line className="rp-fade-pulse-once" x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke="var(--foreground)" strokeWidth={18} strokeLinecap="round" opacity={0.9} />
               )}
               <line
                 x1={pa.x}

@@ -93,7 +93,7 @@ function HelpPage() {
                   key={slug}
                   to="/help/$topic"
                   params={{ topic: slug }}
-                  className="help-topic-card"
+                  className="rp-card rp-enter help-topic-card"
                 >
                   <span
                     className={`help-topic-icon help-topic-icon-${slug}`}
@@ -114,7 +114,7 @@ function HelpPage() {
                       {t(descriptionKey)}
                     </span>
                   </span>
-                  <ArrowRight aria-hidden className="help-topic-arrow" />
+                  <ArrowRight aria-hidden className="rp-arrow help-topic-arrow" />
                 </Link>
               );
             })}

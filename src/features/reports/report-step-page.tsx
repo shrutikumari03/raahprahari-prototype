@@ -19,6 +19,7 @@ import {
   X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { CharCounter } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { placeById } from '@/data/fixtures'
@@ -583,9 +584,7 @@ export function ReportStepPage({
                     <label htmlFor="report-description" className="text-sm font-medium">
                       Describe the condition
                     </label>
-                    <span aria-live="polite" className="text-xs text-muted-foreground">
-                      {draft.description.length}/500
-                    </span>
+                    <CharCounter length={draft.description.length} max={500} />
                   </div>
                   <Textarea
                     id="report-description"
@@ -1191,7 +1190,7 @@ function ReceivedReport({
       >
         <p className="text-xs font-semibold tracking-wide text-orange-on-dark">Prototype mockup, synthetic data</p>
         <div className="mt-5 flex size-14 items-center justify-center rounded-full border border-brand-orange text-brand-orange">
-          <Check aria-hidden className="size-7" />
+          <Check aria-hidden className="rp-pop size-7" />
         </div>
         <h1 id="report-saved-heading" className="mt-4 font-display text-2xl font-bold sm:text-3xl">
           Report saved on this device

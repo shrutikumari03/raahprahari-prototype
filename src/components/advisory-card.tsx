@@ -55,7 +55,7 @@ export function AdvisoryCard({
     return (
       <article
         className={cn(
-          "rounded-lg border border-border bg-card transition-colors hover:border-blue-on-dark/60",
+          "rp-card rp-enter rounded-lg border border-border bg-card",
           className,
         )}
       >
@@ -155,7 +155,7 @@ export function AdvisoryCard({
   return (
     <article
       className={cn(
-        "rounded-xl border border-border bg-card transition-colors hover:border-blue-on-dark/60",
+        "rp-card rp-enter rounded-xl border border-border bg-card",
         className,
       )}
     >
@@ -197,7 +197,7 @@ export function AdvisoryCard({
           <span className="text-xs text-muted-foreground">
             {sources.length ? sources.join(" · ") : t("source.unknown")}
           </span>
-          <ArrowRight aria-hidden className="ml-auto size-4 text-link" />
+          <ArrowRight aria-hidden className="rp-arrow ml-auto size-4 text-link" />
         </div>
       </Link>
     </article>

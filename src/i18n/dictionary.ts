@@ -405,6 +405,64 @@ export const en = {
   'contact.title': 'Contact',
   'contact.body':
     'Contact details are not configured in this synthetic prototype.',
+  'aboutPage.eyebrow': 'ABOUT',
+  'aboutPage.description':
+    'RaahPrahari shows reported road hazards, information freshness and official restrictions together so travellers can decide with more context.',
+  'aboutPage.prototypeTitle': 'What this prototype is',
+  'aboutPage.prototypeBody':
+    'RaahPrahari is a prototype with synthetic demo data. It is not a live service, and its displayed reports and road information should not be treated as current real-world conditions.',
+  'aboutPage.readTitle': 'How to read an advisory',
+  'aboutPage.readBody':
+    'An observed condition, advisory action, official restriction, supporting evidence and information freshness are shown separately.',
+  'aboutPage.cautionLabel': 'CAUTION:',
+  'aboutPage.caution': 'use added care for the reported condition.',
+  'aboutPage.avoidLabel': 'AVOID:',
+  'aboutPage.avoid': 'avoid the route as advised.',
+  'aboutPage.unknownLabel': 'UNKNOWN:',
+  'aboutPage.unknown': 'the current status is not known.',
+  'aboutPage.readNote':
+    'Unknown or stale information is never shown as safe and is not a safety clearance.',
+  'aboutPage.limitsTitle': 'What reports can and cannot do',
+  'aboutPage.limitsBody':
+    'A report, score, reputation or AI output cannot create or remove an official road closure. Any clearance remains awaiting verification until the approved process resolves it.',
+  'aboutPage.privacyTitle': 'Privacy',
+  'aboutPage.privacyBody':
+    'This prototype keeps your language, theme, saved roads, drafts and locally saved reports in this browser only. Nothing is uploaded to a server.',
+  'aboutPage.termsTitle': 'Terms',
+  'aboutPage.termsBody':
+    'The information shown is synthetic and provided for demonstration only. Do not rely on it for travel decisions. Follow official instructions and local authorities.',
+  'aboutPage.accessibilityTitle': 'Accessibility',
+  'aboutPage.accessibilityBody':
+    'Status colours always come with an icon and a text label. Pages work with a keyboard and in English and Hindi. Full accessibility validation still needs testing with assistive technologies.',
+  'aboutPage.contactTitle': 'Contact',
+  'aboutPage.contactBody':
+    'There is no message service in this prototype. You can try the contact form, but nothing is sent.',
+  'aboutPage.contactLink': 'Open contact form',
+  'aboutPage.actionsLabel': 'Explore RaahPrahari',
+  'aboutPage.checkRoad': 'Check a road',
+  'aboutPage.viewAdvisories': 'View advisories',
+  'aboutPage.help': 'Help',
+  'contactPage.eyebrow': 'CONTACT',
+  'contactPage.description':
+    'This prototype has no message-delivery service. Submissions are not sent.',
+  'contactPage.formTitle': 'Send a message',
+  'contactPage.formIntro':
+    'Complete the fields below. The form checks your input locally and does not send or store your message.',
+  'contactPage.name': 'Name',
+  'contactPage.nameHelp': 'Enter the name you would like to use.',
+  'contactPage.email': 'Email',
+  'contactPage.emailHelp': 'We’ll only use this address to respond.',
+  'contactPage.message': 'Message',
+  'contactPage.messageHelp': 'Do not include sensitive or emergency information.',
+  'contactPage.nameError': 'Enter your name.',
+  'contactPage.emailError': 'Enter a valid email address.',
+  'contactPage.messageError': 'Enter a message.',
+  'contactPage.notice': 'Not connected in this prototype. Your message was not sent.',
+  'contactPage.submit': 'Submit message',
+  'contactPage.emergency': 'In an emergency, contact local emergency services.',
+  'footer.tagline': 'Know before you go.',
+  'nav.homeLabel': 'RaahPrahari — home',
+  'nav.footer': 'Footer',
 } as const
 
 export type TranslationKey = keyof typeof en
@@ -812,4 +870,62 @@ export const hi: Record<TranslationKey, string> = {
     'कोई रिपोर्ट, गणना किया गया स्कोर या AI आउटपुट आधिकारिक सड़क बंदी बना या हटा नहीं सकता। प्रतिबंध केवल अधिकृत आधिकारिक अपडेट से बदल सकता है।',
   'contact.title': 'संपर्क',
   'contact.body': 'इस कृत्रिम प्रोटोटाइप में संपर्क विवरण उपलब्ध नहीं हैं।',
+  'aboutPage.eyebrow': 'परिचय',
+  'aboutPage.description':
+    'राहप्रहरी रिपोर्ट किए गए सड़क खतरे, जानकारी की ताज़गी और आधिकारिक प्रतिबंध एक साथ दिखाता है, ताकि यात्री अधिक संदर्भ के साथ निर्णय ले सकें।',
+  'aboutPage.prototypeTitle': 'यह प्रोटोटाइप क्या है',
+  'aboutPage.prototypeBody':
+    'राहप्रहरी कृत्रिम डेमो डेटा वाला एक प्रोटोटाइप है। यह लाइव सेवा नहीं है, और इसमें दिखाई गई रिपोर्ट व सड़क जानकारी को वास्तविक वर्तमान स्थिति न मानें।',
+  'aboutPage.readTitle': 'सलाह कैसे पढ़ें',
+  'aboutPage.readBody':
+    'देखी गई स्थिति, सलाह की कार्रवाई, आधिकारिक प्रतिबंध, समर्थन में साक्ष्य और जानकारी की ताज़गी अलग-अलग दिखाई जाती हैं।',
+  'aboutPage.cautionLabel': 'सावधानी:',
+  'aboutPage.caution': 'रिपोर्ट की गई स्थिति में अतिरिक्त सावधानी रखें।',
+  'aboutPage.avoidLabel': 'बचें:',
+  'aboutPage.avoid': 'सलाह के अनुसार इस मार्ग से बचें।',
+  'aboutPage.unknownLabel': 'अज्ञात:',
+  'aboutPage.unknown': 'वर्तमान स्थिति ज्ञात नहीं है।',
+  'aboutPage.readNote':
+    'अज्ञात या पुरानी जानकारी को कभी सुरक्षित नहीं दिखाया जाता और यह सुरक्षा की मंज़ूरी नहीं है।',
+  'aboutPage.limitsTitle': 'रिपोर्ट क्या कर सकती है और क्या नहीं',
+  'aboutPage.limitsBody':
+    'कोई रिपोर्ट, स्कोर, प्रतिष्ठा या AI आउटपुट आधिकारिक सड़क बंदी बना या हटा नहीं सकता। कोई भी मंज़ूरी अनुमोदित प्रक्रिया पूरी होने तक सत्यापन की प्रतीक्षा में रहती है।',
+  'aboutPage.privacyTitle': 'गोपनीयता',
+  'aboutPage.privacyBody':
+    'यह प्रोटोटाइप आपकी भाषा, थीम, सहेजी सड़कें, ड्राफ़्ट और स्थानीय रूप से सहेजी रिपोर्ट केवल इसी ब्राउज़र में रखता है। कुछ भी सर्वर पर अपलोड नहीं होता।',
+  'aboutPage.termsTitle': 'शर्तें',
+  'aboutPage.termsBody':
+    'दिखाई गई जानकारी कृत्रिम है और केवल प्रदर्शन के लिए है। यात्रा के निर्णय इस पर आधारित न करें। आधिकारिक निर्देशों और स्थानीय प्राधिकरणों का पालन करें।',
+  'aboutPage.accessibilityTitle': 'सुगम्यता',
+  'aboutPage.accessibilityBody':
+    'स्थिति के रंग हमेशा आइकन और पाठ लेबल के साथ आते हैं। पृष्ठ कीबोर्ड से और अंग्रेज़ी व हिन्दी में काम करते हैं। पूर्ण सुगम्यता जाँच के लिए सहायक तकनीकों से परीक्षण अभी भी आवश्यक है।',
+  'aboutPage.contactTitle': 'संपर्क',
+  'aboutPage.contactBody':
+    'इस प्रोटोटाइप में संदेश सेवा नहीं है। आप संपर्क फ़ॉर्म आज़मा सकते हैं, पर कुछ भेजा नहीं जाता।',
+  'aboutPage.contactLink': 'संपर्क फ़ॉर्म खोलें',
+  'aboutPage.actionsLabel': 'राहप्रहरी देखें',
+  'aboutPage.checkRoad': 'सड़क जाँचें',
+  'aboutPage.viewAdvisories': 'सलाह देखें',
+  'aboutPage.help': 'मदद',
+  'contactPage.eyebrow': 'संपर्क',
+  'contactPage.description':
+    'इस प्रोटोटाइप में संदेश भेजने की सेवा नहीं है। सबमिट किए गए संदेश भेजे नहीं जाते।',
+  'contactPage.formTitle': 'संदेश भेजें',
+  'contactPage.formIntro':
+    'नीचे के फ़ील्ड भरें। फ़ॉर्म आपकी जानकारी केवल स्थानीय रूप से जाँचता है और आपका संदेश न भेजता है, न सहेजता है।',
+  'contactPage.name': 'नाम',
+  'contactPage.nameHelp': 'वह नाम लिखें जो आप उपयोग करना चाहते हैं।',
+  'contactPage.email': 'ईमेल',
+  'contactPage.emailHelp': 'हम इस पते का उपयोग केवल उत्तर देने के लिए करेंगे।',
+  'contactPage.message': 'संदेश',
+  'contactPage.messageHelp': 'संवेदनशील या आपातकालीन जानकारी न लिखें।',
+  'contactPage.nameError': 'अपना नाम लिखें।',
+  'contactPage.emailError': 'मान्य ईमेल पता लिखें।',
+  'contactPage.messageError': 'संदेश लिखें।',
+  'contactPage.notice': 'इस प्रोटोटाइप में कनेक्शन नहीं है। आपका संदेश भेजा नहीं गया।',
+  'contactPage.submit': 'संदेश सबमिट करें',
+  'contactPage.emergency': 'आपातकाल में स्थानीय आपातकालीन सेवाओं से संपर्क करें।',
+  'footer.tagline': 'सफ़र से पहले सुरक्षा की ख़बर',
+  'nav.homeLabel': 'राहप्रहरी — होम',
+  'nav.footer': 'फ़ुटर',
 }

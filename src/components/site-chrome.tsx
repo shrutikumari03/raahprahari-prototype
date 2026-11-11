@@ -194,7 +194,7 @@ export function SiteHeader() {
     <>
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md">
         <div className="rp-container flex h-16 min-w-0 items-center gap-3">
-          <Link to="/" className="shrink-0 rounded-md" aria-label="RaahPrahari — home">
+          <Link to="/" className="shrink-0 rounded-md" aria-label={t('nav.homeLabel')}>
             <Logo />
           </Link>
 
@@ -343,27 +343,26 @@ export function SiteHeader() {
 export function SiteFooter() {
   const { t } = usePrefs()
   const items = [
-    ['footer.about', '/about'],
-    ['footer.privacy', '/about'],
-    ['footer.terms', '/about'],
-    ['footer.accessibility', '/about'],
-    ['footer.contact', '/contact'],
+    ['footer.about', '/about', undefined],
+    ['footer.privacy', '/about', 'privacy'],
+    ['footer.terms', '/about', 'terms'],
+    ['footer.accessibility', '/about', 'accessibility'],
+    ['footer.contact', '/contact', undefined],
   ] as const
   return (
     <footer className="border-t border-border bg-card/40">
       <div className="rp-container flex flex-col gap-6 py-10 md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm space-y-3">
           <Logo />
-          <p className="text-sm text-muted-foreground">
-            Know before you go. · <span lang="hi">सफ़र से पहले सुरक्षा की ख़बर</span>
-          </p>
+          <p className="text-sm text-muted-foreground">{t('footer.tagline')}</p>
           <p className="text-xs text-muted-foreground">{t('footer.note')}</p>
         </div>
-        <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-1">
-          {items.map(([key, to]) => (
+        <nav aria-label={t('nav.footer')} className="flex flex-wrap gap-x-5 gap-y-1">
+          {items.map(([key, to, hash]) => (
             <Link
               key={key}
               to={to}
+              hash={hash}
               className="inline-flex min-h-11 items-center text-sm text-muted-foreground hover:text-foreground"
             >
               {t(key)}

@@ -3,7 +3,7 @@ import { en, hi, type TranslationKey } from '@/i18n/dictionary'
 import { placeById } from '@/data/fixtures'
 import { STORAGE_KEYS } from '@/lib/storage'
 import { AppStoreProvider, useAppStore, type Lang, type Theme } from '@/lib/app-store'
-
+const DEMO_NOW = Date.UTC(2026, 9, 15, 7, 0, 0)
 export type { Lang, Theme }
 
 interface Preferences {
@@ -32,24 +32,10 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
   )
 }
 
-<<<<<<< HEAD
 function PreferencesBridge({ children }: { children: React.ReactNode }) {
   // The clock comes from the store (the seeded 2026 demo clock, or an injected one).
   const { lang, setLang, theme, setTheme, now } = useAppStore()
-=======
-  useEffect(() => {
-    // Restore device preferences after hydration to keep the server and first client render aligned.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLangState(readLocal<Lang>(STORAGE_KEYS.lang, 'en'))
-    const storedTheme = readLocal<unknown>(STORAGE_KEYS.theme, 'dark')
-    setThemeState(
-      storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system'
-        ? storedTheme
-        : 'dark',
-    )
-  }, [])
->>>>>>> upstream/main
-
+  
   useEffect(() => {
     document.documentElement.lang = lang
   }, [lang])

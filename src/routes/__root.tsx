@@ -10,16 +10,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SkipLink } from "@/components/ui/feedback";
 import { NotFoundPage } from "@/components/error-pages";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
-<<<<<<< HEAD
 import { BackToTop, PageTransition, RevealObserver } from "@/components/motion";
 import { PrototypeRibbon } from "@/components/prototype-ribbon";
-=======
-import { DemoBadge } from "@/components/advisory";
 import { AccountScopeBoundary } from "@/components/account-scope-boundary";
 import { SyncProvider } from "@/components/sync-provider";
->>>>>>> upstream/main
 import { PreferencesProvider, themeBootScript } from "@/i18n/preferences";
-import { AppStoreProvider } from "@/lib/app-store";
 
 import "../styles.css";
 
@@ -124,68 +119,36 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <AppStoreProvider>
         <PreferencesProvider>
           <TooltipProvider>
-<<<<<<< HEAD
-            <SkipLink>Skip to content</SkipLink>
-            <PageTransition />
-            <RevealObserver />
-            <BackToTop />
-            {/* One shared header on every route. Below xl the fixed bottom
-                navigation is shown, so the shell reserves room for it. */}
-            <div className="flex min-h-svh flex-col overflow-x-clip pb-[calc(5rem+env(safe-area-inset-bottom))] xl:pb-0">
-              <SiteHeader />
-              <main id="main" className="min-w-0 flex-1">
-                {children}
-              </main>
-              {!isHome && !isTraveller && !isMap && !isHelp && <SiteFooter />}
-            </div>
-            {!isHome &&
-              !isTraveller &&
-              !isMap &&
-              !isHelp &&
-              !isNotFound &&
-              !isReport &&
-              !isAdvisories && (
-                <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 xl:bottom-2">
-                  <PrototypeRibbon />
-=======
             <AccountScopeBoundary>
               <SyncProvider>
                 <SkipLink>Skip to content</SkipLink>
-                <div className="flex min-h-svh flex-col">
-                  {!isMap && <SiteHeader />}
-                  <main
-                    id="main"
-                    className={
-                      isHome || isTraveller || isMap
-                        ? "flex-1"
-                        : "flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0"
-                    }
-                  >
+                <PageTransition />
+                <RevealObserver />
+                <BackToTop />
+                <div className="flex min-h-svh flex-col overflow-x-clip pb-[calc(5rem+env(safe-area-inset-bottom))] xl:pb-0">
+                  <SiteHeader />
+                  <main id="main" className="min-w-0 flex-1">
                     {children}
                   </main>
-                  {!isHome && !isTraveller && !isMap && !isHelp && (
-                    <SiteFooter />
-                  )}
->>>>>>> upstream/main
+                  {!isHome && !isTraveller && !isMap && !isHelp && <SiteFooter />}
                 </div>
                 {!isHome &&
                   !isTraveller &&
                   !isMap &&
                   !isHelp &&
                   !isNotFound &&
+                  !isReport &&
                   !isAdvisories && (
-                    <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 lg:bottom-2">
-                      <DemoBadge />
+                    <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 xl:bottom-2">
+                      <PrototypeRibbon />
                     </div>
                   )}
               </SyncProvider>
             </AccountScopeBoundary>
           </TooltipProvider>
         </PreferencesProvider>
-        </AppStoreProvider>
         <Toaster />
         <Scripts />
       </body>

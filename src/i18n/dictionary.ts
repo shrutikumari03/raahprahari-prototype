@@ -172,6 +172,9 @@ export const en = {
   'adv.filterIssues': 'Sections with an advisory',
   'adv.filterOfficial': 'Official restrictions',
   'adv.filterUnknown': 'Unknown or stale',
+  'adv.sort': 'Sort by',
+  'adv.sortDefault': 'Default order',
+  'adv.sortFreshness': 'Freshness (newest first)',
   'adv.empty': 'No sections match this filter.',
   'adv.searchRoute': 'Plan a journey instead',
 
@@ -577,6 +580,9 @@ export const hi: Record<TranslationKey, string> = {
   'adv.filterIssues': 'परामर्श वाले हिस्से',
   'adv.filterOfficial': 'आधिकारिक प्रतिबंध',
   'adv.filterUnknown': 'अज्ञात या पुरानी',
+  'adv.sort': 'क्रमबद्ध करें',
+  'adv.sortDefault': 'डिफ़ॉल्ट क्रम',
+  'adv.sortFreshness': 'ताज़गी (नवीनतम पहले)',
   'adv.empty': 'इस फ़िल्टर से कोई हिस्सा मेल नहीं खाता।',
   'adv.searchRoute': 'इसके बजाय यात्रा योजना बनाएँ',
 

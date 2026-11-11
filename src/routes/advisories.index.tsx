@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/feedback";
 import { usePrefs } from "@/i18n/preferences";
 import { useAppStore } from "@/lib/app-store";
+import { getAdvisorySourceTimestamp } from "@/lib/advisory";
 import { cn } from "@/lib/utils";
 import "./advisories.index.css";
 
@@ -20,6 +21,7 @@ function AdvisoriesPage() {
   const { t } = usePrefs();
   const { segments, advisories } = useAppStore();
   const [filter, setFilter] = useState<Filter>("all");
+  const [sort, setSort] = useState<"default" | "freshness">("default");
   const filteredSegments = segments.filter((segment) => {
     const advisory = advisories.get(segment.id);
     if (!advisory)
@@ -35,6 +37,15 @@ function AdvisoriesPage() {
       return advisory.level === "unknown" || advisory.stale;
     return true;
   });
+  // Newest source first; sections with no source timestamp (unknown) go last.
+  const sourceTime = (id: string) => {
+    const advisory = advisories.get(id);
+    return (advisory && getAdvisorySourceTimestamp(advisory)) ?? -Infinity;
+  };
+  const visibleSegments =
+    sort === "freshness"
+      ? [...filteredSegments].sort((a, b) => sourceTime(b.id) - sourceTime(a.id))
+      : filteredSegments;
 
   return (
     <div className="advisories-list-page pb-8">
@@ -87,9 +98,23 @@ function AdvisoriesPage() {
             )}
           </div>
         </div>
-        {filteredSegments.length ? (
+        <div className="flex items-center gap-2 text-sm">
+          <label htmlFor="adv-sort" className="text-muted-foreground">
+            {t("adv.sort")}
+          </label>
+          <select
+            id="adv-sort"
+            value={sort}
+            onChange={(e) => setSort(e.target.value as "default" | "freshness")}
+            className="min-h-11 rounded-md border border-border bg-background px-3"
+          >
+            <option value="default">{t("adv.sortDefault")}</option>
+            <option value="freshness">{t("adv.sortFreshness")}</option>
+          </select>
+        </div>
+        {visibleSegments.length ? (
           <div className="grid min-w-0 grid-cols-1 items-stretch gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {filteredSegments.map((segment) => (
+            {visibleSegments.map((segment) => (
               <AdvisoryCard
                 key={segment.id}
                 segment={segment}

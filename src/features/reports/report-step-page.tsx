@@ -124,7 +124,32 @@ function makeLocation(
   }
 }
 
-export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate: (path: ReportPath) => void }) {
+/** Location for a whole road section: its midpoint, unconfirmed so the traveller still reviews it. */
+function segmentLocation(segment: Segment): ReportLocation {
+  const from = placeById(segment.from)
+  const to = placeById(segment.to)
+  const label = `${segment.code} · ${from?.name ?? ''} – ${to?.name ?? ''}`
+  return {
+    query: label,
+    roadSegment: label,
+    lat: ((from?.lat ?? 0) + (to?.lat ?? 0)) / 2,
+    lon: ((from?.lon ?? 0) + (to?.lon ?? 0)) / 2,
+    accuracyM: null,
+    source: 'manual',
+    confirmed: false,
+  }
+}
+
+export function ReportStepPage({
+  step,
+  navigate,
+  prefillSegmentId,
+}: {
+  step: ReportStep
+  navigate: (path: ReportPath) => void
+  /** Road section chosen on the advisory page; pre-fills the report location. */
+  prefillSegmentId?: string
+}) {
   const {
     places,
     segments,
@@ -160,14 +185,13 @@ export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate:
   useEffect(() => {
     try {
       const saved = loadReportDraft()
-      if (saved) {
-        // Browser storage is loaded after hydration to keep server and client markup aligned.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setDraft(saved)
-        setLocationSearch(saved.location?.query ?? '')
-      } else {
-        setDraft(createEmptyReportDraft())
-      }
+      const prefill = prefillSegmentId ? segments.find((s) => s.id === prefillSegmentId) : undefined
+      const base = saved ?? { ...createEmptyReportDraft() }
+      const next = prefill ? { ...base, location: segmentLocation(prefill) } : base
+      // Browser storage is loaded after hydration to keep server and client markup aligned.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDraft(next)
+      setLocationSearch(next.location?.query ?? '')
     } catch {
       setStorageError('Could not read the saved draft from this device.')
     }
@@ -179,7 +203,7 @@ export function ReportStepPage({ step, navigate }: { step: ReportStep; navigate:
       }
     }
     setLoaded(true)
-  }, [step, loadReportDraft, loadLastLocalReport])
+  }, [step, loadReportDraft, loadLastLocalReport, prefillSegmentId, segments])
 
   useEffect(() => {
     if (!loaded || step === 'received') return

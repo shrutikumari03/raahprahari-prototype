@@ -1,6 +1,7 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
-import { House, ListChecks, Map, Menu, Monitor, Moon, Search, Sun, TriangleAlert, UserRound, WifiOff } from 'lucide-react'
+
+import {useRef, useState } from 'react'
+import { House, ListChecks, Map, Menu, Monitor, Moon, Search, Sun, TriangleAlert, UserRound } from 'lucide-react'
 import { crossFadeTheme, useScrolled } from '@/components/motion'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,6 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { usePrefs } from '@/i18n/preferences'
+import { OfflineBanner } from '@/components/offline-banner'
 import { cn } from '@/lib/utils'
 
 export function Logo({ className }: { className?: string }) {
@@ -30,22 +32,6 @@ export function Logo({ className }: { className?: string }) {
       </span>
     </span>
   )
-}
-
-export function useOnline() {
-  const [online, setOnline] = useState(true)
-  useEffect(() => {
-    setOnline(navigator.onLine)
-    const on = () => setOnline(true)
-    const off = () => setOnline(false)
-    window.addEventListener('online', on)
-    window.addEventListener('offline', off)
-    return () => {
-      window.removeEventListener('online', on)
-      window.removeEventListener('offline', off)
-    }
-  }, [])
-  return online
 }
 
 function LangSwitch() {
@@ -176,7 +162,6 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const loginReturnFocusRef = useRef<HTMLButtonElement>(null)
   const menuTriggerRef = useRef<HTMLButtonElement>(null)
-  const online = useOnline()
   const scrolled = useScrolled()
   const { pathname, view } = useRouterState({
     select: (s) => ({
@@ -188,9 +173,11 @@ export function SiteHeader() {
   const current = (to: NavTarget) => (active === to ? ('page' as const) : undefined)
 
   // Close the mobile menu whenever the route changes (e.g. browser back).
-  useEffect(() => {
+  const [menuPath, setMenuPath] = useState(pathname)
+  if (menuPath !== pathname) {
+    setMenuPath(pathname)
     setMenuOpen(false)
-  }, [pathname])
+  }
 
   const openLogin = (returnTo: HTMLButtonElement | null) => {
     loginReturnFocusRef.current = returnTo
@@ -289,8 +276,13 @@ export function SiteHeader() {
                   <UserRound />
                   {t('nav.login')}
                 </Button>
-                <Button asChild variant="report" className="h-11 w-full rounded-full font-semibold">
-                  <Link to="/report" search={{ segment: undefined }} onClick={() => setMenuOpen(false)}>
+                                <Button asChild variant="report" className="h-11 w-full rounded-full font-semibold">
+                  <Link
+                    to="/report"
+                    search={{ segment: undefined }}
+                    onClick={() => setMenuOpen(false)}
+                    aria-current={current('/report')}
+                  >
                     <TriangleAlert />
                     {t('nav.report')}
                   </Link>
@@ -299,53 +291,49 @@ export function SiteHeader() {
             </SheetContent>
           </Sheet>
         </div>
-        {!online && (
-          <div role="status" className="border-t border-border bg-raised">
-            <p className="rp-container flex items-center gap-2 py-2 text-sm">
-              <WifiOff aria-hidden className="size-4 text-muted-foreground" />
-              {t('offline.banner')}
-            </p>
-          </div>
-        )}
       </header>
 
+      <OfflineBanner />
+
       <nav
-        aria-label={t('nav.bottom')}
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-background/95 px-1 pt-1 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-md xl:hidden"
+        aria-label="Quick navigation"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md xl:hidden"
       >
-        {BOTTOM_NAV.map(({ to, label, icon: Icon, raised }) => (
-          <Link
-            key={to}
-            to={to}
-            aria-current={current(to)}
-            className={cn(
-              'rp-press flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-0.5 text-center text-[11px] leading-tight font-medium',
-              raised && 'rp-press-gentle',
-              raised && '-mt-4',
-              active === to ? 'text-link' : 'text-muted-foreground',
-            )}
-          >
-            {raised ? (
-              <span className="rp-ripple -mt-1 grid size-12 place-items-center rounded-full border-4 border-background bg-report text-report-foreground shadow-lg">
-                <Icon aria-hidden className="size-5 shrink-0" />
-              </span>
-            ) : (
-              <Icon aria-hidden className="size-5 shrink-0" />
-            )}
-            <span className="max-w-full truncate">{t(label)}</span>
-          </Link>
-        ))}
+        <ul className="mx-auto flex max-w-xl items-end justify-around px-2">
+          {BOTTOM_NAV.map(({ to, label, icon: Icon, raised }) => (
+            <li key={to} className="flex-1">
+              {to === '/report' ? (
+                <Link
+                  to="/report"
+                  search={{ segment: undefined }}
+                  aria-current={current(to)}
+                  className="rp-press flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium text-foreground"
+                >
+                  <Icon className={cn('size-5', raised && 'text-brand-orange')} />
+                  {t(label)}
+                </Link>
+              ) : (
+                <Link
+                  to={to}
+                  aria-current={current(to)}
+                  className={cn(
+                    'rp-press flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium',
+                    active === to ? 'text-foreground' : 'text-muted-foreground',
+                  )}
+                >
+                  <Icon className="size-5" />
+                  {t(label)}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
       </nav>
 
-      <LoginDialog
-        open={loginOpen}
-        onOpenChange={setLoginOpen}
-        returnFocusRef={loginReturnFocusRef}
-      />
+      <LoginDialog open={loginOpen} onOpenChange={setLoginOpen} returnFocusRef={loginReturnFocusRef} />
     </>
   )
 }
-
 export function SiteFooter() {
   const { t } = usePrefs()
   const items = [

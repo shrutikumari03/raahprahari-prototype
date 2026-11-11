@@ -1,8 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
+<<<<<<< HEAD:src/routes/contact.test.tsx
 import { PreferencesProvider } from "@/i18n/preferences";
 import { ContactPage } from "./contact";
+=======
+import { ContactPage } from "../routes/contact";
+>>>>>>> upstream/main:src/test/contact.test.tsx
 
 function renderContact() {
   return render(

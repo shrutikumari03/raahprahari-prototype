@@ -5,11 +5,16 @@ A prototype road-hazard advisory and reporting app for Uttarakhand. Travellers p
 **Stack:** TanStack Start (React 19, TanStack Router), Vite, Tailwind CSS 4, shadcn/ui, lucide-react, Zod, Vitest. Deployed on Netlify.
 
 ## Run locally
+
 ```bash
-pnpm install
+npm install
 npm run dev      # http://localhost:3000
-npm test         # includes advisory-rule tests
+npm run typecheck
+npm run lint
+npm test
+npm run build
 ```
 
 ## Roadmap
-See [PLAN.md](PLAN.md). Next up: mount the report flow at `/report`, add `/about`, then build the traveller dashboard, the reviewer and official workspaces, demo roles and the PWA.
+
+See [PLAN.md](PLAN.md) for completed work and future phases. The current prototype includes route search and advisories, the map and traveller views, the local hazard-report flow, and help/about/contact pages.

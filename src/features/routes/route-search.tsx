@@ -37,6 +37,8 @@ export function RouteSearchCard({
   )
 
   useEffect(() => {
+    // Keep selections in sync when navigation changes the route's initial values.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFrom(initialFrom)
     setTo(initialTo)
   }, [initialFrom, initialTo])

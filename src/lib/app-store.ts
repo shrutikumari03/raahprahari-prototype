@@ -206,7 +206,7 @@ function RootAppStoreProvider({ children, seed }: { children?: ReactNode; seed?:
   // Load everything from this device after mount; stay in sync with other tabs
   // and with direct writes announced through the storage event.
   useEffect(() => {
-    // Keep the previous reference when nothing changed, so loading an empty
+   // Keep the previous reference when nothing changed, so loading an empty
     // store does not re-render the whole app.
     const same = <T,>(next: T) => (prev: T) =>
       JSON.stringify(prev) === JSON.stringify(next) ? prev : next

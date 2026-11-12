@@ -346,7 +346,7 @@
 
 .traveller-map-toggle {
   position: absolute;
-  z-index: 600;
+  z-index: var(--z-map-controls);
   top: 0.65rem;
   left: 0.65rem;
   display: flex;

@@ -19,7 +19,7 @@
 
 /* Page tools (search + map/list view). Not navigation. */
 .rp-map-toolbar {
-  z-index: 3;
+  z-index: var(--z-content);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -162,7 +162,7 @@
 
 /* The selected-segment panel and legend sit above the map. */
 .rp-map-detail {
-  z-index: 600;
+  z-index: var(--z-map-panel);
 }
 
 /* /map has its toggle in the toolbar, so labels go to the top edge; the legend
@@ -178,7 +178,7 @@
 
 .rp-map-legend {
   position: absolute;
-  z-index: 600;
+  z-index: var(--z-map-legend);
   bottom: 28px;
   left: 12px;
   width: 210px;
@@ -549,7 +549,7 @@
 
 .rp-map-fallback-notice {
   position: absolute;
-  z-index: 4;
+  z-index: var(--z-map-controls);
   top: 12px;
   right: 12px;
   left: 12px;
@@ -755,7 +755,7 @@
 
   .rp-map-list-detail {
     position: fixed;
-    z-index: 20;
+    z-index: var(--z-map-panel);
     right: 0;
     /* Sit above the shared bottom navigation. */
     bottom: calc(5rem + env(safe-area-inset-bottom));

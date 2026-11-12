@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 
 export const LOGO_ALT = 'RaahPrahari'
 
-/** Real pixel sizes of the two transparent theme files in public/img. */
+/** Theme logo files in public/img and their real pixel sizes (update both together when a file is replaced). */
 const LIGHT = { src: '/img/logo-on-light.jpeg', width: 1448, height: 1086 }
 const DARK = { src: '/img/logo-on-dark.jpeg', width: 1269, height: 1240 }
 
@@ -41,12 +41,14 @@ function ThemedImages({ imgClassName }: { imgClassName: string }) {
 type LogoProps = {
   variant?: 'header' | 'mark' | 'full'
   className?: string
+  /** Height utility for the header variant. 40px in the header, 36px in the menu. */
+  heightClassName?: string
   /** Hide from assistive tech when next to a visible label. */
   decorative?: boolean
 }
 
 /** The one shared RaahPrahari logo. Uses the two theme files as-is: no filter, tile or box. */
-export function Logo({ variant = 'header', className, decorative }: LogoProps) {
+export function Logo({ variant = 'header', className, heightClassName = 'h-10', decorative }: LogoProps) {
   if (variant === 'header') {
     return (
       <Link
@@ -54,7 +56,7 @@ export function Logo({ variant = 'header', className, decorative }: LogoProps) {
         aria-label="RaahPrahari home"
         className={cn('inline-flex min-h-11 shrink-0 items-center rounded-md', className)}
       >
-        <ThemedImages imgClassName="h-9 w-auto max-w-none" />
+        <ThemedImages imgClassName={cn(heightClassName, 'w-auto max-w-none')} />
       </Link>
     )
   }

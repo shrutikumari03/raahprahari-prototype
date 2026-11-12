@@ -97,34 +97,74 @@ describe('light theme visual rules', () => {
   })
 })
 
-describe('header layout does not overlap at 1024, 1280 and 1440', () => {
+describe('header layout does not overlap at 1280, 1440 and 1920', () => {
   const chrome = read('components/site-chrome.tsx')
   const header = chrome.slice(chrome.indexOf('<header'), chrome.indexOf('</header>'))
 
-  it('uses a flex row with gap and no absolute positioning', () => {
-    expect(header).toMatch(/rp-container flex [^"]*gap-3/)
+  it('uses a flex row with gap and min-w-0, with no absolute positioning', () => {
+    expect(header).toMatch(/rp-container flex [^"]*min-w-0[^"]*gap-3/)
     expect(header).not.toMatch(/\babsolute\b|\bfixed\b/)
   })
 
-  it('desktop nav and controls only show from 1440px, so 1024 and 1280 use the menu', () => {
-    expect(header).not.toMatch(/\b(sm|md|lg|xl):flex/)
-    expect(header).toMatch(/hidden min-w-0 items-center 1440:flex/)
-    expect(header).toMatch(/ml-auto hidden shrink-0 items-center gap-1\.5 1440:flex/)
-    expect(header).toMatch(/1440:hidden/)
+  it('switches at xl (1280px), not at a custom or 2xl breakpoint', () => {
+    expect(header).toMatch(/hidden min-w-0 items-center xl:flex/)
+    expect(header).toMatch(/ml-auto hidden [^"]*xl:flex/)
+    expect(header).toMatch(/xl:hidden/)
+    expect(chrome).not.toMatch(/\b1440:/)
+    expect(styles).not.toMatch(/--breakpoint-1440/)
     expect(styles).toMatch(/\.rp-header \.rp-container\s*\{\s*max-width:\s*90rem/)
   })
 
-  it('language switch cannot shrink or wrap into neighbours', () => {
-    expect(chrome).toMatch(/inline-flex h-11 shrink-0 whitespace-nowrap/)
+  it('links never wrap, with small padding at xl and larger at 2xl', () => {
+    expect(header).toMatch(/px-2 text-sm font-medium whitespace-nowrap[^']*2xl:px-3/)
   })
 
-  it('1440px width fits the desktop row', () => {
-    // 1440 viewport - 2 * 3rem padding = 1344px of inner width.
-    const inner = 1440 - 96
-    const logoW = 190
-    const nav = 6 * (16 + 14 + 70) // padding + average label width
-    const right = 150 + 44 + 110 + 120
-    const gaps = 4 * 16 + 3 * 6
+  it('language switch cannot shrink or wrap into neighbours, and its focus ring is inset', () => {
+    expect(chrome).toMatch(/rp-lang inline-flex h-11 shrink-0 items-center gap-0\.5[^"]*whitespace-nowrap/)
+    expect(styles).toMatch(/\.rp-lang \.rp-lang-btn:focus-visible[\s\S]*?outline-offset:\s*-3px/)
+  })
+
+  it('1280px width fits the desktop row with the short Login label', () => {
+    // 1280 viewport - 2 * 3rem padding = 1184px of inner width.
+    const inner = 1280 - 96
+    const logoW = 54
+    const nav = 6 * (16 + 70) // padding + average label width
+    const right = 130 + 44 + 94 + 150
+    const gaps = 3 * 16 + 3 * 6
     expect(logoW + nav + right + gaps).toBeLessThan(inner)
+  })
+})
+
+describe('z-index scale', () => {
+  const num = (name: string) => {
+    const v = light[name]
+    if (!/^\d+$/.test(v ?? '')) throw new Error(`${name} is not a number: ${v}`)
+    return Number(v)
+  }
+
+  it('orders content < header < map < bottom nav < overlay < sheet < toast', () => {
+    const order = ['--z-content', '--z-header', '--z-map', '--z-bottom-nav', '--z-overlay', '--z-sheet', '--z-toast']
+    const values = order.map(num)
+    expect(values).toEqual([...values].sort((a, b) => a - b))
+    expect(new Set(values).size).toBe(values.length)
+  })
+
+  it('sheet and dialog overlay and content sit above the map layers and bottom nav', () => {
+    const maps = ['--z-map', '--z-map-controls', '--z-map-legend', '--z-map-panel'].map(num)
+    expect(Math.min(num('--z-overlay'), num('--z-sheet'))).toBeGreaterThan(Math.max(...maps, num('--z-bottom-nav')))
+  })
+
+  it('sheet and dialog use the tokens, and map containers are isolated', () => {
+    expect(read('components/ui/sheet.tsx')).toContain('z-(--z-overlay)')
+    expect(read('components/ui/sheet.tsx')).toContain('z-(--z-sheet)')
+    expect(read('components/ui/dialog.tsx')).toContain('z-(--z-overlay)')
+    expect(read('components/ui/dialog.tsx')).toContain('z-(--z-sheet)')
+    expect(styles).toMatch(/\.rp-lmap,[\s\S]*?\{\s*isolation:\s*isolate/)
+  })
+
+  it('no map stylesheet or chrome file uses a raw z-index number', () => {
+    for (const file of ['routes/map.css', 'features/map/leaflet-segment-map.css', 'routes/traveller.css', 'components/site-chrome.tsx']) {
+      expect(read(file), file).not.toMatch(/z-index:\s*\d{2,}|\bz-\d+\b|z-\[\d+\]/)
+    }
   })
 })

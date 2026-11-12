@@ -530,7 +530,7 @@ function TerrainPanel({
       className="min-w-0 lg:sticky lg:top-20 lg:self-start"
       aria-label="Route map and community reports"
     >
-      <div className="relative min-h-[360px] overflow-hidden rounded-xl border border-border bg-muted sm:min-h-[440px] lg:min-h-[510px]">
+      <div className="relative isolate min-h-[360px] overflow-hidden rounded-xl border border-border bg-muted sm:min-h-[440px] lg:min-h-[510px]">
         {view === 'map' ? (
           <LeafletSegmentMap
             segments={corridorSegments}
@@ -549,7 +549,7 @@ function TerrainPanel({
             className="rp-lmap-fill"
           />
         ) : (
-          <div className="relative z-10 h-full min-h-[360px] overflow-y-auto bg-background/95 p-4 pt-14 sm:min-h-[440px] lg:min-h-[510px]">
+          <div className="relative z-(--z-map) h-full min-h-[360px] overflow-y-auto bg-background/95 p-4 pt-14 sm:min-h-[440px] lg:min-h-[510px]">
             {mapUnavailable && (
               <p role="status" className="mb-3 rounded-lg border border-status-caution/60 bg-status-caution/10 p-2 text-xs">
                 The map tiles could not be loaded. Showing the community reports list instead.
@@ -588,7 +588,7 @@ function TerrainPanel({
           </div>
         )}
 
-        <div ref={toggleRef} className="rp-segmented absolute top-3 left-3 z-[600] inline-flex rounded-lg border border-border bg-card/90 p-1">
+        <div ref={toggleRef} className="rp-segmented absolute top-3 left-3 z-(--z-map-controls) inline-flex rounded-lg border border-border bg-card/90 p-1">
           <button
             type="button"
             aria-pressed={view === 'map'}

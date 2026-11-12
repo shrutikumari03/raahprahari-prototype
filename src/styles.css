@@ -24,10 +24,22 @@ code {
   --space-unit: 0.25rem;
   --content-width: 75rem;
   --reading-width: 42rem;
+  /* The one z-index scale. Every layer reads a token from here; nothing else
+     picks a number. Leaflet's own panes (400-800) are contained by
+     `isolation: isolate` on the map containers, so they never compete. */
   --z-base: 0;
-  --z-header: 40;
-  --z-dialog: 50;
-  --z-toast: 60;
+  --z-content: 10;
+  --z-header: 20;
+  --z-map: 30;
+  --z-map-controls: 31;
+  --z-map-legend: 32;
+  --z-map-panel: 33;
+  --z-bottom-nav: 40;
+  --z-overlay: 100;
+  --z-sheet: 110;
+  --z-popover: 115;
+  --z-toast: 120;
+  --z-dialog: var(--z-sheet);
   --elevation-raised: 0 1px 2px rgb(17 23 25 / 8%);
 
   /* Motion tokens. Shared components read these; pages never copy them.
@@ -226,7 +238,6 @@ code {
   --breakpoint-360: 22.5rem;
   --breakpoint-390: 24.375rem;
   --breakpoint-768: 48rem;
-  --breakpoint-1440: 90rem;
   --shadow-rp-raised: var(--elevation-raised);
   --color-raised: var(--raised);
   --color-scrim: var(--scrim);
@@ -363,7 +374,7 @@ code {
   }
 }
 
-/* Subtle technical grid used behind cards â€” static, no animation */
+/* Subtle technical grid used behind cards: static, no animation */
 .rp-grid-bg {
   background-image:
     linear-gradient(to right, color-mix(in oklab, var(--border) 35%, transparent) 1px, transparent 1px),
@@ -1288,4 +1299,28 @@ textarea::placeholder {
 
 .rp-header .rp-container {
   max-width: 90rem;
+}
+
+/* Language switch: the focus ring follows the pill and sits inside it, so it
+   never spills over the neighbouring links or becomes a circle over the label. */
+.rp-lang .rp-lang-btn:focus-visible,
+:root:not(.dark) .rp-lang .rp-lang-btn:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: -3px;
+  box-shadow: none;
+}
+
+/* Toasts sit on the scale, not at sonner's built-in huge value. */
+[data-sonner-toaster] {
+  z-index: var(--z-toast) !important;
+}
+
+/* Map containers form their own stacking context: Leaflet panes, controls,
+   legend and the detail panel can never rise above the header, bottom nav,
+   sheet or dialog. */
+.rp-lmap,
+.rp-map-page,
+.rp-map-main,
+:has(> .traveller-map-toggle) {
+  isolation: isolate;
 }

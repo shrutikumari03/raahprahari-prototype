@@ -1,6 +1,5 @@
-﻿import { Link, useRouterState } from '@tanstack/react-router'
-
-import {useRef, useState } from 'react'
+import { Link, useRouterState } from '@tanstack/react-router'
+import { useRef, useState } from 'react'
 import { House, ListChecks, Map, Menu, Monitor, Moon, Search, Sun, TriangleAlert, UserRound } from 'lucide-react'
 import { crossFadeTheme, useScrolled } from '@/components/motion'
 import { Button } from '@/components/ui/button'
@@ -22,7 +21,11 @@ import { cn } from '@/lib/utils'
 function LangSwitch() {
   const { lang, setLang, t } = usePrefs()
   return (
-    <div role="group" aria-label={t('lang.label')} className="inline-flex h-11 shrink-0 whitespace-nowrap rounded-full border border-border p-0.5 text-sm">
+    <div
+      role="group"
+      aria-label={t('lang.label')}
+      className="rp-lang inline-flex h-11 shrink-0 items-center gap-0.5 rounded-full border border-border p-0.5 text-sm whitespace-nowrap"
+    >
       {(['en', 'hi'] as const).map((l) => (
         <button
           key={l}
@@ -31,7 +34,7 @@ function LangSwitch() {
           onClick={() => setLang(l)}
           lang={l}
           className={cn(
-            'rp-press min-h-11 min-w-11 rounded-full px-2.5 font-medium',
+            'rp-press rp-lang-btn inline-flex h-10 min-w-11 items-center justify-center rounded-full px-3 font-medium whitespace-nowrap',
             lang === l ? 'bg-raised text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
           )}
         >
@@ -106,8 +109,8 @@ function LoginDialog({
 
 /**
  * The single site navigation. Same items, same order on every route.
- * Desktop (1440px and up): logo, primary links, then language, theme, login, report.
- * Below 1440px: logo + menu button on top, plus the fixed bottom navigation.
+ * xl (1280px) and up: one row with logo, primary links, then language, theme, login, report.
+ * Below xl: logo + menu button on top, plus the fixed bottom navigation.
  */
 export const PRIMARY_NAV = [
   { to: '/', label: 'nav.home' },
@@ -128,7 +131,7 @@ export const BOTTOM_NAV = [
 
 type NavTarget = (typeof PRIMARY_NAV)[number]['to'] | (typeof BOTTOM_NAV)[number]['to']
 
-/** Which nav item a pathname belongs to. /check is the route explorer: map view â†’ Live Map, list view â†’ Advisories. */
+/** Which nav item a pathname belongs to. /check is the route explorer: map view is Live Map, list view is Advisories. */
 export function activeNavTarget(pathname: string, view?: string): NavTarget | null {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
   if (path === '/') return '/'
@@ -171,18 +174,21 @@ export function SiteHeader() {
 
   return (
     <>
-      <header data-scrolled={scrolled} className="rp-header sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md">
-        <div className="rp-container flex h-16 min-w-0 items-center gap-3 1440:gap-4">
+      <header
+        data-scrolled={scrolled}
+        className="rp-header sticky top-0 z-(--z-header) border-b border-border/70 bg-background/90 backdrop-blur-md"
+      >
+        <div className="rp-container flex h-16 min-w-0 items-center gap-3 xl:gap-4">
           <Logo />
 
-          <nav aria-label={t('nav.primary')} className="hidden min-w-0 items-center 1440:flex">
+          <nav aria-label={t('nav.primary')} className="hidden min-w-0 items-center xl:flex">
             {PRIMARY_NAV.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
                 aria-current={current(to)}
                 className={cn(
-                  'rp-underline inline-flex min-h-11 items-center px-2.5 text-sm font-medium whitespace-nowrap transition-colors 1440:px-3',
+                  'rp-underline inline-flex min-h-11 items-center px-2 text-sm font-medium whitespace-nowrap transition-colors 2xl:px-3',
                   active === to ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
@@ -191,18 +197,24 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <div className="ml-auto hidden shrink-0 items-center gap-1.5 1440:flex">
+          <div className="ml-auto hidden min-w-0 shrink-0 items-center gap-1.5 xl:flex 2xl:gap-2">
             <LangSwitch />
             <ThemeSwitch />
             <Button
               variant="ghost"
-              className="h-10 rounded-full whitespace-nowrap"
+              className="h-10 min-w-0 rounded-full px-3 whitespace-nowrap 2xl:px-4"
+              aria-label={t('nav.login')}
               onClick={(event) => openLogin(event.currentTarget)}
             >
-              <UserRound />
-              {t('nav.login')}
+              <UserRound aria-hidden="true" />
+              <span aria-hidden="true" className="2xl:hidden">
+                {t('nav.loginShort')}
+              </span>
+              <span aria-hidden="true" className="hidden 2xl:inline">
+                {t('nav.login')}
+              </span>
             </Button>
-            <Button asChild variant="report" className="h-10 rounded-full px-4 font-semibold whitespace-nowrap">
+            <Button asChild variant="report" className="h-10 rounded-full px-3 font-semibold whitespace-nowrap 2xl:px-4">
               <Link to="/report" search={{ segment: undefined }} aria-current={current('/report')}>
                 <TriangleAlert />
                 {t('nav.report')}
@@ -216,20 +228,23 @@ export function SiteHeader() {
                 ref={menuTriggerRef}
                 variant="ghost"
                 size="icon-lg"
-                className="ml-auto shrink-0 rounded-full 1440:hidden"
+                className="ml-auto shrink-0 rounded-full xl:hidden"
                 aria-label={t('nav.menu')}
               >
                 <Menu />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[min(20rem,90vw)] overflow-y-auto">
-              <SheetHeader>
-                <SheetTitle>
-                  <Logo />
+            <SheetContent
+              side="right"
+              className="w-[min(20rem,90vw)] max-h-dvh gap-0 overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]"
+            >
+              <SheetHeader className="gap-0 py-3 pr-16 pl-4">
+                <SheetTitle className="flex min-h-11 items-center">
+                  <Logo heightClassName="h-9" />
                 </SheetTitle>
                 <SheetDescription className="sr-only">{t('nav.primary')}</SheetDescription>
               </SheetHeader>
-              <nav aria-label={t('nav.primary')} className="flex flex-col gap-1 px-4">
+              <nav aria-label={t('nav.primary')} className="flex flex-col gap-1 px-3 pb-3">
                 {PRIMARY_NAV.map(({ to, label }) => (
                   <Link
                     key={to}
@@ -245,9 +260,11 @@ export function SiteHeader() {
                   </Link>
                 ))}
               </nav>
-              <div className="flex flex-wrap items-center gap-2 border-t border-border px-4 pt-4 pb-6">
-                <LangSwitch />
-                <ThemeSwitch />
+              <div className="flex flex-col gap-3 border-t border-border px-4 pt-4 pb-6">
+                <div className="flex items-center justify-between gap-2">
+                  <LangSwitch />
+                  <ThemeSwitch />
+                </div>
                 <Button
                   variant="outline"
                   className="h-11 w-full rounded-full"
@@ -259,7 +276,7 @@ export function SiteHeader() {
                   <UserRound />
                   {t('nav.login')}
                 </Button>
-                                <Button asChild variant="report" className="h-11 w-full rounded-full font-semibold">
+                <Button asChild variant="report" className="h-11 w-full rounded-full font-semibold">
                   <Link
                     to="/report"
                     search={{ segment: undefined }}
@@ -280,7 +297,7 @@ export function SiteHeader() {
 
       <nav
         aria-label="Quick navigation"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md 1440:hidden"
+        className="fixed inset-x-0 bottom-0 z-(--z-bottom-nav) border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md xl:hidden"
       >
         <ul className="mx-auto flex max-w-xl items-end justify-around px-2">
           {BOTTOM_NAV.map(({ to, label, icon: Icon, raised }) => (

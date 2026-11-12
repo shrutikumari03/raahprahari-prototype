@@ -28,7 +28,7 @@
 .rp-lmap-canvas {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: var(--z-map);
   background: var(--tone-0b2531);
   font: inherit;
 }
@@ -107,7 +107,7 @@
 /* Overlay controls */
 .rp-lmap-tools {
   position: absolute;
-  z-index: 500;
+  z-index: var(--z-map-controls);
   top: 10px;
   right: 10px;
   display: grid;
@@ -133,7 +133,7 @@
 
 .rp-lmap-status {
   position: absolute;
-  z-index: 500;
+  z-index: var(--z-map-controls);
   bottom: 28px;
   left: 8px;
   max-width: min(22rem, calc(100% - 80px));
@@ -148,7 +148,7 @@
 /* Below the top-left Map/List toggle that most pages place over the map. */
 .rp-lmap-labels {
   position: absolute;
-  z-index: 500;
+  z-index: var(--z-map-controls);
   top: 3.4rem;
   left: 8px;
   display: flex;

@@ -1169,7 +1169,7 @@ export function ReportStepPage({
                     <ul
                       role="listbox"
                       aria-label="Matching places and roads"
-                      className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-border bg-popover p-1 shadow-lg"
+                      className="absolute z-(--z-content) mt-1 max-h-60 w-full overflow-auto rounded-xl border border-border bg-popover p-1 shadow-lg"
                     >
                       {matchingOptions.map((option) => (
                         <li

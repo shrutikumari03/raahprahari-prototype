@@ -145,7 +145,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                   !isNotFound &&
                   !isReport &&
                   !isAdvisories && (
-                    <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 xl:bottom-2">
+                    <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-(--z-bottom-nav) xl:bottom-2">
                       <PrototypeRibbon />
                     </div>
                   )}

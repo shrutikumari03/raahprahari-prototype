@@ -636,10 +636,10 @@ export function ReportStepPage({
   return (
     <div className="min-h-full overflow-x-clip">
       <section
-        className="relative border-b border-border bg-card bg-cover bg-center"
+        className="photo-surface relative border-b border-border bg-card bg-cover bg-center"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, var(--hero-scrim-a), var(--hero-scrim-b)), url('/img/banner-strip.png')",
+            "linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 60%, var(--photo-scrim-c)), url('/img/banner-strip.png')",
         }}
       >
         <div className="rp-container relative py-6 sm:py-8">
@@ -1637,10 +1637,10 @@ function ReceivedReport({
 
   return (
     <div
-      className="relative flex min-h-[70svh] items-center justify-center overflow-hidden bg-cover bg-center px-4 py-10"
+      className="photo-surface relative flex min-h-[70svh] items-center justify-center overflow-hidden bg-cover bg-center px-4 py-10"
       style={{
         backgroundImage:
-          "linear-gradient(90deg, var(--hero-scrim-a), var(--hero-scrim-b)), url('/img/hero-mountain.png')",
+          "linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 60%, var(--photo-scrim-c)), url('/img/hero-mountain.png')",
       }}
     >
       <section

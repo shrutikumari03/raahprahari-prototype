@@ -27,15 +27,15 @@
 .home-hero-overlay {
   z-index: 0;
   background:
-    linear-gradient(0deg, color-mix(in srgb, var(--tone-020c12) 76%, transparent) 0%, transparent 27%),
+    linear-gradient(0deg, var(--photo-scrim-a) 0%, transparent 27%),
     linear-gradient(
       90deg,
-      color-mix(in srgb, var(--tone-030d13) 86%, transparent) 0%,
-      color-mix(in srgb, var(--tone-030f16) 73%, transparent) 37%,
-      color-mix(in srgb, var(--tone-030f16) 29%, transparent) 70%,
-      color-mix(in srgb, var(--tone-030d13) 57%, transparent) 100%
+      var(--photo-scrim-a) 0%,
+      var(--photo-scrim-b) 37%,
+      var(--photo-scrim-c) 70%,
+      var(--photo-scrim-flat) 100%
     ),
-    linear-gradient(180deg, color-mix(in srgb, var(--tone-020d14) 30%, transparent), transparent 32%);
+    linear-gradient(180deg, var(--photo-scrim-flat), transparent 32%);
   pointer-events: none;
 }
 
@@ -120,7 +120,7 @@
 }
 
 .home-action-check {
-  background: var(--tone-2767ab);
+  background: var(--primary);
   color: var(--primary-foreground);
 }
 
@@ -461,13 +461,8 @@
 
   .home-hero-overlay {
     background:
-      linear-gradient(0deg, color-mix(in srgb, var(--tone-020c12) 82%, transparent) 0%, transparent 28%),
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--tone-030d13) 78%, transparent) 0%,
-        color-mix(in srgb, var(--tone-030f16) 73%, transparent) 40%,
-        color-mix(in srgb, var(--tone-030f16) 84%, transparent) 100%
-      );
+      linear-gradient(0deg, var(--photo-scrim-a) 0%, transparent 28%),
+      linear-gradient(180deg, var(--photo-scrim-b) 0%, var(--photo-scrim-b) 40%, var(--photo-scrim-a) 100%);
   }
 
   .home-content {

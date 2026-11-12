@@ -66,8 +66,20 @@ code {
   --counter-warn: #8a3a00;
 
   --scrim: rgb(17 23 25 / 45%);
-  --hero-scrim-a: rgb(244 242 235 / 94%);
-  --hero-scrim-b: rgb(244 242 235 / 66%);
+  /* Photo overlays (light theme): a warm ivory gradient, strongest on the text
+     side (~70%) and fading to ~12% on the far side. The photo is never blurred,
+     faded or flat-veiled. Text on photos uses charcoal tokens. */
+  --photo-scrim-a: rgb(250 247 238 / 72%);
+  --photo-scrim-b: rgb(250 247 238 / 52%);
+  --photo-scrim-c: rgb(250 247 238 / 12%);
+  --photo-scrim-flat: rgb(250 247 238 / 14%);
+  --photo-text: #111719;
+  --photo-text-muted: #2a3438;
+  --photo-card-bg: rgb(250 247 238 / 90%);
+  --photo-card-fg: #111719;
+  --photo-card-border: rgb(17 23 25 / 28%);
+  --hero-scrim-a: var(--photo-scrim-a);
+  --hero-scrim-b: var(--photo-scrim-b);
   --logo-tile: #dcd9cf;
   --logo-hill: #7d878c;
   --logo-snow: #ffffff;
@@ -103,9 +115,9 @@ code {
   --brand-blue: #347ccb;
   --text-on-charcoal: #111719;
   --text-on-ivory: #111719;
-  --orange-on-dark: #b23a1f;
+  --orange-on-dark: #7a2610;
   --orange-on-light: #b23a1f;
-  --blue-on-dark: #245c98;
+  --blue-on-dark: #1a4574;
   --blue-on-light: #245c98;
   --action-info: var(--blue-on-light);
   --action-caution: #a44200;
@@ -137,10 +149,10 @@ code {
   --sidebar-ring: var(--ring);
 }
 
+/* .photo-surface: a section drawn over a photo. It follows the active theme; only the
+   overlay tokens (--photo-scrim-*, --photo-text*) differ per theme. */
 .dark {
   --scrim: rgb(0 0 0 / 55%);
-  --hero-scrim-a: rgb(7 21 31 / 94%);
-  --hero-scrim-b: rgb(7 21 31 / 65%);
   --logo-tile: #111719;
   --logo-hill: #30363a;
   --logo-snow: #e6e4dc;
@@ -357,7 +369,7 @@ code {
   }
 }
 
-/* Subtle technical grid used behind cards — static, no animation */
+/* Subtle technical grid used behind cards â€” static, no animation */
 .rp-grid-bg {
   background-image:
     linear-gradient(to right, color-mix(in oklab, var(--border) 35%, transparent) 1px, transparent 1px),
@@ -1019,6 +1031,17 @@ html.rp-theme-fade *::after {
 }
 
 .dark {
+  /* Photo overlays (dark theme): deep navy gradient, ivory text. */
+  --photo-scrim-a: rgb(3 15 22 / 92%);
+  --photo-scrim-b: rgb(3 15 22 / 74%);
+  --photo-scrim-c: rgb(3 15 22 / 40%);
+  --photo-scrim-flat: rgb(3 15 22 / 55%);
+  --photo-text: #f6f4ec;
+  --photo-text-muted: #d8e0e4;
+  --photo-card-bg: rgb(5 20 29 / 88%);
+  --photo-card-fg: #f6f4ec;
+  --photo-card-border: rgb(246 244 236 / 28%);
+
   --tone-shadow: #000;
   --tone-mask-opaque: #000;
   --tone-0069a6: #0069a6;
@@ -1206,4 +1229,9 @@ html.rp-theme-fade *::after {
   --tone-ffdfa8: #ffdfa8;
   --tone-fff1e8: #fff1e8;
   --tone-ffffff: #ffffff;
+}
+
+/* Hero text follows the theme: ivory on the dark overlay, charcoal on the light one. */
+.photo-surface {
+  color: var(--photo-text);
 }

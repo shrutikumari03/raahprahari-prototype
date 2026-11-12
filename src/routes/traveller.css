@@ -493,7 +493,7 @@
   overflow: hidden;
   border-bottom: 1px solid var(--tone-1b4559);
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--tone-03131c) 97%, transparent) 0%, color-mix(in srgb, var(--tone-03131c) 86%, transparent) 50%, color-mix(in srgb, var(--tone-03131c) 48%, transparent) 100%),
+    linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 50%, var(--photo-scrim-c)),
     url('/img/banner-strip.png') center 53% / cover;
   padding: 1.1rem max(1.5rem, calc((100% - 88rem) / 2)) 0.9rem;
 }

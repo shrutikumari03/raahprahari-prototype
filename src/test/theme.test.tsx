@@ -11,11 +11,13 @@ const styles = readFileSync(join(SRC, 'styles.css'), 'utf8')
 
 function block(selector: string): Record<string, string> {
   const out: Record<string, string> = {}
-  let start = styles.indexOf(`\n${selector} {`)
-  while (start !== -1) {
+  // `.dark` blocks are shared with `.photo-surface` (`.dark,\n.photo-surface {`).
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const head = new RegExp(`\\n${escaped}(?:,\\r?\\n\\.photo-surface)? \\{`, 'g')
+  for (const found of styles.matchAll(head)) {
+    const start = found.index
     const body = styles.slice(start, styles.indexOf('\n}', start))
     for (const m of body.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)) out[m[1]] = m[2].trim()
-    start = styles.indexOf(`\n${selector} {`, start + 1)
   }
   return out
 }
@@ -108,7 +110,7 @@ describe('theme toggle', () => {
 
 describe('theme tokens', () => {
   it('defines different surfaces for light and dark', () => {
-    for (const key of ['--background', '--foreground', '--card', '--popover', '--border', '--scrim', '--hero-scrim-a']) {
+    for (const key of ['--background', '--foreground', '--card', '--popover', '--border', '--scrim']) {
       expect(light[key], `${key} in light`).toBeTruthy()
       expect(dark[key], `${key} in dark`).toBeTruthy()
       expect(light[key]).not.toBe(dark[key])

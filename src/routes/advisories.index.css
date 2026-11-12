@@ -15,12 +15,7 @@
 .advisories-list-banner {
   border-bottom: 1px solid color-mix(in srgb, var(--tone-91aebd) 20%, transparent);
   background:
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--tone-020f16) 96%, transparent),
-      color-mix(in srgb, var(--tone-02111a) 88%, transparent) 58%,
-      color-mix(in srgb, var(--tone-02111a) 72%, transparent)
-    ),
+    linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 58%, var(--photo-scrim-c)),
     url("/img/banner-strip.png") center 53% / cover;
 }
 

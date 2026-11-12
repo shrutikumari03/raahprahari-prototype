@@ -113,10 +113,10 @@ export function Banner({
   const { place } = usePrefs()
   return (
     <header
-      className="relative isolate overflow-hidden border-b border-border bg-card text-foreground"
+      className="photo-surface relative isolate overflow-hidden border-b border-border bg-card text-foreground"
       style={{
         backgroundImage:
-          "linear-gradient(90deg, var(--hero-scrim-a), var(--hero-scrim-b)), url('/img/banner-strip.png')",
+          "linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 60%, var(--photo-scrim-c)), url('/img/banner-strip.png')",
         backgroundPosition: 'center',
         backgroundSize: 'cover',
       }}

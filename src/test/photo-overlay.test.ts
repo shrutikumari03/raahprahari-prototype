@@ -50,7 +50,7 @@ describe('photo hero overlays follow the theme', () => {
     expect(dark['--photo-scrim-a']).toMatch(/^rgb\(3 15 22/)
     expect(dark['--photo-text']).toBe('#f6f4ec')
     expect(light['--photo-scrim-a']).toMatch(/^rgb\(250 247 238/)
-    expect(light['--photo-text']).toBe('#111719')
+    expect(light['--photo-text']).toBe('#1b2326')
     // .photo-surface is no longer pinned to the dark palette.
     expect(declared('.photo-surface')['--background']).toBeUndefined()
   })

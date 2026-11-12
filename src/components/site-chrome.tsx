@@ -22,10 +22,10 @@ export function Logo({ className }: { className?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-2.5', className)}>
       <svg viewBox="0 0 32 32" aria-hidden className="size-8 shrink-0">
-        <rect width="32" height="32" rx="8" fill="#111719" />
-        <path d="M4 23 L12 11 L16 16 L20 9 L28 23 Z" fill="#30363A" />
-        <path d="M20 9 L23 13.5 L21 13 L19.5 14.5 L18 12 Z" fill="#E6E4DC" />
-        <path d="M10 28 C13 23 19 22 16 17 C14.5 14.5 18 12.5 20 12" fill="none" stroke="#EB5B38" strokeWidth="2.4" strokeLinecap="round" />
+        <rect width="32" height="32" rx="8" fill="var(--logo-tile)" />
+        <path d="M4 23 L12 11 L16 16 L20 9 L28 23 Z" fill="var(--logo-hill)" />
+        <path d="M20 9 L23 13.5 L21 13 L19.5 14.5 L18 12 Z" fill="var(--logo-snow)" />
+        <path d="M10 28 C13 23 19 22 16 17 C14.5 14.5 18 12.5 20 12" fill="none" stroke="var(--logo-route)" strokeWidth="2.4" strokeLinecap="round" />
       </svg>
       <span className="font-display text-lg font-bold tracking-tight">
         Raah<span className="text-brand-orange">Prahari</span>

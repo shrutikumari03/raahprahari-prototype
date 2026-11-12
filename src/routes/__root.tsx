@@ -66,7 +66,8 @@ export const Route = createRootRoute({
           name: "twitter:card",
           content: "summary_large_image",
         },
-        { name: "theme-color", content: "#07151f" },
+        { name: "theme-color", content: "#07151f", media: "(prefers-color-scheme: dark)" },
+        { name: "theme-color", content: "#e6e4dc", media: "(prefers-color-scheme: light)" },
       ],
       links: [
         // Web app manifest only. There is no service worker, so nothing is cached for offline use.

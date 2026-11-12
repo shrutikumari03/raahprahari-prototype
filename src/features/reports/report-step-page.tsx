@@ -639,7 +639,7 @@ export function ReportStepPage({
         className="relative border-b border-border bg-card bg-cover bg-center"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, rgb(7 21 31 / 94%), rgb(7 21 31 / 65%)), url('/img/banner-strip.png')",
+            "linear-gradient(90deg, var(--hero-scrim-a), var(--hero-scrim-b)), url('/img/banner-strip.png')",
         }}
       >
         <div className="rp-container relative py-6 sm:py-8">
@@ -670,7 +670,7 @@ export function ReportStepPage({
                     <span
                       className={`flex size-8 items-center justify-center rounded-full border text-xs font-semibold ${
                         active
-                          ? "border-brand-orange bg-brand-orange text-[#111719]"
+                          ? "border-brand-orange bg-brand-orange text-report-foreground"
                           : complete
                             ? "border-brand-orange text-brand-orange"
                             : "border-border text-muted-foreground"
@@ -1215,7 +1215,7 @@ export function ReportStepPage({
                       />
                       <div
                         aria-hidden
-                        className="absolute inset-0 bg-slate-950/25"
+                        className="absolute inset-0 bg-scrim/50"
                       />
                       <button
                         type="button"
@@ -1640,7 +1640,7 @@ function ReceivedReport({
       className="relative flex min-h-[70svh] items-center justify-center overflow-hidden bg-cover bg-center px-4 py-10"
       style={{
         backgroundImage:
-          "linear-gradient(90deg, rgb(7 21 31 / 90%), rgb(7 21 31 / 60%)), url('/img/hero-mountain.png')",
+          "linear-gradient(90deg, var(--hero-scrim-a), var(--hero-scrim-b)), url('/img/hero-mountain.png')",
       }}
     >
       <section

@@ -11,6 +11,7 @@ import { SkipLink } from "@/components/ui/feedback";
 import { NotFoundPage } from "@/components/error-pages";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { BackToTop, PageTransition, RevealObserver } from "@/components/motion";
+import { BootGate, RouteProgress, bootGuardScript } from "@/components/boot-screen";
 import { PrototypeRibbon } from "@/components/prototype-ribbon";
 import { AccountScopeBoundary } from "@/components/account-scope-boundary";
 import { SyncProvider } from "@/components/sync-provider";
@@ -123,17 +124,23 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <BootGate />
+        <script dangerouslySetInnerHTML={{ __html: bootGuardScript }} />
+        <noscript>
+          <style>{"#rp-boot{display:none!important}"}</style>
+        </noscript>
         <PreferencesProvider>
           <TooltipProvider>
             <AccountScopeBoundary>
               <SyncProvider>
                 <SkipLink>Skip to content</SkipLink>
                 <PageTransition />
+                <RouteProgress />
                 <RevealObserver />
                 <BackToTop />
                 <div className="flex min-h-svh flex-col overflow-x-clip pb-[calc(5rem+env(safe-area-inset-bottom))] xl:pb-0">
                   <SiteHeader />
-                  <main id="main" className="min-w-0 flex-1">
+                  <main id="main" aria-busy="true" className="min-w-0 flex-1">
                     {children}
                   </main>
                   {!isHome && !isTraveller && !isMap && !isHelp && <SiteFooter />}

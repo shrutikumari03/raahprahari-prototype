@@ -1324,3 +1324,88 @@ textarea::placeholder {
 :has(> .traveller-map-toggle) {
   isolation: isolate;
 }
+
+/* Start screen: in the server HTML, revealed only if loading takes over 300ms. */
+.rp-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--background);
+  color: var(--foreground);
+  opacity: 0;
+  visibility: hidden;
+  animation: rp-boot-reveal 0s linear 300ms forwards;
+}
+.rp-boot[data-state='error'] {
+  opacity: 1;
+  visibility: visible;
+  animation: none;
+}
+.rp-boot-body {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  width: min(16rem, 100%);
+  text-align: center;
+}
+.rp-boot-error {
+  width: min(24rem, 100%);
+}
+.rp-boot-logo {
+  animation: rp-boot-pulse 1.8s ease-in-out infinite;
+}
+.rp-boot-title {
+  font-weight: 600;
+}
+.rp-boot-reload {
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+}
+@keyframes rp-boot-reveal {
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+@keyframes rp-boot-pulse {
+  50% {
+    opacity: 0.6;
+    transform: scale(0.97);
+  }
+}
+.rp-route-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9998;
+  height: 3px;
+  background: var(--brand-orange);
+  transform-origin: left;
+  animation: rp-route-progress 1.2s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes rp-route-progress {
+  from {
+    transform: scaleX(0.05);
+  }
+  to {
+    transform: scaleX(0.9);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rp-boot-logo {
+    animation: none;
+  }
+  .rp-route-progress {
+    animation: none;
+    transform: none;
+  }
+}

@@ -4,8 +4,8 @@ import { cn } from '@/lib/utils'
 export const LOGO_ALT = 'RaahPrahari'
 
 /** Theme logo files in public/img and their real pixel sizes (update both together when a file is replaced). */
-const LIGHT = { src: '/img/logo-on-light.jpeg', width: 1448, height: 1086 }
-const DARK = { src: '/img/logo-on-dark.jpeg', width: 1269, height: 1240 }
+const LIGHT = { src: '/img/logo-on-light.png', width: 577, height: 433 }
+const DARK = { src: '/img/logo-on-dark.png', width: 505, height: 494 }
 
 /**
  * Both theme files are always in the DOM; CSS (`.dark` on <html>) shows exactly one,
@@ -41,14 +41,14 @@ function ThemedImages({ imgClassName }: { imgClassName: string }) {
 type LogoProps = {
   variant?: 'header' | 'mark' | 'full'
   className?: string
-  /** Height utility for the header variant. 40px in the header, 36px in the menu. */
+  /** Height utility for the header variant. 36px in the header and the menu. */
   heightClassName?: string
   /** Hide from assistive tech when next to a visible label. */
   decorative?: boolean
 }
 
 /** The one shared RaahPrahari logo. Uses the two theme files as-is: no filter, tile or box. */
-export function Logo({ variant = 'header', className, heightClassName = 'h-10', decorative }: LogoProps) {
+export function Logo({ variant = 'header', className, heightClassName = 'h-9', decorative }: LogoProps) {
   if (variant === 'header') {
     return (
       <Link

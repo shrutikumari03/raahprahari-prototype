@@ -69,6 +69,27 @@ describe("header breakpoints", () => {
     expect(classes(bottom)).not.toContain("hidden");
   });
 
+  it("keeps DOM order: logo, links, then language, theme, login, report", () => {
+    mount();
+    const header = screen.getByRole("banner");
+    const row = header.firstElementChild!;
+    const logo = within(header).getAllByRole("link", { name: "RaahPrahari home" })[0];
+    const nav = within(header).getByRole("navigation", { name: "Primary" });
+    const lang = within(header).getByRole("group", { name: "Language" });
+    const right = lang.parentElement!;
+    expect(classes(row)).toEqual(expect.arrayContaining(["flex", "items-center", "gap-3", "min-w-0"]));
+    expect(classes(right)).toContain("ml-auto");
+    expect(Array.from(right.children).slice(0, 4).map((el) => el.textContent || el.getAttribute("aria-label"))).toEqual([
+      "ENहिन्दी",
+      expect.stringMatching(/theme|system|light|dark/i),
+      "Community Login",
+      "Report Hazard",
+    ]);
+    const follows = (a: Node, b: Node) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(follows(logo, nav)).toBe(true);
+    expect(follows(nav, right)).toBe(true);
+  });
+
   it("does not use any other breakpoint for the switch", () => {
     mount();
     const header = screen.getByRole("banner");

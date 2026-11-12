@@ -24,7 +24,7 @@ function LangSwitch() {
     <div
       role="group"
       aria-label={t('lang.label')}
-      className="rp-lang inline-flex h-11 shrink-0 items-center gap-0.5 rounded-full border border-border p-0.5 text-sm whitespace-nowrap"
+      className="rp-lang inline-flex h-10 shrink-0 items-center gap-0.5 rounded-full border border-border p-0.5 text-sm whitespace-nowrap"
     >
       {(['en', 'hi'] as const).map((l) => (
         <button
@@ -34,7 +34,7 @@ function LangSwitch() {
           onClick={() => setLang(l)}
           lang={l}
           className={cn(
-            'rp-press rp-lang-btn inline-flex h-10 min-w-11 items-center justify-center rounded-full px-3 font-medium whitespace-nowrap',
+            'rp-press rp-lang-btn inline-flex h-8 min-h-8 min-w-10 items-center justify-center rounded-full px-2.5 text-sm font-medium whitespace-nowrap',
             lang === l ? 'bg-raised text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
           )}
         >
@@ -58,7 +58,7 @@ function ThemeSwitch() {
     <Button
       variant="ghost"
       size="icon-lg"
-      className="rounded-full"
+      className="size-10 min-h-10 rounded-full"
       onClick={() => {
         crossFadeTheme()
         setTheme(next)
@@ -178,17 +178,17 @@ export function SiteHeader() {
         data-scrolled={scrolled}
         className="rp-header sticky top-0 z-(--z-header) border-b border-border/70 bg-background/90 backdrop-blur-md"
       >
-        <div className="rp-container flex h-16 min-w-0 items-center gap-3 xl:gap-4">
+        <div className="rp-container flex h-16 min-w-0 items-center gap-3">
           <Logo />
 
-          <nav aria-label={t('nav.primary')} className="hidden min-w-0 items-center xl:flex">
+          <nav aria-label={t('nav.primary')} className="hidden min-w-0 items-center gap-0.5 xl:flex">
             {PRIMARY_NAV.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
                 aria-current={current(to)}
                 className={cn(
-                  'rp-underline inline-flex min-h-11 items-center px-2 text-sm font-medium whitespace-nowrap transition-colors 2xl:px-3',
+                  'rp-underline inline-flex min-h-10 items-center px-2.5 text-sm font-medium whitespace-nowrap transition-colors',
                   active === to ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
@@ -197,24 +197,18 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <div className="ml-auto hidden min-w-0 shrink-0 items-center gap-1.5 xl:flex 2xl:gap-2">
+          <div className="ml-auto hidden min-w-0 shrink-0 items-center gap-3 xl:flex">
             <LangSwitch />
             <ThemeSwitch />
             <Button
               variant="ghost"
-              className="h-10 min-w-0 rounded-full px-3 whitespace-nowrap 2xl:px-4"
-              aria-label={t('nav.login')}
+              className="h-10 min-h-10 min-w-0 rounded-full px-3 text-sm whitespace-nowrap"
               onClick={(event) => openLogin(event.currentTarget)}
             >
               <UserRound aria-hidden="true" />
-              <span aria-hidden="true" className="2xl:hidden">
-                {t('nav.loginShort')}
-              </span>
-              <span aria-hidden="true" className="hidden 2xl:inline">
-                {t('nav.login')}
-              </span>
+              {t('nav.login')}
             </Button>
-            <Button asChild variant="report" className="h-10 rounded-full px-3 font-semibold whitespace-nowrap 2xl:px-4">
+            <Button asChild variant="report" className="h-10 min-h-10 rounded-full px-4 text-sm font-semibold whitespace-nowrap">
               <Link to="/report" search={{ segment: undefined }} aria-current={current('/report')}>
                 <TriangleAlert />
                 {t('nav.report')}
@@ -240,7 +234,7 @@ export function SiteHeader() {
             >
               <SheetHeader className="gap-0 py-3 pr-16 pl-4">
                 <SheetTitle className="flex min-h-11 items-center">
-                  <Logo heightClassName="h-9" />
+                  <Logo />
                 </SheetTitle>
                 <SheetDescription className="sr-only">{t('nav.primary')}</SheetDescription>
               </SheetHeader>

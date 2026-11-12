@@ -107,7 +107,7 @@ describe('header layout does not overlap at 1280, 1440 and 1920', () => {
   })
 
   it('switches at xl (1280px), not at a custom or 2xl breakpoint', () => {
-    expect(header).toMatch(/hidden min-w-0 items-center xl:flex/)
+    expect(header).toMatch(/hidden min-w-0 items-center gap-0\.5 xl:flex/)
     expect(header).toMatch(/ml-auto hidden [^"]*xl:flex/)
     expect(header).toMatch(/xl:hidden/)
     expect(chrome).not.toMatch(/\b1440:/)
@@ -115,22 +115,22 @@ describe('header layout does not overlap at 1280, 1440 and 1920', () => {
     expect(styles).toMatch(/\.rp-header \.rp-container\s*\{\s*max-width:\s*90rem/)
   })
 
-  it('links never wrap, with small padding at xl and larger at 2xl', () => {
-    expect(header).toMatch(/px-2 text-sm font-medium whitespace-nowrap[^']*2xl:px-3/)
+  it('links never wrap and keep small padding', () => {
+    expect(header).toMatch(/px-2\.5 text-sm font-medium whitespace-nowrap/)
   })
 
   it('language switch cannot shrink or wrap into neighbours, and its focus ring is inset', () => {
-    expect(chrome).toMatch(/rp-lang inline-flex h-11 shrink-0 items-center gap-0\.5[^"]*whitespace-nowrap/)
+    expect(chrome).toMatch(/rp-lang inline-flex h-10 shrink-0 items-center gap-0\.5[^"]*whitespace-nowrap/)
     expect(styles).toMatch(/\.rp-lang \.rp-lang-btn:focus-visible[\s\S]*?outline-offset:\s*-3px/)
   })
 
-  it('1280px width fits the desktop row with the short Login label', () => {
+  it('1280px width fits the desktop row with the full Community Login label', () => {
     // 1280 viewport - 2 * 3rem padding = 1184px of inner width.
     const inner = 1280 - 96
-    const logoW = 54
-    const nav = 6 * (16 + 70) // padding + average label width
-    const right = 130 + 44 + 94 + 150
-    const gaps = 3 * 16 + 3 * 6
+    const logoW = 48
+    const nav = 6 * (20 + 70) // padding + average label width
+    const right = 110 + 40 + 165 + 150
+    const gaps = 2 * 12 + 3 * 12
     expect(logoW + nav + right + gaps).toBeLessThan(inner)
   })
 })

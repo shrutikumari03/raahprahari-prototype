@@ -16,23 +16,8 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { usePrefs } from '@/i18n/preferences'
 import { OfflineBanner } from '@/components/offline-banner'
+import { Logo } from '@/components/logo'
 import { cn } from '@/lib/utils'
-
-export function Logo({ className }: { className?: string }) {
-  return (
-    <span className={cn('inline-flex items-center gap-2.5', className)}>
-      <svg viewBox="0 0 32 32" aria-hidden className="size-8 shrink-0">
-        <rect width="32" height="32" rx="8" fill="var(--logo-tile)" />
-        <path d="M4 23 L12 11 L16 16 L20 9 L28 23 Z" fill="var(--logo-hill)" />
-        <path d="M20 9 L23 13.5 L21 13 L19.5 14.5 L18 12 Z" fill="var(--logo-snow)" />
-        <path d="M10 28 C13 23 19 22 16 17 C14.5 14.5 18 12.5 20 12" fill="none" stroke="var(--logo-route)" strokeWidth="2.4" strokeLinecap="round" />
-      </svg>
-      <span className="font-display text-lg font-bold tracking-tight">
-        Raah<span className="text-brand-orange">Prahari</span>
-      </span>
-    </span>
-  )
-}
 
 function LangSwitch() {
   const { lang, setLang, t } = usePrefs()
@@ -50,7 +35,7 @@ function LangSwitch() {
             lang === l ? 'bg-raised text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
           )}
         >
-          {l === 'en' ? 'EN' : 'हिन्दी'}
+          {l === 'en' ? 'EN' : 'à¤¹à¤¿à¤¨à¥à¤¦à¥€'}
         </button>
       ))}
     </div>
@@ -143,7 +128,7 @@ export const BOTTOM_NAV = [
 
 type NavTarget = (typeof PRIMARY_NAV)[number]['to'] | (typeof BOTTOM_NAV)[number]['to']
 
-/** Which nav item a pathname belongs to. /check is the route explorer: map view → Live Map, list view → Advisories. */
+/** Which nav item a pathname belongs to. /check is the route explorer: map view â†’ Live Map, list view â†’ Advisories. */
 export function activeNavTarget(pathname: string, view?: string): NavTarget | null {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
   if (path === '/') return '/'
@@ -188,9 +173,7 @@ export function SiteHeader() {
     <>
       <header data-scrolled={scrolled} className="rp-header sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md">
         <div className="rp-container flex h-16 min-w-0 items-center gap-3">
-          <Link to="/" className="shrink-0 rounded-md" aria-label={t('nav.homeLabel')}>
-            <Logo />
-          </Link>
+          <Logo />
 
           <nav aria-label={t('nav.primary')} className="hidden min-w-0 items-center xl:flex">
             {PRIMARY_NAV.map(({ to, label }) => (

@@ -1,39 +1,39 @@
 import { Link } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 
-export const LOGO_FULL_ALT = 'RaahPrahari logo: mountain road with location pin. Know before you go.'
+export const LOGO_ALT = 'RaahPrahari'
 
-/** Square crop of the approved logo (mountain, road, pin). */
-function MarkImage({ size, decorative, className }: { size: number; decorative?: boolean; className?: string }) {
+/** Real pixel sizes of the two transparent theme files in public/img. */
+const LIGHT = { src: '/img/logo-on-light.jpeg', width: 1448, height: 1086 }
+const DARK = { src: '/img/logo-on-dark.jpeg', width: 1269, height: 1240 }
+
+/**
+ * Both theme files are always in the DOM; CSS (`.dark` on <html>) shows exactly one,
+ * so there is no flash on reload. The light file is the default and carries the alt text;
+ * the dark one is hidden from assistive tech so the name is read once.
+ */
+function ThemedImages({ imgClassName }: { imgClassName: string }) {
   return (
     <>
-      {/* Dark theme: the approved artwork on its dark tile. */}
       <img
-        src="/img/logo-mark.png"
-        width={size}
-        height={size}
-        alt={decorative ? '' : 'RaahPrahari'}
+        src={LIGHT.src}
+        width={LIGHT.width}
+        height={LIGHT.height}
+        alt={LOGO_ALT}
         decoding="async"
-        className={cn('rp-logo-mark hidden shrink-0 rounded-lg bg-[#07151f] object-cover dark:block', className)}
-        style={{ width: size, height: size }}
+        data-logo-theme="light"
+        className={cn('block dark:hidden', imgClassName)}
       />
-      {/* Light theme: the same mark (mountain, road, pin) on a transparent tile, coloured by tokens. */}
-      <svg
-        viewBox="0 0 40 40"
-        width={size}
-        height={size}
-        role={decorative ? undefined : 'img'}
-        aria-label={decorative ? undefined : 'RaahPrahari'}
-        aria-hidden={decorative ? true : undefined}
-        className={cn('rp-logo-mark-light block shrink-0 dark:hidden', className)}
-        style={{ width: size, height: size }}
-      >
-        <path d="M2 34 L15 12 L22 23 L27 16 L38 34 Z" fill="var(--logo-hill)" />
-        <path d="M13 17 L15 12 L17.5 16 L15 15 Z" fill="var(--logo-snow)" />
-        <path d="M20 34 C20 28 26 28 26 23" fill="none" stroke="var(--logo-route)" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M30 4 a5 5 0 0 1 5 5 c0 4 -5 9 -5 9 s-5 -5 -5 -9 a5 5 0 0 1 5 -5 Z" fill="var(--logo-route)" />
-        <circle cx="30" cy="9" r="1.8" fill="var(--background)" />
-      </svg>
+      <img
+        src={DARK.src}
+        width={DARK.width}
+        height={DARK.height}
+        alt=""
+        aria-hidden="true"
+        decoding="async"
+        data-logo-theme="dark"
+        className={cn('hidden dark:block', imgClassName)}
+      />
     </>
   )
 }
@@ -41,41 +41,33 @@ function MarkImage({ size, decorative, className }: { size: number; decorative?:
 type LogoProps = {
   variant?: 'header' | 'mark' | 'full'
   className?: string
-  /** Mark only: hide from assistive tech when next to a visible label. */
+  /** Hide from assistive tech when next to a visible label. */
   decorative?: boolean
 }
 
-/** The one shared RaahPrahari logo. Uses the approved artwork as-is (cropped, never redrawn or recoloured). */
+/** The one shared RaahPrahari logo. Uses the two theme files as-is: no filter, tile or box. */
 export function Logo({ variant = 'header', className, decorative }: LogoProps) {
-  if (variant === 'mark') {
-    return <MarkImage size={40} decorative={decorative} className={className} />
-  }
-
-  if (variant === 'full') {
+  if (variant === 'header') {
     return (
-      <div className={cn('inline-block w-full max-w-[16rem] overflow-hidden rounded-2xl bg-[#07151f] p-2', className)}>
-        <img
-          src="/img/logo-full.jpeg"
-          width={1269}
-          height={1239}
-          alt={LOGO_FULL_ALT}
-          decoding="async"
-          className="block h-auto w-full rounded-xl"
-        />
-      </div>
+      <Link
+        to="/"
+        aria-label="RaahPrahari home"
+        className={cn('inline-flex min-h-11 shrink-0 items-center rounded-md', className)}
+      >
+        <ThemedImages imgClassName="h-9 w-auto max-w-none" />
+      </Link>
     )
   }
 
+  const imgClassName = variant === 'mark' ? 'h-10 w-auto' : 'h-auto w-full'
   return (
-    <Link
-      to="/"
-      aria-label="RaahPrahari home"
-      className={cn('inline-flex min-h-11 shrink-0 items-center gap-2.5 rounded-md', className)}
+    <span
+      role={decorative ? undefined : 'img'}
+      aria-label={decorative ? undefined : LOGO_ALT}
+      aria-hidden={decorative ? true : undefined}
+      className={cn(variant === 'full' ? 'block w-full max-w-[16rem]' : 'inline-block shrink-0', className)}
     >
-      <MarkImage size={36} decorative />
-      <span aria-hidden className="font-display text-lg leading-none font-bold tracking-tight whitespace-nowrap text-foreground">
-        Raah<span className="text-orange-on-light dark:text-brand-orange">Prahari</span>
-      </span>
-    </Link>
+      <ThemedImages imgClassName={imgClassName} />
+    </span>
   )
 }

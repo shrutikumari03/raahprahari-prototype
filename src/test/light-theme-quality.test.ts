@@ -88,8 +88,8 @@ describe('light theme visual rules', () => {
   it('header logo swaps by theme without a dark box in light', () => {
     expect(logo).toContain('dark:block')
     expect(logo).toContain('dark:hidden')
-    expect(logo).toContain('text-orange-on-light')
-    expect(light['--logo-tile']).toBe('transparent')
+    expect(logo).toContain('logo-on-light')
+    expect(logo).toContain('logo-on-dark')
   })
 
   it('light mode removes backdrop blur', () => {

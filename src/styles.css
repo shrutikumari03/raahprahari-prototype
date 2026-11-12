@@ -54,12 +54,12 @@ code {
   --rise-distance: 8px;
   --stagger-step: 40ms;
   --shadow-1: 0 1px 2px rgb(17 23 25 / 10%);
-  --shadow-2: 0 4px 10px -2px rgb(17 23 25 / 18%);
-  --shadow-3: 0 10px 22px -6px rgb(17 23 25 / 26%);
+  --shadow-2: 0 4px 12px -2px rgb(17 23 25 / 30%);
+  --shadow-3: 0 12px 26px -6px rgb(17 23 25 / 40%);
   --shadow-header: 0 6px 16px -8px rgb(17 23 25 / 30%);
   --glow-focus: 0 0 0 3px color-mix(in oklab, var(--ring) 40%, transparent);
-  --primary-hover: #2b6cb0;
-  --secondary-hover: #fffdf7;
+  --primary-hover: #1a4a7d;
+  --secondary-hover: #d6d3c7;
   --report: #eb5b38;
   --report-foreground: #111719;
   --report-hover: #f26a49;
@@ -71,24 +71,26 @@ code {
      faded or flat-veiled. Text on photos uses charcoal tokens. */
   --photo-scrim-a: rgb(250 247 238 / 72%);
   --photo-scrim-b: rgb(250 247 238 / 52%);
-  --photo-scrim-c: rgb(250 247 238 / 12%);
-  --photo-scrim-flat: rgb(250 247 238 / 14%);
-  --photo-text: #111719;
+  --photo-scrim-c: rgb(250 247 238 / 10%);
+  --photo-scrim-flat: rgb(250 247 238 / 10%);
+  --photo-text: #1b2326;
+  --photo-text-shadow-soft: none;
+  --photo-text-shadow-tone: none;
   --photo-text-muted: #2a3438;
   --photo-card-bg: rgb(250 247 238 / 90%);
   --photo-card-fg: #111719;
   --photo-card-border: rgb(17 23 25 / 28%);
   --hero-scrim-a: var(--photo-scrim-a);
   --hero-scrim-b: var(--photo-scrim-b);
-  --logo-tile: #dcd9cf;
-  --logo-hill: #7d878c;
-  --logo-snow: #ffffff;
-  --logo-route: #b23a1f;
+  --logo-tile: transparent;
+  --logo-hill: #5b6564;
+  --logo-snow: #1b2326;
+  --logo-route: #a8361b;
   /* Light theme */
   --background: #e6e4dc;
-  --foreground: #111719;
+  --foreground: #1b2326;
   --card: #f8f6ef;
-  --card-foreground: #111719;
+  --card-foreground: #1b2326;
   --surface: var(--background);
   --surface-raised: var(--card);
   --text: var(--foreground);
@@ -102,13 +104,13 @@ code {
   --secondary: #f8f6ef;
   --secondary-foreground: #111719;
   --muted: #dcd9cf;
-  --muted-foreground: #4b5558;
-  --accent: #efece3;
-  --accent-foreground: #111719;
+  --muted-foreground: #3b4548;
+  --accent: #d3d0c4;
+  --accent-foreground: #1b2326;
   --destructive: #b83232;
   --destructive-foreground: #ffffff;
-  --border: #757d7b;
-  --input: #687578;
+  --border: #5b6564;
+  --input: #4f5d62;
   --ring: #245c98;
   --link: #245c98;
   --brand-orange: #eb5b38;
@@ -1037,6 +1039,8 @@ html.rp-theme-fade *::after {
   --photo-scrim-c: rgb(3 15 22 / 40%);
   --photo-scrim-flat: rgb(3 15 22 / 55%);
   --photo-text: #f6f4ec;
+  --photo-text-shadow-soft: 0 1px 5px color-mix(in srgb, var(--tone-shadow) 40%, transparent);
+  --photo-text-shadow-tone: 0 1px 5px var(--tone-07151f);
   --photo-text-muted: #d8e0e4;
   --photo-card-bg: rgb(5 20 29 / 88%);
   --photo-card-fg: #f6f4ec;
@@ -1234,4 +1238,71 @@ html.rp-theme-fade *::after {
 /* Hero text follows the theme: ivory on the dark overlay, charcoal on the light one. */
 .photo-surface {
   color: var(--photo-text);
+}
+
+/* ---------------------------------------------------------------------
+   Light theme quality pass. Token-driven; dark theme is untouched.
+   --------------------------------------------------------------------- */
+:root:not(.dark) {
+  --rp-hover-bg: color-mix(in oklab, var(--foreground) 12%, transparent);
+  --rp-selected-ring: var(--primary);
+}
+
+/* Crisp content: no frosted glass, no soft-focus text in light mode. */
+:root:not(.dark) [class*='backdrop-blur'],
+:root:not(.dark) .rp-header {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+:root:not(.dark) .rp-header {
+  background-color: var(--background);
+}
+:root:not(.dark) body {
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+
+/* Placeholders keep at least 4.5:1 in both themes. */
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+
+/* Logo mark: tile follows the theme. Light = transparent tile, dark = approved dark tile. */
+.rp-logo-mark {
+  background-color: var(--logo-tile);
+}
+:root:not(.dark) .rp-logo-mark {
+  mix-blend-mode: normal;
+  border: 1px solid var(--border);
+}
+
+/* Visible hover, press, focus and selected states in light mode. */
+:root:not(.dark) a:not([class*='bg-']):hover,
+:root:not(.dark) button:not([class*='bg-']):not(:disabled):hover {
+  background-color: var(--rp-hover-bg);
+}
+:root:not(.dark) [role='tab'][aria-selected='true'],
+:root:not(.dark) [role='tab'][data-state='active'],
+:root:not(.dark) button[aria-pressed='true'],
+:root:not(.dark) a[aria-current='page'].rp-press {
+  box-shadow: inset 0 0 0 2px var(--rp-selected-ring);
+  font-weight: 600;
+}
+:root:not(.dark) .rp-card {
+  box-shadow: var(--shadow-1);
+}
+:root:not(.dark) .rp-interactive:not(:disabled):active,
+:root:not(.dark) .rp-press:not(:disabled):active {
+  background-color: color-mix(in oklab, var(--foreground) 20%, transparent);
+}
+:root:not(.dark) :focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--brand-orange) 55%, transparent);
+}
+
+.rp-header .rp-container {
+  max-width: 90rem;
 }

@@ -1,4 +1,4 @@
-import { Link, useRouterState } from '@tanstack/react-router'
+﻿import { Link, useRouterState } from '@tanstack/react-router'
 
 import {useRef, useState } from 'react'
 import { House, ListChecks, Map, Menu, Monitor, Moon, Search, Sun, TriangleAlert, UserRound } from 'lucide-react'
@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils'
 function LangSwitch() {
   const { lang, setLang, t } = usePrefs()
   return (
-    <div role="group" aria-label={t('lang.label')} className="inline-flex h-11 rounded-full border border-border p-0.5 text-sm">
+    <div role="group" aria-label={t('lang.label')} className="inline-flex h-11 shrink-0 whitespace-nowrap rounded-full border border-border p-0.5 text-sm">
       {(['en', 'hi'] as const).map((l) => (
         <button
           key={l}
@@ -35,7 +35,7 @@ function LangSwitch() {
             lang === l ? 'bg-raised text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
           )}
         >
-          {l === 'en' ? 'EN' : 'à¤¹à¤¿à¤¨à¥à¤¦à¥€'}
+          {l === 'en' ? 'EN' : 'हिन्दी'}
         </button>
       ))}
     </div>
@@ -106,8 +106,8 @@ function LoginDialog({
 
 /**
  * The single site navigation. Same items, same order on every route.
- * Desktop (xl and up): logo, primary links, then language, theme, login, report.
- * Below xl: logo + menu button on top, plus the fixed bottom navigation.
+ * Desktop (1440px and up): logo, primary links, then language, theme, login, report.
+ * Below 1440px: logo + menu button on top, plus the fixed bottom navigation.
  */
 export const PRIMARY_NAV = [
   { to: '/', label: 'nav.home' },
@@ -172,17 +172,17 @@ export function SiteHeader() {
   return (
     <>
       <header data-scrolled={scrolled} className="rp-header sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md">
-        <div className="rp-container flex h-16 min-w-0 items-center gap-3">
+        <div className="rp-container flex h-16 min-w-0 items-center gap-3 1440:gap-4">
           <Logo />
 
-          <nav aria-label={t('nav.primary')} className="hidden min-w-0 items-center xl:flex">
+          <nav aria-label={t('nav.primary')} className="hidden min-w-0 items-center 1440:flex">
             {PRIMARY_NAV.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
                 aria-current={current(to)}
                 className={cn(
-                  'rp-underline inline-flex min-h-11 items-center px-2.5 text-sm font-medium whitespace-nowrap transition-colors 2xl:px-3.5',
+                  'rp-underline inline-flex min-h-11 items-center px-2.5 text-sm font-medium whitespace-nowrap transition-colors 1440:px-3',
                   active === to ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
@@ -191,7 +191,7 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <div className="ml-auto hidden shrink-0 items-center gap-1.5 xl:flex">
+          <div className="ml-auto hidden shrink-0 items-center gap-1.5 1440:flex">
             <LangSwitch />
             <ThemeSwitch />
             <Button
@@ -216,7 +216,7 @@ export function SiteHeader() {
                 ref={menuTriggerRef}
                 variant="ghost"
                 size="icon-lg"
-                className="ml-auto shrink-0 rounded-full xl:hidden"
+                className="ml-auto shrink-0 rounded-full 1440:hidden"
                 aria-label={t('nav.menu')}
               >
                 <Menu />
@@ -280,7 +280,7 @@ export function SiteHeader() {
 
       <nav
         aria-label="Quick navigation"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md xl:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md 1440:hidden"
       >
         <ul className="mx-auto flex max-w-xl items-end justify-around px-2">
           {BOTTOM_NAV.map(({ to, label, icon: Icon, raised }) => (

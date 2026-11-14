@@ -158,8 +158,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 {/* App shell: below xl the header is a top bar and the bottom
                     tabs need room under the content; from xl the header is a
                     fixed left rail and the content starts after it. */}
-                <div className="rp-shell flex min-h-svh flex-col overflow-x-clip pb-[calc(var(--rp-bottom-h)+env(safe-area-inset-bottom))] xl:pb-0 xl:pl-(--rp-rail-w)">
+                {/* From xl the shell is exactly one viewport tall: the rail is
+                    fixed and only the content column (#rp-content) scrolls, so
+                    the document itself never does. Below xl the page scrolls
+                    normally above the bottom tabs. */}
+                <div className="rp-shell flex min-h-svh flex-col overflow-x-clip pb-[calc(var(--rp-bottom-h)+env(safe-area-inset-bottom))] xl:h-svh xl:min-h-0 xl:overflow-hidden xl:pb-0 xl:pl-(--rp-rail-w)">
                   <SiteHeader />
+                  <div
+                    id="rp-content"
+                    data-scroll-restoration-id="rp-content"
+                    className="rp-content flex min-h-0 min-w-0 flex-1 flex-col xl:relative xl:overflow-y-auto xl:overscroll-contain"
+                  >
                   <main id="main" aria-busy="true" className="min-w-0 flex-1">
                     {children}
                     {/* Fixed on screen, but kept inside <main> so it sits in a landmark. */}
@@ -177,6 +186,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                       )}
                   </main>
                   {!isHome && !isTraveller && !isMap && !isHelp && <SiteFooter />}
+                  </div>
                 </div>
               </SyncProvider>
             </AccountScopeBoundary>

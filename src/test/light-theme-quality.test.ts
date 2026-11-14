@@ -102,7 +102,7 @@ describe('header layout does not overlap at 1280, 1440 and 1920', () => {
   const header = chrome.slice(chrome.indexOf('<header'), chrome.indexOf('</header>'))
 
   it('uses a flex row with gap and min-w-0; it is fixed only as the xl rail', () => {
-    expect(header).toMatch(/rp-container flex [^"]*min-w-0[^"]*gap-3/)
+    expect(header).toMatch(/rp-container [^"]*\bflex [^"]*min-w-0[^"]*gap-3/)
     expect(header).not.toMatch(/\babsolute\b/)
     // The app shell: a sticky top bar below xl, a fixed left rail from xl.
     const classNames = (header.match(/className="[^"]*"/g) ?? []).join(' ')
@@ -120,7 +120,8 @@ describe('header layout does not overlap at 1280, 1440 and 1920', () => {
   })
 
   it('links never wrap and keep small padding', () => {
-    expect(chrome).toMatch(/rp-rail-link rp-press flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium whitespace-nowrap/)
+    // 40px rail rows on desktop pointers, so the rail fits 768px-tall screens.
+    expect(chrome).toMatch(/rp-rail-link rp-press flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium whitespace-nowrap/)
   })
 
   it('language switch cannot shrink or wrap into neighbours, and its focus ring is inset', () => {

@@ -75,7 +75,7 @@ function ReportsIndexPage() {
                 key={draft.id}
                 to="/reports/$id"
                 params={{ id: draft.id }}
-                className="block rounded-2xl border border-border bg-card p-4 transition hover:border-primary"
+                className="rp-hover-card block rounded-2xl border border-border bg-card p-4"
               >
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm font-medium text-foreground">{draft.payload.hazardType || "Hazard report"}</span>

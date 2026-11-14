@@ -66,7 +66,9 @@ describe("header breakpoints", () => {
     const right = within(header).getByRole("group", { name: "Language" }).parentElement!;
     expect(classes(right)).toEqual(expect.arrayContaining(["hidden", "xl:flex"]));
     expect(within(right).getByRole("button", { name: "Community Login" })).toBeInTheDocument();
-    expect(within(right).getByRole("link", { name: "Report Hazard" })).toBeInTheDocument();
+    // Report Hazard is not repeated in the rail, and the search has no shortcut badge.
+    expect(within(right).queryByRole("link", { name: "Report Hazard" })).toBeNull();
+    expect(header.querySelector("kbd")).toBeNull();
   });
 
   it("shows the hamburger and the bottom nav below xl, hidden from xl", () => {
@@ -80,7 +82,7 @@ describe("header breakpoints", () => {
     expect(classes(bottom)).not.toContain("hidden");
   });
 
-  it("keeps DOM order: logo, links, then language, theme, login, report", () => {
+  it("keeps DOM order: logo, links, then search, language, theme, login", () => {
     mount();
     const header = screen.getByRole("banner");
     const row = header.firstElementChild!;
@@ -95,7 +97,6 @@ describe("header breakpoints", () => {
       "ENहिन्दी",
       expect.stringMatching(/theme|system|light|dark/i),
       "Community Login",
-      "Report Hazard",
     ]);
     const follows = (a: Node, b: Node) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
     expect(follows(logo, nav)).toBe(true);

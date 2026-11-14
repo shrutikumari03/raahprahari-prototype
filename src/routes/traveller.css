@@ -14,20 +14,28 @@
   color: var(--text-on-charcoal);
 }
 
+/* Desktop: form column and map column, both allowed to shrink (minmax(0, …)),
+   with the footer across both. The form column keeps a usable width because its
+   padding no longer grows with the viewport (it used to eat 5vw per side). */
 .traveller-landing {
   display: grid;
   min-height: calc(100svh - var(--rp-top-h));
-  grid-template-columns: minmax(20rem, 0.88fr) minmax(0, 1.5fr);
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
   grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.traveller-landing > .traveller-page-footer {
+  grid-column: 1 / -1;
 }
 
 .traveller-search-panel {
   position: relative;
   display: flex;
+  min-width: 0;
   min-height: 38rem;
   align-items: center;
   justify-content: center;
-  padding: clamp(2rem, 5vw, 4.5rem);
+  padding: clamp(1.5rem, 2.5vw, 2.75rem);
   background:
     linear-gradient(145deg, color-mix(in srgb, var(--tone-051822) 98%, transparent), color-mix(in srgb, var(--tone-041119) 98%, transparent)),
     url('/img/map-terrain.png') center / cover;
@@ -35,7 +43,8 @@
 }
 
 .traveller-panel-content {
-  width: min(100%, 34rem);
+  width: min(100%, 32rem);
+  min-width: 0;
 }
 
 .traveller-eyebrow {
@@ -69,7 +78,7 @@
 
 .traveller-panel-description {
   max-width: 29rem;
-  margin: 0.9rem 0 2rem;
+  margin: 0.9rem 0 1.5rem;
   color: var(--tone-c3d0d6);
   font-size: 0.96rem;
   line-height: 1.6;
@@ -77,7 +86,12 @@
 
 .traveller-search-form {
   display: grid;
+  min-width: 0;
   gap: 0.7rem;
+}
+
+.traveller-search-form > * {
+  min-width: 0;
 }
 
 .traveller-search-label {
@@ -165,16 +179,23 @@
   opacity: 0.65;
 }
 
+/* Two buttons side by side when each gets at least 11rem, otherwise stacked.
+   Labels may wrap instead of pushing the buttons out of the column. */
 .traveller-location-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
   gap: 0.55rem;
   margin-top: 0.2rem;
 }
 
 .traveller-location-actions button {
+  min-width: 0;
+  height: auto;
   min-height: 2.75rem;
   justify-content: center;
+  padding-block: 0.45rem;
+  text-align: center;
+  white-space: normal;
   border-color: var(--tone-2b5366);
   border-radius: 0.5rem;
   color: var(--tone-d7e2e7);
@@ -200,7 +221,8 @@
 }
 
 .traveller-recent {
-  margin-top: 1.8rem;
+  min-width: 0;
+  margin-top: 1.4rem;
   border-top: 1px solid color-mix(in srgb, var(--tone-678999) 28%, transparent);
   padding-top: 1rem;
 }
@@ -305,7 +327,9 @@
   margin-top: 0.75rem;
 }
 
-.traveller-map-legend ul {
+/* Legend entries in wrapped rows, so the map keeps most of the column height.
+   The panel selector outranks the shared stacked legend in leaflet-segment-map.css. */
+.traveller-map-panel .traveller-map-legend ul {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem 1rem;
@@ -935,6 +959,57 @@
   color: var(--tone-899da7);
   font-family: var(--font-mono-rp);
   font-size: 0.75rem;
+}
+
+/* Desktop with the rail: the landing fills exactly one screen. The map takes
+   the remaining height; if the form column ever needs more room than the
+   screen has, it scrolls inside its own column instead of the whole page. */
+@media (min-width: 1280px) {
+  .traveller-landing {
+    height: 100svh;
+    min-height: 0;
+  }
+
+  .traveller-search-panel {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    align-items: safe center;
+    scrollbar-width: thin;
+  }
+
+  .traveller-map-panel {
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  .traveller-map-surface {
+    min-height: 16rem;
+  }
+}
+
+/* Tablet widths (no rail): the form column would be too narrow beside the map,
+   so the two stack, form first. */
+@media (max-width: 1023px) {
+  .traveller-landing {
+    display: flex;
+    min-height: unset;
+    flex-direction: column;
+  }
+
+  .traveller-search-panel {
+    min-height: unset;
+    border-right: 0;
+    border-bottom: 1px solid var(--tone-1a4357);
+  }
+
+  .traveller-panel-content {
+    width: min(100%, 38rem);
+  }
+
+  .traveller-map-panel {
+    min-height: 30rem;
+  }
 }
 
 @media (max-width: 1024px) {

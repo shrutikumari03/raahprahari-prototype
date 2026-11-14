@@ -2,6 +2,8 @@ import { useRef, useState, useSyncExternalStore } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import {
   Award,
+  ChevronDown,
+  Ellipsis,
   FileText,
   House,
   Info,
@@ -150,17 +152,11 @@ function SearchButton({
       className="gap-2 px-3 text-muted-foreground hover:text-foreground xl:w-full xl:justify-start xl:border xl:border-border xl:bg-card"
     >
       <Search aria-hidden />
-      {/* In the rail there is room to name it; elsewhere the name is for screen readers. */}
+      {/* In the rail there is room to name it; elsewhere the name is for screen
+          readers. The shortcut stays in the tooltip and aria-keyshortcuts. */}
       <span className="sr-only xl:not-sr-only xl:truncate xl:whitespace-nowrap">
         {t('palette.open')}
       </span>
-      <kbd
-        aria-hidden
-        data-testid="search-shortcut"
-        className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground xl:ml-auto"
-      >
-        {shortcut}
-      </kbd>
     </Button>
   )
 }
@@ -245,12 +241,63 @@ function RailLink({
       <Link
         to={to}
         aria-current={current}
-        className="rp-rail-link rp-press flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium whitespace-nowrap"
+        className="rp-rail-link rp-press flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium whitespace-nowrap"
       >
         <Icon aria-hidden className="size-[1.15rem] shrink-0" />
         <span className="truncate">{label}</span>
       </Link>
     </li>
+  )
+}
+
+/**
+ * The "More" group: a toggle that shows or hides the secondary links. It opens
+ * by itself when you arrive on one of its pages, and you can still close it.
+ * The collapsed list stays in the DOM (for the height transition) but is inert,
+ * so it is skipped by keyboard and screen readers.
+ */
+function MoreGroup({
+  id,
+  inSecondary,
+  size = 'rail',
+  children,
+}: {
+  id: string
+  inSecondary: boolean
+  size?: 'rail' | 'sheet'
+  children: React.ReactNode
+}) {
+  const { t } = usePrefs()
+  const [open, setOpen] = useState(inSecondary)
+  // Open again when navigation lands on a "More" page (state derived from props,
+  // updated during render as React recommends, not in an effect).
+  const [wasInSecondary, setWasInSecondary] = useState(inSecondary)
+  if (wasInSecondary !== inSecondary) {
+    setWasInSecondary(inSecondary)
+    if (inSecondary) setOpen(true)
+  }
+  return (
+    <div className="rp-more" data-state={open ? 'open' : 'closed'}>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={`${id}-panel`}
+        onClick={() => setOpen((value) => !value)}
+        className={cn(
+          'rp-rail-link rp-press flex w-full items-center gap-3 rounded-lg px-3 font-medium',
+          size === 'rail' ? 'min-h-10 text-sm' : 'min-h-11 text-base',
+        )}
+      >
+        <Ellipsis aria-hidden className={size === 'rail' ? 'size-[1.15rem] shrink-0' : 'size-5 shrink-0'} />
+        <span id={id} className="flex-1 text-left">
+          {t('nav.more')}
+        </span>
+        <ChevronDown aria-hidden className="rp-more-chevron size-4 shrink-0" />
+      </button>
+      <div id={`${id}-panel`} className="rp-more-panel" inert={!open}>
+        <div className="min-h-0 overflow-hidden">{children}</div>
+      </div>
+    </div>
   )
 }
 
@@ -279,6 +326,7 @@ export function SiteHeader() {
   const active = activeNavTarget(pathname, view)
   const current = (to: NavTarget) => (active === to ? ('page' as const) : undefined)
   const section = sectionLabel(pathname, active)
+  const inSecondary = secondaryNav.some(({ to }) => to === active)
 
   const openLogin = (returnTo: HTMLButtonElement | null) => {
     loginReturnFocusRef.current = returnTo
@@ -298,8 +346,10 @@ export function SiteHeader() {
         data-scrolled={scrolled}
         className="rp-header sticky top-0 z-(--z-header) border-b border-border/70 bg-background xl:fixed xl:inset-y-0 xl:left-0 xl:w-(--rp-rail-w) xl:border-r xl:border-b-0"
       >
-        <div className="rp-container flex h-16 min-w-0 items-center gap-3 xl:h-full xl:flex-col xl:items-stretch xl:gap-3 xl:overflow-hidden xl:py-4">
-          <Logo className="min-w-11 xl:self-start xl:px-2" heightClassName="h-10 xl:h-14" />
+        {/* Sized to fit 768px-tall screens with More open. The rail only
+            scrolls on very short windows (rp-rail-body), never at 768 or 1080. */}
+        <div className="rp-container rp-rail-body flex h-16 min-w-0 items-center gap-3 xl:h-full xl:flex-col xl:items-stretch xl:gap-2 xl:py-3">
+          <Logo className="min-w-11 xl:self-start xl:px-2" heightClassName="h-10 xl:h-12" />
 
           <p className="rp-shell-section m-0 min-w-0 flex-1 truncate font-display text-base font-semibold text-foreground xl:hidden">
             {section ? (
@@ -310,36 +360,28 @@ export function SiteHeader() {
             ) : null}
           </p>
 
-          {/* On short laptop screens only the link list scrolls, so the sync
-              status and Report Hazard stay in view at the bottom of the rail. */}
           <nav
             aria-label={t('nav.primary')}
-            className="rp-rail-nav hidden min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain xl:flex"
+            className="rp-rail-nav hidden min-h-0 min-w-0 flex-col gap-0.5 xl:flex"
           >
             <ul className="m-0 grid list-none gap-0.5 p-0">
               {PRIMARY_NAV.map(({ to, label, icon }) => (
                 <RailLink key={to} to={to} label={t(label)} icon={icon} current={current(to)} />
               ))}
             </ul>
-            <div className="grid gap-1">
-              <p
-                id="rp-rail-more"
-                className="m-0 px-3 text-xs font-semibold text-muted-foreground"
-              >
-                {t('nav.more')}
-              </p>
-              <ul aria-labelledby="rp-rail-more" className="m-0 grid list-none gap-0.5 p-0">
+            <MoreGroup id="rp-rail-more" inSecondary={inSecondary}>
+              <ul aria-labelledby="rp-rail-more" className="m-0 grid list-none gap-0.5 p-0 pt-0.5">
                 {secondaryNav.map(({ to, label, icon }) => (
                   <RailLink key={to} to={to} label={t(label)} icon={icon} current={current(to)} />
                 ))}
               </ul>
-            </div>
+            </MoreGroup>
           </nav>
 
-          <SyncStatusIndicator className="shrink-0" />
+          {/* Status and utilities sit at the foot of the rail. Report Hazard is
+              not repeated here: pages and the mobile tabs carry it. */}
+          <SyncStatusIndicator className="shrink-0 xl:mt-auto" />
 
-          {/* Rail utilities: search, language and theme, then the account and
-              the one primary action. */}
           <div className="rp-rail-tools ml-auto hidden min-w-0 shrink-0 items-center gap-2 xl:ml-0 xl:flex xl:flex-wrap">
             <SearchButton onOpen={openSearch} />
             <LanguageSwitch />
@@ -351,16 +393,6 @@ export function SiteHeader() {
             >
               <UserRound aria-hidden />
               {accountLabel}
-            </Button>
-            <Button asChild variant="report" className="px-4 font-semibold whitespace-nowrap xl:w-full">
-              <Link
-                to="/report"
-                search={{ segment: undefined }}
-                aria-current={current('/report')}
-              >
-                <TriangleAlert aria-hidden />
-                {t('nav.report')}
-              </Link>
             </Button>
           </div>
 
@@ -406,20 +438,24 @@ export function SiteHeader() {
                 </nav>
                 <nav
                   aria-label={t('nav.more')}
-                  className="rp-chrome-nav mt-2 flex flex-col gap-1 border-t border-border px-4 pt-3"
+                  className="rp-chrome-nav mt-2 border-t border-border px-4 pt-3"
                 >
-                  {secondaryNav.map(({ to, label, icon: Icon }) => (
-                    <SheetClose key={to} asChild>
-                      <Link
-                        to={to}
-                        aria-current={current(to)}
-                        className="rp-rail-link rp-press inline-flex min-h-11 items-center gap-3 rounded-lg px-3 text-base font-medium"
-                      >
-                        <Icon aria-hidden className="size-5 shrink-0" />
-                        {t(label)}
-                      </Link>
-                    </SheetClose>
-                  ))}
+                  <MoreGroup id="rp-sheet-more" inSecondary={inSecondary} size="sheet">
+                    <div className="flex flex-col gap-1 pt-1">
+                      {secondaryNav.map(({ to, label, icon: Icon }) => (
+                        <SheetClose key={to} asChild>
+                          <Link
+                            to={to}
+                            aria-current={current(to)}
+                            className="rp-rail-link rp-press inline-flex min-h-11 items-center gap-3 rounded-lg px-3 text-base font-medium"
+                          >
+                            <Icon aria-hidden className="size-5 shrink-0" />
+                            {t(label)}
+                          </Link>
+                        </SheetClose>
+                      ))}
+                    </div>
+                  </MoreGroup>
                 </nav>
                 <div className="flex flex-wrap items-center gap-2 border-t border-border px-4 pt-4 pb-6">
                   <LanguageSwitch />

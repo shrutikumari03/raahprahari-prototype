@@ -105,21 +105,20 @@ describe('shared site navigation', () => {
       const bottom = screen.getByRole('navigation', { name: 'Quick navigation' })
       expect(linkPairs(bottom)).toEqual(BOTTOM.map(([label, href]) => [label, href]))
 
-      // Right-hand controls, in order: language, theme, Community Login, Report Hazard.
+      // Rail utilities, in order: language, theme, Community Login.
       const controls = [
         within(header).getByRole('group', { name: 'Language' }),
         within(header).getByRole('button', { name: /theme/i }),
         within(header).getByRole('button', { name: 'Community Login' }),
-        within(header).getAllByRole('link', { name: 'Report Hazard' })[0],
       ]
       for (let i = 1; i < controls.length; i++) {
         expect(
           controls[i - 1].compareDocumentPosition(controls[i]) & Node.DOCUMENT_POSITION_FOLLOWING,
         ).toBeTruthy()
       }
-      // One Report Hazard in the rail; below xl the raised bottom tab carries it.
-      const reportLinks = within(header).getAllByRole('link', { name: 'Report Hazard' })
-      expect(reportLinks.map((link) => link.getAttribute('href'))).toEqual(['/report'])
+      // The rail does not repeat Report Hazard (pages carry it); the raised
+      // bottom tab and the mobile menu still do.
+      expect(within(header).queryAllByRole('link', { name: 'Report Hazard' })).toEqual([])
       expect(within(bottom).getByRole('link', { name: 'Report Hazard' })).toHaveAttribute('href', '/report')
       expect(within(header).getByRole('button', { name: 'Open menu' })).toBeInTheDocument()
 

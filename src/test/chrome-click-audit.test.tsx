@@ -103,14 +103,14 @@ describe("header and bottom navigation", () => {
     30_000,
   );
 
-  it("logo returns home and the header Report Hazard button opens /report", async () => {
+  it("logo returns home; Report Hazard is not repeated in the rail", async () => {
     const router = await mountAt("/about");
-    const reportLinks = within(header()).getAllByRole("link", {
-      name: "Report Hazard",
-    });
-    // One in the rail; below xl the raised bottom tab carries Report Hazard.
-    expect(reportLinks.map(pathOf)).toEqual(["/report"]);
-    fireEvent.click(reportLinks[0]);
+    // The rail leaves Report Hazard to the pages, the bottom tab and the menu.
+    expect(
+      within(header()).queryAllByRole("link", { name: "Report Hazard" }),
+    ).toEqual([]);
+    const bottom = screen.getByRole("navigation", { name: "Quick navigation" });
+    fireEvent.click(within(bottom).getByRole("link", { name: "Report Hazard" }));
     await waitFor(() => expect(router.state.location.pathname).toBe("/report"));
     const logo = within(header())
       .getAllByRole("link")
@@ -127,8 +127,9 @@ describe("header and bottom navigation", () => {
     fireEvent.click(hi);
     await waitFor(() => expect(hi).toHaveAttribute("aria-pressed", "true"));
     expect(en).toHaveAttribute("aria-pressed", "false");
+    // The bottom tab carries Report Hazard (the rail no longer repeats it).
     expect(
-      within(header()).getAllByRole("link", { name: "ख़तरा बताएँ" })[0],
+      screen.getAllByRole("link", { name: "ख़तरा बताएँ" })[0],
     ).toBeVisible();
     fireEvent.click(en);
     await waitFor(() => expect(en).toHaveAttribute("aria-pressed", "true"));

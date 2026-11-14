@@ -811,6 +811,40 @@
   margin-top: 1rem;
 }
 
+/* Desktop with the rail on laptop-height screens: the hero, its search and the
+   feature strip fit one screen. The headline follows the viewport height and
+   the space kept free for the feature strip matches its real height. */
+@media (min-width: 1280px) and (max-height: 900px) {
+  .home-content {
+    padding-top: 1.25rem;
+    padding-bottom: 8.5rem;
+    row-gap: 1rem;
+  }
+
+  .home-copy h1 {
+    font-size: clamp(2.6rem, 6.6svh, 4.3rem);
+  }
+
+  .home-copy > p {
+    margin-top: 0.75rem;
+  }
+
+  .home-actions {
+    margin-top: 0.75rem;
+  }
+
+  .home-features {
+    bottom: 1.25rem;
+  }
+
+  /* The feature strip now uses the bottom edge, so the label moves to the
+     free top-right corner of the hero. */
+  .home-prototype-label {
+    top: 1rem;
+    bottom: auto;
+  }
+}
+
 .home-action {
   min-height: 2.9rem;
   border-radius: 0.8rem;

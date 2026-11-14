@@ -5,18 +5,19 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 
+import { SkipLink } from "@/components/ui/feedback";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SkipLink } from "@/components/ui/feedback";
 import { NotFoundPage } from "@/components/error-pages";
-import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { AppShell } from "@/components/app-shell/app-shell";
+import { SiteFooter } from "@/components/app-shell/site-footer";
 import { BackToTop, PageTransition, RevealObserver } from "@/components/motion";
 import { BootGate, RouteProgress, bootGuardScript } from "@/components/boot-screen";
 import { PrototypeRibbon } from "@/components/prototype-ribbon";
 import { AccountScopeBoundary } from "@/components/account-scope-boundary";
 import { AuthSessionBridge } from "@/components/auth-session-bridge";
 import { SyncProvider } from "@/components/sync-provider";
-import { PreferencesProvider, themeBootScript } from "@/i18n/preferences";
+import { PreferencesProvider, themeBootScript, usePrefs } from "@/i18n/preferences";
 
 import "../styles.css";
 
@@ -94,6 +95,11 @@ export const Route = createRootRoute({
   notFoundComponent: NotFoundPage,
 });
 
+/** First focusable element: jumps past the rail and top bar to the page. */
+function ShellSkipLink() {
+  const { t } = usePrefs();
+  return <SkipLink>{t("shell.skip")}</SkipLink>;
+}
 function RootDocument({ children }: { children: React.ReactNode }) {
   // These routes render the shared PrototypeRibbon inside their own layout.
   const { isHome, isTraveller, isMap, isHelp, isNotFound, isAdvisories, isReport } =
@@ -135,18 +141,16 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <AuthSessionBridge />
             <AccountScopeBoundary>
               <SyncProvider>
-                <SkipLink>Skip to content</SkipLink>
+                <ShellSkipLink />
                 <PageTransition />
                 <RouteProgress />
                 <RevealObserver />
                 <BackToTop />
-                <div className="flex min-h-svh flex-col overflow-x-clip pb-[calc(5rem+env(safe-area-inset-bottom))] xl:pb-0">
-                  <SiteHeader />
-                  <main id="main" aria-busy="true" className="min-w-0 flex-1">
-                    {children}
-                  </main>
-                  {!isHome && !isTraveller && !isMap && !isHelp && <SiteFooter />}
-                </div>
+                <AppShell
+                  footer={!isHome && !isTraveller && !isMap && !isHelp ? <SiteFooter /> : null}
+                >
+                  {children}
+                </AppShell>
                 {!isHome &&
                   !isTraveller &&
                   !isMap &&
@@ -154,7 +158,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                   !isNotFound &&
                   !isReport &&
                   !isAdvisories && (
-                    <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-(--z-bottom-nav) xl:bottom-2">
+                    <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-(--z-bottom-nav) lg:bottom-2">
                       <PrototypeRibbon />
                     </div>
                   )}

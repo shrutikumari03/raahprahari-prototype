@@ -1,0 +1,274 @@
+import {
+  useState,
+  type FormEvent,
+  type MouseEvent,
+  type RefObject,
+} from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ChevronDown, Search, TriangleAlert, UserRound } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { usePrefs } from "@/i18n/preferences";
+import type { Lang } from "@/lib/app-store";
+import { useAccountSession } from "@/lib/account-session";
+import { cn } from "@/lib/utils";
+import { AccountMenu } from "./account-menu";
+import { TAB_NAV, type ShellPath } from "./nav";
+import { ShellLogo } from "./shell-logo";
+import { StatusChip, type ShellStatus } from "./shell-status";
+
+/** The one orange element in the shell. Colours come from the report tokens. */
+function ReportButton({ className }: { className?: string }) {
+  const { t } = usePrefs();
+  return (
+    <Button
+      asChild
+      variant="report"
+      className={cn("min-h-11 gap-2 rounded-md px-4 font-semibold", className)}
+    >
+      <Link to="/report" search={{ segment: undefined }}>
+        <TriangleAlert aria-hidden />
+        {t("shell.reportHazard")}
+      </Link>
+    </Button>
+  );
+}
+
+/** Desktop top bar (56px): search, flexible space, status chip, report. */
+export function DesktopTopBar({
+  status,
+  showSearch,
+  searchRef,
+}: {
+  status: ShellStatus;
+  showSearch: boolean;
+  searchRef: RefObject<HTMLInputElement | null>;
+}) {
+  const { t } = usePrefs();
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const value = query.trim();
+    // The existing road search lives at /traveller and reads ?q=.
+    void navigate({
+      to: "/traveller",
+      search: {
+        q: value || undefined,
+        from: undefined,
+        to: undefined,
+        view: undefined,
+        seg: undefined,
+      },
+    });
+  };
+
+  return (
+    <header
+      data-testid="shell-topbar"
+      className="rp-shell flex h-14 shrink-0 items-center gap-3 border-b border-shell-divider bg-shell-bg px-4 text-shell-text max-lg:hidden"
+    >
+      {showSearch ? (
+        <form
+          role="search"
+          onSubmit={submit}
+          className="relative w-full max-w-md"
+        >
+          <label htmlFor="shell-search" className="sr-only">
+            {t("shell.search")}
+          </label>
+          <Search
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-shell-muted"
+          />
+          <input
+            id="shell-search"
+            ref={searchRef}
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t("shell.search")}
+            aria-keyshortcuts="Control+K Meta+K"
+            className="h-11 w-full rounded-md border border-shell-divider bg-shell-surface pr-3 pl-9 text-sm text-shell-text placeholder:text-shell-muted"
+          />
+        </form>
+      ) : null}
+      <div className="flex-1" />
+      <StatusChip status={status} />
+      <ReportButton />
+    </header>
+  );
+}
+
+/** Mobile top bar (56px): logo, search icon, language, status dot, avatar. */
+export function MobileTopBar({
+  status,
+  onOpenLogin,
+  onOpenSearch,
+}: {
+  status: ShellStatus;
+  onOpenLogin: () => void;
+  onOpenSearch: () => void;
+}) {
+  const { t, lang, setLang } = usePrefs();
+  const session = useAccountSession();
+  const signedIn = session.status === "authenticated";
+  const initial = (
+    session.status === "authenticated" && session.email ? session.email : "?"
+  )
+    .charAt(0)
+    .toUpperCase();
+
+  return (
+    <header
+      data-testid="shell-mobilebar"
+      className="rp-shell flex h-14 shrink-0 items-center gap-1 border-b border-shell-divider bg-shell-bg px-3 text-shell-text lg:hidden"
+    >
+      <ShellLogo />
+      <div className="flex-1" />
+      <Button
+        asChild
+        variant="ghost"
+        size="icon"
+        aria-label={t("shell.checkRoad")}
+        className="text-shell-text"
+      >
+        <Link to="/traveller">
+          <Search aria-hidden />
+        </Link>
+      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            aria-label={t("shell.language")}
+            className="rp-shell-transition inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-md px-2 text-sm font-medium text-shell-text hover:bg-shell-surface"
+          >
+            {lang === "en" ? "EN" : "हिन्दी"}
+            <ChevronDown aria-hidden className="size-4" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="rp-shell border-shell-divider bg-shell-surface text-shell-text"
+        >
+          <DropdownMenuRadioGroup
+            value={lang}
+            onValueChange={(value) => setLang(value as Lang)}
+          >
+            <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="hi" lang="hi">
+              हिन्दी
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <StatusChip status={status} compact />
+      {signedIn ? (
+        <AccountMenu
+          status={status}
+          onOpenSearch={onOpenSearch}
+          trigger={
+            <button
+              type="button"
+              aria-label={t("shell.accountMenu")}
+              className="rp-shell-transition grid min-h-11 min-w-11 place-items-center rounded-full text-shell-text hover:bg-shell-surface"
+            >
+              <span
+                aria-hidden
+                className="grid size-8 place-items-center rounded-full bg-shell-raised text-sm font-semibold"
+              >
+                {initial}
+              </span>
+            </button>
+          }
+        />
+      ) : (
+        // Signed out: the same menu (theme, language, about) plus Community Login.
+        <AccountMenu
+          status={status}
+          onOpenLogin={onOpenLogin}
+          onOpenSearch={onOpenSearch}
+          trigger={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("shell.accountMenu")}
+              className="text-shell-text"
+            >
+              <UserRound aria-hidden />
+            </Button>
+          }
+        />
+      )}
+    </header>
+  );
+}
+
+/** Mobile bottom tabs. Fixed, with the safe-area inset below. */
+export function BottomTabs({
+  active,
+  onGuard,
+}: {
+  active: ShellPath | null;
+  onGuard: (to: ShellPath) => boolean;
+}) {
+  const { t } = usePrefs();
+  return (
+    <nav
+      aria-label={t("nav.primary")}
+      data-testid="shell-tabs"
+      className="rp-shell fixed inset-x-0 bottom-0 z-(--z-bottom-nav) border-t border-shell-divider bg-shell-bg pb-[env(safe-area-inset-bottom)] text-shell-text lg:hidden"
+    >
+      <ul className="m-0 flex h-16 list-none items-end justify-around p-0 px-1">
+        {TAB_NAV.map((item) => {
+          const Icon = item.icon;
+          const isActive = active === item.to;
+          const label = t(item.label);
+          if (item.primaryAction) {
+            return (
+              <li key={item.to} className="flex flex-1 justify-center">
+                <Link
+                  to="/report"
+                  search={{ segment: undefined }}
+                  aria-label={t("shell.reportAHazard")}
+                  aria-current={isActive ? "page" : undefined}
+                  className="-mt-5 grid size-14 place-items-center self-start rounded-full bg-report text-report-foreground shadow-sm"
+                >
+                  <Icon aria-hidden className="size-7" />
+                </Link>
+              </li>
+            );
+          }
+          return (
+            <li key={item.to} className="flex-1">
+              <Link
+                to={item.to}
+                aria-current={isActive ? "page" : undefined}
+                onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+                  if (item.requiresSignIn && onGuard(item.to))
+                    event.preventDefault();
+                }}
+                className={cn(
+                  "rp-shell-transition flex min-h-14 min-w-11 flex-col items-center justify-center gap-0.5 text-xs font-medium",
+                  isActive ? "text-shell-text" : "text-shell-muted",
+                )}
+              >
+                <Icon aria-hidden className="size-5" />
+                <span>{label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}

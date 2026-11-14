@@ -1420,3 +1420,70 @@ textarea::placeholder {
     opacity: 1;
   }
 }
+
+/* ---------------------------------------------------------------------
+   App shell (left rail, top bar, bottom tabs). Its own tokens so the shell
+   reads the same on every route in both themes. Hex values live only here.
+   --------------------------------------------------------------------- */
+:root {
+  --shell-bg: #e6e4dc;
+  --shell-surface: #f8f6ef;
+  --shell-raised: #ffffff;
+  --shell-text: #111719;
+  --shell-muted: #4b5558;
+  --shell-divider: #bcc2be;
+  --shell-focus: #245c98;
+  --shell-link: #245c98;
+  /* The active-item edge bar: ivory on dark, ink on light so it stays visible. */
+  --shell-active-bar: #111719;
+  --shell-rail-expanded: 240px;
+  --shell-rail-collapsed: 72px;
+  --shell-bar-height: 56px;
+  --shell-tabs-height: 64px;
+}
+.dark {
+  --shell-bg: #111719;
+  --shell-surface: #272a2d;
+  --shell-raised: #30363a;
+  --shell-text: #e6e4dc;
+  --shell-muted: #b7bcb9;
+  --shell-divider: #465056;
+  --shell-focus: #f4d6a6;
+  --shell-link: #92c5ff;
+  --shell-active-bar: #e6e4dc;
+}
+@theme inline {
+  --color-shell-bg: var(--shell-bg);
+  --color-shell-surface: var(--shell-surface);
+  --color-shell-raised: var(--shell-raised);
+  --color-shell-text: var(--shell-text);
+  --color-shell-muted: var(--shell-muted);
+  --color-shell-divider: var(--shell-divider);
+  --color-shell-focus: var(--shell-focus);
+  --color-shell-link: var(--shell-link);
+  --color-shell-active-bar: var(--shell-active-bar);
+}
+/* One visible focus ring for every shell control: 3px, focus token, 3px offset. */
+:root .rp-shell :focus-visible,
+:root:not(.dark) .rp-shell :focus-visible {
+  outline: 3px solid var(--shell-focus);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+.rp-shell-transition {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    width 200ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rp-shell-transition {
+    transition: none;
+  }
+}
+/* Light-mode hover rule elsewhere adds a background to bare links; shell
+   items manage their own hover with tokens. */
+:root:not(.dark) .rp-shell a:not([class*='bg-']):hover,
+:root:not(.dark) .rp-shell button:not([class*='bg-']):not(:disabled):hover {
+  background-color: var(--shell-raised);
+}

@@ -71,6 +71,11 @@ interface FeatureSearchModalProps {
   onOpenChange: (open: boolean) => void;
   /** The button that opened the palette; focus returns there on close. */
   returnFocusRef?: RefObject<HTMLElement | null>;
+  /**
+   * Whether Ctrl+K / Cmd+K toggles the palette (default true). The app shell
+   * turns it off while its own road search field owns the shortcut.
+   */
+  shortcutEnabled?: boolean;
 }
 
 /** True for Ctrl+K, or Cmd+K on a Mac keyboard. */
@@ -93,6 +98,7 @@ export function FeatureSearchModal({
   open,
   onOpenChange,
   returnFocusRef,
+  shortcutEnabled = true,
 }: FeatureSearchModalProps) {
   const { t } = usePrefs();
   const navigate = useNavigate();
@@ -119,6 +125,8 @@ export function FeatureSearchModal({
   // event always sees the latest `open`, so the listener is attached once.
   const onShortcut = useEffectEvent((event: globalThis.KeyboardEvent) => {
     if (!isToggleShortcut(event) || event.repeat) return;
+    // Closing with the shortcut always works; opening only when enabled.
+    if (!open && !shortcutEnabled) return;
     event.preventDefault();
     if (!open && document.activeElement instanceof HTMLElement)
       shortcutOrigin.current = document.activeElement;

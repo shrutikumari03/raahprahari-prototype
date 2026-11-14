@@ -48,10 +48,6 @@ async function mountAt(path: string) {
   return router;
 }
 
-const header = () =>
-  Array.from(document.querySelectorAll("header")).find(
-    (el) => !el.closest("main"),
-  )!;
 /** Role queries over the whole page are very slow in jsdom while a Radix dialog is open. */
 const openDialog = () =>
   waitFor(() => {
@@ -62,107 +58,90 @@ const openDialog = () =>
 const pathOf = (el: HTMLElement) =>
   new URL(el.getAttribute("href")!, "http://x").pathname;
 
-const HEADER_LINKS = [
-  ["Home", "/"],
-  ["Search roads", "/traveller"],
-  ["Live Map", "/map"],
+const RAIL_LINKS = [
+  ["Check a road", "/traveller"],
+  ["Live map", "/map"],
   ["Advisories", "/advisories"],
   ["Help", "/help"],
-  ["About", "/about"],
 ] as const;
 
-describe("header and bottom navigation", () => {
-  it.each(HEADER_LINKS.filter(([, to]) => to !== "/"))(
-    'header link "%s" opens %s',
+const rail = () => screen.getByTestId("shell-rail");
+const tabs = () => screen.getByTestId("shell-tabs");
+const topBar = () => screen.getByTestId("shell-topbar");
+
+describe("app shell: rail, top bar and bottom tabs", () => {
+  it.each(RAIL_LINKS)(
+    'rail link "%s" opens %s',
     async (name, to) => {
-      const router = await mountAt("/");
-      const primary = within(header()).getByRole("navigation", {
-        name: "Primary",
-      });
-      if (to === "/about") {
-        const user = userEvent.setup();
-        await user.click(within(header()).getByRole("button", { name: "More" }));
-        await user.click(await screen.findByRole("menuitem", { name }));
-      } else {
-        fireEvent.click(within(primary).getByRole("link", { name }));
-      }
+      const router = await mountAt("/about");
+      fireEvent.click(within(rail()).getByRole("link", { name }));
       await waitFor(() => expect(router.state.location.pathname).toBe(to));
     },
     30_000,
   );
 
   it.each([
-    ["Search roads", "/traveller"],
-    ["Report Hazard", "/report"],
-    ["Live Map", "/map"],
-    ["Advisories", "/advisories"],
+    ["Map", "/map"],
+    ["Report a hazard", "/report"],
   ])(
-    'bottom link "%s" opens %s',
+    'bottom tab "%s" opens %s',
     async (name, to) => {
       const router = await mountAt("/about");
-      const bottom = screen.getByRole("navigation", {
-        name: "Quick navigation",
-      });
-      fireEvent.click(within(bottom).getByRole("link", { name }));
+      fireEvent.click(within(tabs()).getByRole("link", { name }));
       await waitFor(() => expect(router.state.location.pathname).toBe(to));
     },
     30_000,
   );
 
-  it("logo returns home and the header Report Hazard button opens /report", async () => {
+  it("logo returns home and the top-bar Report hazard button opens /report", async () => {
     const router = await mountAt("/about");
-    const reportLinks = within(header()).getAllByRole("link", {
-      name: "Report Hazard",
+    const report = within(topBar()).getByRole("link", {
+      name: "Report hazard",
     });
-    expect(reportLinks).toHaveLength(2);
-    expect(reportLinks.map(pathOf)).toEqual(["/report", "/report"]);
-    fireEvent.click(reportLinks[0]);
+    expect(pathOf(report)).toBe("/report");
+    fireEvent.click(report);
     await waitFor(() => expect(router.state.location.pathname).toBe("/report"));
-    const logo = within(header())
-      .getAllByRole("link")
-      .find((l) => pathOf(l) === "/" && l.getAttribute("aria-label"));
-    fireEvent.click(logo!);
+    const logo = within(rail()).getByRole("link", { name: "RaahPrahari home" });
+    expect(pathOf(logo)).toBe("/");
+    fireEvent.click(logo);
     await waitFor(() => expect(router.state.location.pathname).toBe("/"));
   }, 30_000);
 
-  it("language buttons switch the interface language", async () => {
+  it("rail language buttons switch the interface language", async () => {
     await mountAt("/");
-    const group = within(header()).getByRole("group", { name: "Language" });
+    const group = within(rail()).getByRole("group", { name: "Language" });
     const [en, hi] = within(group).getAllByRole("button");
     expect(en).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(hi);
     await waitFor(() => expect(hi).toHaveAttribute("aria-pressed", "true"));
     expect(en).toHaveAttribute("aria-pressed", "false");
     expect(
-      within(header()).getAllByRole("link", { name: "ख़तरा बताएँ" })[0],
+      within(topBar()).getByRole("link", { name: "ख़तरा बताएँ" }),
     ).toBeVisible();
     fireEvent.click(en);
     await waitFor(() => expect(en).toHaveAttribute("aria-pressed", "true"));
   }, 30_000);
 
-  it("theme button cycles the theme and changes its own label", async () => {
+  it("the settings menu offers Light, Dark and System, and each one applies", async () => {
     await mountAt("/");
-    const seen = new Set<string>();
-    for (let i = 0; i < 3; i++) {
-      const button = within(header()).getByRole("button", {
-        name: /theme|dark|light|system/i,
-      });
-      seen.add(button.getAttribute("aria-label")!);
-      fireEvent.click(button);
-      await waitFor(() =>
-        expect(
-          within(header()).getByRole("button", {
-            name: /theme|dark|light|system/i,
-          }),
-        ).not.toBe(button),
-      ).catch(() => undefined);
+    const user = userEvent.setup();
+    const seen: string[] = [];
+    for (const name of ["Light", "Dark", "System", "Light"]) {
+      await user.click(
+        within(rail()).getByRole("button", { name: "Settings" }),
+      );
+      await user.click(await screen.findByRole("menuitemradio", { name }));
+      await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+      seen.push(name);
     }
-    expect(seen.size).toBeGreaterThan(1);
+    expect(seen).toEqual(["Light", "Dark", "System", "Light"]);
+    expect(document.documentElement).not.toHaveClass("dark");
+    expect(document.documentElement.style.colorScheme).toBe("light");
   }, 30_000);
 
   it("Community Login opens the sign-in dialog and Close dismisses it", async () => {
     await mountAt("/");
-    const trigger = within(header()).getByRole("button", {
+    const trigger = within(rail()).getByRole("button", {
       name: "Community Login",
     });
     trigger.focus();
@@ -192,59 +171,58 @@ describe("header and bottom navigation", () => {
 
   it("hides controls for features that are not available yet", async () => {
     await mountAt("/");
-    // The official portal is deferred (VA-16), so no control pretends to offer it.
+    // The official and review screens need a server-assigned role, so no
+    // control pretends to offer them to everyone.
     expect(
-      within(header()).queryByRole("link", { name: "Official" }),
+      within(rail()).queryByRole("link", { name: "Official updates" }),
+    ).toBeNull();
+    expect(
+      within(rail()).queryByRole("link", { name: "Review queue" }),
     ).toBeNull();
   }, 30_000);
 
-  it("mobile menu opens, its links navigate and it closes", async () => {
+  it("signed-out Reports tab asks for sign-in instead of navigating", async () => {
     const router = await mountAt("/");
-    fireEvent.click(
-      within(header()).getByRole("button", { name: "Open menu" }),
-    );
-    const dialog = await openDialog();
-    fireEvent.click(within(dialog).getByRole("link", { name: "Help" }));
-    await waitFor(() => expect(router.state.location.pathname).toBe("/help"));
+    fireEvent.click(within(tabs()).getByRole("link", { name: "Reports" }));
+    const login = await openDialog();
+    expect(within(login).getByLabelText("Email")).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/");
+    fireEvent.click(within(login).getByRole("button", { name: "Close" }));
     await waitFor(() =>
       expect(document.querySelector('[role="dialog"]')).toBeNull(),
     );
   }, 30_000);
 
-  it("mobile menu Login and Report buttons work", async () => {
-    const router = await mountAt("/");
-    fireEvent.click(
-      within(header()).getByRole("button", { name: "Open menu" }),
+  it("mobile account menu offers Community Login and the page palette", async () => {
+    await mountAt("/");
+    const user = userEvent.setup();
+    const bar = screen.getByTestId("shell-mobilebar");
+    await user.click(within(bar).getByRole("button", { name: "Account menu" }));
+    const menu = await screen.findByRole("menu");
+    expect(
+      within(menu).getByRole("menuitem", { name: "Community Login" }),
+    ).toBeInTheDocument();
+    expect(
+      within(menu).getByRole("menuitem", { name: "Search features" }),
+    ).toBeInTheDocument();
+    await user.click(
+      within(menu).getByRole("menuitem", { name: "Community Login" }),
     );
-    let menu = await openDialog();
-    fireEvent.click(
-      within(menu).getByRole("button", { name: "Community Login" }),
-    );
-    // The menu closes and the login dialog takes its place.
-    const login = await waitFor(() => {
-      const dialogs = document.querySelectorAll<HTMLElement>('[role="dialog"]');
-      if (dialogs.length !== 1 || dialogs[0] === menu)
-        throw new Error("login not open yet");
-      return dialogs[0];
-    });
-    expect(within(login).queryByRole("navigation")).toBeNull();
-    expect(within(login).getByLabelText("Email")).toBeInTheDocument();
-    fireEvent.click(
-      within(login).getAllByRole("button", { name: /close/i })[0],
-    );
-    await waitFor(() =>
-      expect(document.querySelector('[role="dialog"]')).toBeNull(),
-    );
+    const login = await openDialog();
+    expect(login).toHaveAccessibleName("Community login");
+  }, 30_000);
 
-    fireEvent.click(
-      within(header()).getByRole("button", { name: "Open menu" }),
+  it("the shell road search sends a query to /traveller", async () => {
+    const router = await mountAt("/advisories");
+    const input = within(topBar()).getByLabelText("Search road or place");
+    fireEvent.change(input, { target: { value: "Rishikesh" } });
+    fireEvent.submit(input.closest("form")!);
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe("/traveller"),
     );
-    menu = await openDialog();
-    fireEvent.click(within(menu).getByRole("link", { name: "Report Hazard" }));
-    await waitFor(() => expect(router.state.location.pathname).toBe("/report"));
+    expect(router.state.location.search).toMatchObject({ q: "Rishikesh" });
   }, 30_000);
 });
-
 describe("footer", () => {
   it.each([
     ["About", "/about", ""],

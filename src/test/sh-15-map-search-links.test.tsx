@@ -36,6 +36,7 @@ const routePaths = [
   "/status",
   "/contributions",
   "/official",
+  "/profile",
   "/review",
   "/review/RP-419301",
 ] as const;
@@ -119,7 +120,7 @@ describe("SH-15 map provider fallback", () => {
         expect(selectors[0]).toHaveAttribute("aria-pressed", "true");
 
         const reportLinks = await screen.findAllByRole("link", {
-          name: "Report Hazard",
+          name: "Report hazard",
         });
         expect(reportLinks.length).toBeGreaterThan(0);
         for (const reportLink of reportLinks) {

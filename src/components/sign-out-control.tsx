@@ -18,17 +18,12 @@ import { countUnsyncedDrafts } from "@/lib/draft-repository";
 type Pending = { count: number | null } | null;
 
 /**
- * Sign-out that first checks this account's unsynced reports. Drafts are
+ * Sign-out flow that first checks this account's unsynced reports. Drafts are
  * never deleted; they stay in this account's local scope and resume syncing
- * after the same account signs in again.
+ * after the same account signs in again. Render `dialog` somewhere that stays
+ * mounted (e.g. not inside a menu that closes).
  */
-export function SignOutButton({
-  className,
-  variant = "outline",
-}: {
-  className?: string;
-  variant?: "outline" | "default";
-}) {
+export function useSignOutFlow() {
   const { t } = usePrefs();
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<Pending>(null);
@@ -68,19 +63,8 @@ export function SignOutButton({
           String(count),
         );
 
-  return (
-    <>
-      <Button
-        type="button"
-        variant={variant}
-        className={className}
-        disabled={busy}
-        aria-busy={busy}
-        onClick={() => void start()}
-      >
-        {busy ? t("login.signingOut") : t("login.signOut")}
-      </Button>
-      <Dialog
+  const dialog = (
+    <Dialog
         open={pending !== null}
         onOpenChange={(open) => {
           if (!open && !busy) setPending(null);
@@ -114,6 +98,33 @@ export function SignOutButton({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+  );
+
+  return { busy, start, dialog };
+}
+
+export function SignOutButton({
+  className,
+  variant = "outline",
+}: {
+  className?: string;
+  variant?: "outline" | "default";
+}) {
+  const { t } = usePrefs();
+  const { busy, start, dialog } = useSignOutFlow();
+  return (
+    <>
+      <Button
+        type="button"
+        variant={variant}
+        className={className}
+        disabled={busy}
+        aria-busy={busy}
+        onClick={() => void start()}
+      >
+        {busy ? t("login.signingOut") : t("login.signOut")}
+      </Button>
+      {dialog}
     </>
   );
 }

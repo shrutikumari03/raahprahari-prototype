@@ -1,176 +1,278 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { join } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
 
-const SRC = join(process.cwd(), 'src')
-const read = (p: string) => readFileSync(join(SRC, p), 'utf8')
+const SRC = join(process.cwd(), "src");
+const read = (p: string) => readFileSync(join(SRC, p), "utf8");
 
 function walk(dir: string, out: string[] = []) {
   for (const name of readdirSync(dir)) {
-    const full = join(dir, name)
-    if (statSync(full).isDirectory()) walk(full, out)
-    else if (/\.(tsx?|css|json|md)$/.test(name)) out.push(full)
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) walk(full, out);
+    else if (/\.(tsx?|css|json|md)$/.test(name)) out.push(full);
   }
-  return out
+  return out;
 }
 
-describe('no mojibake in sources', () => {
-  it('has no UTF-8-as-Latin-1 sequences', () => {
+describe("no mojibake in sources", () => {
+  it("has no UTF-8-as-Latin-1 sequences", () => {
     const bad = walk(SRC)
-      .filter((f) => !f.endsWith('light-theme-quality.test.ts'))
+      .filter((f) => !f.endsWith("light-theme-quality.test.ts"))
       .filter((f) => {
-        const s = readFileSync(f, 'utf8')
-        return s.includes('\u00e0\u00a4') || s.includes('\u00c3\u00a2')
-      })
-    expect(bad).toEqual([])
-  })
-})
+        const s = readFileSync(f, "utf8");
+        return s.includes("\u00e0\u00a4") || s.includes("\u00c3\u00a2");
+      });
+    expect(bad).toEqual([]);
+  });
+});
 
 /** Light tokens: the first plain `:root {` block that declares --background. */
-const styles = read('styles.css')
-const light: Record<string, string> = {}
-for (const m of styles.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/(^|\n):root\s*\{([^{}]*)\}/g)) {
-  for (const d of m[2].matchAll(/(--[\w-]+):\s*([^;]+);/g)) light[d[1]] = d[2].trim()
+const styles = read("styles.css");
+const light: Record<string, string> = {};
+for (const m of styles
+  .replace(/\/\*[\s\S]*?\*\//g, "")
+  .matchAll(/(^|\n):root\s*\{([^{}]*)\}/g)) {
+  for (const d of m[2].matchAll(/(--[\w-]+):\s*([^;]+);/g))
+    light[d[1]] = d[2].trim();
 }
 
 function hex(name: string): [number, number, number] {
-  let v = light[name]
-  for (let i = 0; i < 5 && v?.startsWith('var('); i++) v = light[v.slice(4, -1)]
-  const m = /^#([0-9a-f]{6})$/i.exec(v ?? '')
-  if (!m) throw new Error(`token ${name} is not a hex colour: ${v}`)
-  const n = parseInt(m[1], 16)
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+  let v = light[name];
+  for (let i = 0; i < 5 && v?.startsWith("var("); i++)
+    v = light[v.slice(4, -1)];
+  const m = /^#([0-9a-f]{6})$/i.exec(v ?? "");
+  if (!m) throw new Error(`token ${name} is not a hex colour: ${v}`);
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 function lum([r, g, b]: [number, number, number]) {
   const f = (c: number) => {
-    const s = c / 255
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
-  }
-  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
 }
 function ratio(a: string, b: string) {
-  const [x, y] = [lum(hex(a)), lum(hex(b))].sort((p, q) => q - p)
-  return (x + 0.05) / (y + 0.05)
+  const [x, y] = [lum(hex(a)), lum(hex(b))].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
 }
 
-describe('light theme contrast tokens', () => {
-  it('body text is near #1B2326 with at least 7:1 on every light surface', () => {
-    expect(light['--foreground'].toLowerCase()).toBe('#1b2326')
-    for (const bg of ['--background', '--card', '--muted', '--accent', '--popover']) {
-      expect(ratio('--foreground', bg), bg).toBeGreaterThanOrEqual(7)
+describe("light theme contrast tokens", () => {
+  it("body text is near #1B2326 with at least 7:1 on every light surface", () => {
+    expect(light["--foreground"].toLowerCase()).toBe("#1b2326");
+    for (const bg of [
+      "--background",
+      "--card",
+      "--muted",
+      "--accent",
+      "--popover",
+    ]) {
+      expect(ratio("--foreground", bg), bg).toBeGreaterThanOrEqual(7);
     }
-  })
+  });
 
-  it('muted text, orange wordmark and links are at least 4.5:1', () => {
-    for (const bg of ['--background', '--card', '--muted', '--accent']) {
-      expect(ratio('--muted-foreground', bg), bg).toBeGreaterThanOrEqual(4.5)
+  it("muted text, orange wordmark and links are at least 4.5:1", () => {
+    for (const bg of ["--background", "--card", "--muted", "--accent"]) {
+      expect(ratio("--muted-foreground", bg), bg).toBeGreaterThanOrEqual(4.5);
     }
-    expect(ratio('--orange-on-light', '--background')).toBeGreaterThanOrEqual(4.5)
-    expect(ratio('--link', '--background')).toBeGreaterThanOrEqual(4.5)
-  })
+    expect(ratio("--orange-on-light", "--background")).toBeGreaterThanOrEqual(
+      4.5,
+    );
+    expect(ratio("--link", "--background")).toBeGreaterThanOrEqual(4.5);
+  });
 
-  it('borders, inputs and the focus ring reach 3:1', () => {
-    expect(ratio('--border', '--background')).toBeGreaterThanOrEqual(3)
-    expect(ratio('--input', '--background')).toBeGreaterThanOrEqual(3)
-    expect(ratio('--ring', '--background')).toBeGreaterThanOrEqual(3)
-  })
-})
+  it("borders, inputs and the focus ring reach 3:1", () => {
+    expect(ratio("--border", "--background")).toBeGreaterThanOrEqual(3);
+    expect(ratio("--input", "--background")).toBeGreaterThanOrEqual(3);
+    expect(ratio("--ring", "--background")).toBeGreaterThanOrEqual(3);
+  });
+});
 
-describe('light theme visual rules', () => {
-  const logo = read('components/logo.tsx')
+describe("light theme visual rules", () => {
+  const logo = read("components/logo.tsx");
 
-  it('photo scrim fades to about 10% and text has no blurred shadow', () => {
-    expect(light['--photo-scrim-c']).toContain('10%')
-    expect(light['--photo-text-shadow-soft']).toBe('none')
-    expect(light['--photo-text-shadow-tone']).toBe('none')
-  })
+  it("photo scrim fades to about 10% and text has no blurred shadow", () => {
+    expect(light["--photo-scrim-c"]).toContain("10%");
+    expect(light["--photo-text-shadow-soft"]).toBe("none");
+    expect(light["--photo-text-shadow-tone"]).toBe("none");
+  });
 
-  it('header logo swaps by theme without a dark box in light', () => {
-    expect(logo).toContain('dark:block')
-    expect(logo).toContain('dark:hidden')
-    expect(logo).toContain('logo-on-light')
-    expect(logo).toContain('logo-on-dark')
-  })
+  it("header logo swaps by theme without a dark box in light", () => {
+    expect(logo).toContain("dark:block");
+    expect(logo).toContain("dark:hidden");
+    expect(logo).toContain("logo-on-light");
+    expect(logo).toContain("logo-on-dark");
+  });
 
-  it('light mode removes backdrop blur', () => {
-    expect(styles).toMatch(/:root:not\(\.dark\) \[class\*='backdrop-blur'\]/)
-  })
-})
+  it("light mode removes backdrop blur", () => {
+    expect(styles).toMatch(/:root:not\(\.dark\) \[class\*='backdrop-blur'\]/);
+  });
+});
 
-describe('header layout does not overlap at 1280, 1440 and 1920', () => {
-  const chrome = read('components/site-chrome.tsx')
-  const header = chrome.slice(chrome.indexOf('<header'), chrome.indexOf('</header>'))
-
-  it('uses a flex row with gap and min-w-0; it is fixed only as the xl rail', () => {
-    expect(header).toMatch(/rp-container [^"]*\bflex [^"]*min-w-0[^"]*gap-3/)
-    expect(header).not.toMatch(/\babsolute\b/)
-    // The app shell: a sticky top bar below xl, a fixed left rail from xl.
-    const classNames = (header.match(/className="[^"]*"/g) ?? []).join(' ')
-    expect(classNames).not.toMatch(/(?<!xl:)\bfixed\b/)
-    expect(header).toMatch(/xl:fixed xl:inset-y-0 xl:left-0 xl:w-\(--rp-rail-w\)/)
-  })
-
-  it('switches at xl (1280px), not at a custom or 2xl breakpoint', () => {
-    expect(header).toMatch(/rp-rail-nav hidden min-h-0 min-w-0 [^"]*xl:flex/)
-    expect(header).toMatch(/ml-auto hidden [^"]*xl:flex/)
-    expect(header).toMatch(/xl:hidden/)
-    expect(chrome).not.toMatch(/\b1440:/)
-    expect(styles).not.toMatch(/--breakpoint-1440/)
-    expect(styles).toMatch(/\.rp-header \.rp-container\s*\{\s*max-width:\s*90rem/)
-  })
-
-  it('links never wrap and keep small padding', () => {
-    // 40px rail rows on desktop pointers, so the rail fits 768px-tall screens.
-    expect(chrome).toMatch(/rp-rail-link rp-press flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium whitespace-nowrap/)
-  })
-
-  it('language switch cannot shrink or wrap into neighbours, and its focus ring is inset', () => {
-    expect(chrome).toMatch(/rp-lang inline-flex h-11 shrink-0 items-center gap-0\.5[^"]*whitespace-nowrap/)
-    expect(styles).toMatch(/\.rp-lang \.rp-lang-btn:focus-visible[\s\S]*?outline-offset:\s*-3px/)
-  })
-
-  it('1280px width fits the desktop row (search, language, theme, login, Report Hazard)', () => {
-    // 1280 viewport - 2 * 3rem padding = 1184px of inner width.
-    const inner = 1280 - 96
-    // Widths measured in Chromium at 1280px (English labels), rounded up.
-    const logoW = 37
-    const nav = 479
-    const right = 102 /* search + Ctrl K */ + 461 /* language, theme, login, report + gaps */
-    const gaps = 2 * 12 + 3 * 12 // between row items, and before the search button
-    expect(logoW + nav + right + gaps).toBeLessThan(inner)
-  })
-})
-
-describe('z-index scale', () => {
-  const num = (name: string) => {
-    const v = light[name]
-    if (!/^\d+$/.test(v ?? '')) throw new Error(`${name} is not a number: ${v}`)
-    return Number(v)
+describe("app shell layout does not overlap or hide content", () => {
+  const shell = [
+    "app-shell",
+    "rail",
+    "top-bars",
+    "shell-status",
+    "account-menu",
+    "shell-logo",
+  ]
+    .map((name) => read(`components/app-shell/${name}.tsx`))
+    .join("\n");
+  const rail = read("components/app-shell/rail.tsx");
+  const bars = read("components/app-shell/top-bars.tsx");
+  const appShell = read("components/app-shell/app-shell.tsx");
+  // The dark tokens: plain `.dark { ... }` blocks in the token file.
+  const dark: Record<string, string> = {};
+  for (const m of styles
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .matchAll(/(^|\n)\.dark\s*\{([^{}]*)\}/g)) {
+    for (const d of m[2].matchAll(/(--[\w-]+):\s*([^;]+);/g))
+      dark[d[1]] = d[2].trim();
   }
-
-  it('orders content < header < map < bottom nav < overlay < sheet < toast', () => {
-    const order = ['--z-content', '--z-header', '--z-map', '--z-bottom-nav', '--z-overlay', '--z-sheet', '--z-toast']
-    const values = order.map(num)
-    expect(values).toEqual([...values].sort((a, b) => a - b))
-    expect(new Set(values).size).toBe(values.length)
-  })
-
-  it('sheet and dialog overlay and content sit above the map layers and bottom nav', () => {
-    const maps = ['--z-map', '--z-map-controls', '--z-map-legend', '--z-map-panel'].map(num)
-    expect(Math.min(num('--z-overlay'), num('--z-sheet'))).toBeGreaterThan(Math.max(...maps, num('--z-bottom-nav')))
-  })
-
-  it('sheet and dialog use the tokens, and map containers are isolated', () => {
-    expect(read('components/ui/sheet.tsx')).toContain('z-(--z-overlay)')
-    expect(read('components/ui/sheet.tsx')).toContain('z-(--z-sheet)')
-    expect(read('components/ui/dialog.tsx')).toContain('z-(--z-overlay)')
-    expect(read('components/ui/dialog.tsx')).toContain('z-(--z-sheet)')
-    expect(styles).toMatch(/\.rp-lmap,[\s\S]*?\{\s*isolation:\s*isolate/)
-  })
-
-  it('no map stylesheet or chrome file uses a raw z-index number', () => {
-    for (const file of ['routes/map.css', 'features/map/leaflet-segment-map.css', 'routes/traveller.css', 'components/site-chrome.tsx']) {
-      expect(read(file), file).not.toMatch(/z-index:\s*\d{2,}|\bz-\d+\b|z-\[\d+\]/)
+  const luminance = (value: string) => {
+    const m = /^#([0-9a-f]{6})$/i.exec(value);
+    if (!m) throw new Error(`not a hex colour: ${value}`);
+    const [r, g, b] = [0, 2, 4].map((i) => {
+      const channel = parseInt(m[1].slice(i, i + 2), 16) / 255;
+      return channel <= 0.03928
+        ? channel / 12.92
+        : ((channel + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  it("uses flex rows with min-w-0 and gap, with no absolute-positioned bars", () => {
+    expect(bars).toMatch(/flex h-14 shrink-0 items-center gap-3/);
+    expect(bars).toMatch(/flex h-14 shrink-0 items-center gap-1/);
+    expect(appShell).toMatch(/flex min-w-0 flex-1 flex-col/);
+  });
+  it("switches once, at lg (1024px), and uses no other layout breakpoint", () => {
+    expect(rail).toMatch(/hidden [^"]*lg:flex/);
+    expect(bars).toMatch(/max-lg:hidden/);
+    expect(bars.match(/lg:hidden/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(shell).not.toMatch(/\b(xl|2xl|1440):(flex|hidden)\b/);
+    expect(styles).not.toMatch(/--breakpoint-1440/);
+    // Viewport-height pages subtract the shell's own top bar, not a second number.
+    expect(styles).toMatch(/--rp-top-h:\s*var\(--shell-bar-height\)/);
+    expect(styles).not.toMatch(/--rp-rail-w|--rp-bottom-h/);
+  });
+  it("rail items never wrap and keep 44px targets", () => {
+    expect(rail).toMatch(
+      /min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium/,
+    );
+    expect(bars).toMatch(/min-h-14 min-w-11 flex-col/);
+    // Language buttons (signed out) are 44px targets too.
+    expect(rail).toMatch(/min-h-11 min-w-11 rounded-md px-2 text-sm font-medium/);
+  });
+  it("every shell colour comes from theme tokens, never a fixed value", () => {
+    expect(shell).not.toMatch(
+      /#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bbg-(white|black|slate|zinc|gray|neutral)\b|\btext-(white|black)\b/,
+    );
+    // The tokens exist for both themes, so the shell follows the document theme.
+    for (const key of [
+      "--shell-bg",
+      "--shell-surface",
+      "--shell-text",
+      "--shell-muted",
+      "--shell-divider",
+      "--shell-focus",
+    ]) {
+      expect(light[key], `${key} in light`).toBeTruthy();
+      expect(dark[key], `${key} in dark`).toBeTruthy();
+      expect(light[key]).not.toBe(dark[key]);
     }
-  })
-})
+    expect(luminance(light["--shell-bg"])).toBeGreaterThan(0.5);
+    expect(luminance(dark["--shell-bg"])).toBeLessThan(0.05);
+    expect(luminance(light["--shell-text"])).toBeLessThan(0.1);
+    expect(luminance(dark["--shell-text"])).toBeGreaterThan(0.5);
+  });
+  it("keeps shell text readable against its surfaces in both themes", () => {
+    const ratio = (a: string, b: string) => {
+      const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+      return (hi + 0.05) / (lo + 0.05);
+    };
+    for (const theme of [light, dark]) {
+      expect(
+        ratio(theme["--shell-text"], theme["--shell-bg"]),
+      ).toBeGreaterThanOrEqual(4.5);
+      expect(
+        ratio(theme["--shell-muted"], theme["--shell-bg"]),
+      ).toBeGreaterThanOrEqual(4.5);
+      expect(
+        ratio(theme["--shell-muted"], theme["--shell-surface"]),
+      ).toBeGreaterThanOrEqual(4.5);
+      expect(
+        ratio(theme["--shell-focus"], theme["--shell-bg"]),
+      ).toBeGreaterThanOrEqual(3);
+    }
+  });
+  it("draws a 3px focus ring with a 3px offset on shell controls", () => {
+    expect(styles).toMatch(
+      /\.rp-shell :focus-visible[\s\S]*?outline:\s*3px solid var\(--shell-focus\)[\s\S]*?outline-offset:\s*3px/,
+    );
+  });
+  it("turns transitions off for reduced motion", () => {
+    expect(styles).toMatch(
+      /prefers-reduced-motion: reduce\)\s*\{\s*\.rp-shell-transition\s*\{\s*transition:\s*none/,
+    );
+  });
+});
+describe("z-index scale", () => {
+  const num = (name: string) => {
+    const v = light[name];
+    if (!/^\d+$/.test(v ?? ""))
+      throw new Error(`${name} is not a number: ${v}`);
+    return Number(v);
+  };
+
+  it("orders content < header < map < bottom nav < overlay < sheet < toast", () => {
+    const order = [
+      "--z-content",
+      "--z-header",
+      "--z-map",
+      "--z-bottom-nav",
+      "--z-overlay",
+      "--z-sheet",
+      "--z-toast",
+    ];
+    const values = order.map(num);
+    expect(values).toEqual([...values].sort((a, b) => a - b));
+    expect(new Set(values).size).toBe(values.length);
+  });
+
+  it("sheet and dialog overlay and content sit above the map layers and bottom nav", () => {
+    const maps = [
+      "--z-map",
+      "--z-map-controls",
+      "--z-map-legend",
+      "--z-map-panel",
+    ].map(num);
+    expect(Math.min(num("--z-overlay"), num("--z-sheet"))).toBeGreaterThan(
+      Math.max(...maps, num("--z-bottom-nav")),
+    );
+  });
+
+  it("sheet and dialog use the tokens, and map containers are isolated", () => {
+    expect(read("components/ui/sheet.tsx")).toContain("z-(--z-overlay)");
+    expect(read("components/ui/sheet.tsx")).toContain("z-(--z-sheet)");
+    expect(read("components/ui/dialog.tsx")).toContain("z-(--z-overlay)");
+    expect(read("components/ui/dialog.tsx")).toContain("z-(--z-sheet)");
+    expect(styles).toMatch(/\.rp-lmap,[\s\S]*?\{\s*isolation:\s*isolate/);
+  });
+
+  it("no map stylesheet or chrome file uses a raw z-index number", () => {
+    for (const file of [
+      "routes/map.css",
+      "features/map/leaflet-segment-map.css",
+      "routes/traveller.css",
+      "components/app-shell/app-shell.tsx",
+      "components/app-shell/rail.tsx",
+      "components/app-shell/top-bars.tsx",
+    ]) {
+      expect(read(file), file).not.toMatch(
+        /z-index:\s*\d{2,}|\bz-\d+\b|z-\[\d+\]/,
+      );
+    }
+  });
+});

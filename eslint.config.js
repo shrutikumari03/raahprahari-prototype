@@ -4,7 +4,8 @@ import reactHooks from 'eslint-plugin-react-hooks'
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', '.netlify/**', '.tanstack/**', 'src/routeTree.gen.ts'],
+    // .kiro holds agent skills and their Node helper scripts, not app code.
+    ignores: ['dist/**', '.netlify/**', '.tanstack/**', '.kiro/**', 'src/routeTree.gen.ts'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

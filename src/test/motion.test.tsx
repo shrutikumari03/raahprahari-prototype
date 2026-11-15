@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input'
 import { SkeletonList } from '@/components/ui/skeleton'
 
 const css = readFileSync('src/styles.css', 'utf8').replace(/\r\n/g, '\n')
-const rootSource = readFileSync('src/routes/__root.tsx', 'utf8')
+// The app shell (rendered by the root route) clips sideways overflow for every page.
+const rootSource = readFileSync('src/components/app-shell/app-shell.tsx', 'utf8')
 
 /** The global prefers-reduced-motion block (the boot/route-progress block after it is local). */
 function reducedBlock() {

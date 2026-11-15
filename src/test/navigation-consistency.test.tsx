@@ -2,49 +2,71 @@ import {
   createMemoryHistory,
   createRouter,
   RouterProvider,
-} from '@tanstack/react-router'
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
-import { routeTree } from '@/routeTree.gen'
-import { NotFoundPage } from '@/components/error-pages'
-import { activeNavTarget } from '@/components/site-chrome'
+} from "@tanstack/react-router";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { routeTree } from "@/routeTree.gen";
+import { NotFoundPage } from "@/components/error-pages";
+import { activeNavTarget } from "@/components/app-shell/nav";
+import { setAccountSession } from "@/lib/account-session";
 
-const PRIMARY = [
-  ['Home', '/'],
-  ['Search roads', '/traveller'],
-  ['Live Map', '/map'],
-  ['Advisories', '/advisories'],
-  ['Help', '/help'],
-  // The rail's "More" group, signed out (My Reports needs a session).
-  ['Contributions', '/contributions'],
-  ['About', '/about'],
-  ['Contact', '/contact'],
-] as const
+// Keep the root session bridge away from a real Supabase project.
+vi.mock("@/lib/supabase", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/supabase")>();
+  return {
+    ...actual,
+    isSupabaseConfigured: () => false,
+    getSupabaseClient: () => {
+      throw new actual.SupabaseConfigError(["VITE_SUPABASE_URL"]);
+    },
+  };
+});
 
-const BOTTOM = [
-  ['Home', '/'],
-  ['Search roads', '/traveller'],
-  ['Report Hazard', '/report'],
-  ['Live Map', '/map'],
-  ['Advisories', '/advisories'],
-] as const
+const RAIL = [
+  ["Home", "/"],
+  ["Check a road", "/traveller"],
+  ["Live map", "/map"],
+  ["Advisories", "/advisories"],
+  ["My reports", "/reports"],
+  ["Contributions", "/contributions"],
+  ["Help", "/help"],
+] as const;
 
-/** Every route that must show the shared header, with the nav item expected to be active. */
-const ROUTES: { path: string; active: string | null }[] = [
-  { path: '/', active: '/' },
-  { path: '/traveller', active: '/traveller' },
-  { path: '/map', active: '/map' },
-  { path: '/advisories', active: '/advisories' },
-  { path: '/advisories/nh7-06', active: '/advisories' },
-  { path: '/help', active: '/help' },
-  { path: '/about', active: '/about' },
-  { path: '/contact', active: '/contact' },
-  { path: '/reports', active: '/reports' },
-  { path: '/report', active: '/report' },
-  { path: '/no-such-page', active: null },
-]
+const TABS = [
+  ["Home", "/"],
+  ["Map", "/map"],
+  ["Report a hazard", "/report"],
+  ["Reports", "/reports"],
+  ["Profile", "/profile"],
+] as const;
 
-afterEach(cleanup)
+/** Every route that must show the shared shell, with the item expected to be current. */
+const ROUTES: { path: string; rail: string | null; tab: string | null }[] = [
+  { path: "/", rail: "/", tab: "/" },
+  { path: "/traveller", rail: "/traveller", tab: null },
+  { path: "/map", rail: "/map", tab: "/map" },
+  { path: "/advisories", rail: "/advisories", tab: null },
+  { path: "/advisories/nh7-06", rail: "/advisories", tab: null },
+  { path: "/help", rail: "/help", tab: null },
+  { path: "/about", rail: null, tab: null },
+  { path: "/contact", rail: null, tab: null },
+  { path: "/reports", rail: "/reports", tab: "/reports" },
+  { path: "/report", rail: null, tab: "/report" },
+  { path: "/profile", rail: null, tab: "/profile" },
+  { path: "/contributions", rail: "/contributions", tab: null },
+  { path: "/no-such-page", rail: null, tab: null },
+];
+
+afterEach(() => {
+  cleanup();
+  setAccountSession({ status: "signed_out", userId: null });
+});
 
 async function mountAt(path: string) {
   const router = createRouter({
@@ -52,96 +74,120 @@ async function mountAt(path: string) {
     history: createMemoryHistory({ initialEntries: [path] }),
     defaultNotFoundComponent: NotFoundPage,
     scrollRestoration: false,
-  })
-  await router.load()
+  });
+  await router.load();
   const rendered = render(<RouterProvider router={router} />, {
     container: document as unknown as HTMLElement,
-  })
+  });
   // Wait until the shell is on screen.
-  await waitFor(() => siteHeader())
-  return { router, ...rendered }
+  await waitFor(() => screen.getByTestId("shell-rail"));
+  return { router, ...rendered };
 }
 
-/**
- * The site header. Testing Library reports every <header> as a banner, but
- * page title headers live inside <main> and are not banner landmarks there.
- */
-function siteHeader() {
-  const banners = screen.getAllByRole('banner').filter((el) => !el.closest('main'))
-  expect(banners).toHaveLength(1)
-  return banners[0]
-}
-
+const hrefPath = (link: HTMLElement) =>
+  new URL(link.getAttribute("href")!, "http://x").pathname;
 const linkPairs = (nav: HTMLElement) =>
   within(nav)
-    .getAllByRole('link')
-    .map((link) => [link.textContent?.trim(), new URL(link.getAttribute('href')!, 'http://x').pathname])
-
+    .getAllByRole("link")
+    .map((link) => [
+      link.getAttribute("aria-label") ?? link.textContent?.trim(),
+      hrefPath(link),
+    ]);
 const currentHref = (nav: HTMLElement) =>
   within(nav)
-    .queryAllByRole('link')
-    .filter((link) => link.getAttribute('aria-current') === 'page')
-    .map((link) => new URL(link.getAttribute('href')!, 'http://x').pathname)
+    .queryAllByRole("link")
+    .filter(
+      (link) =>
+        link.getAttribute("aria-current") === "page" &&
+        link.getAttribute("aria-label") !== "RaahPrahari home",
+    )
+    .map(hrefPath);
 
-describe('shared site navigation', () => {
+describe("shared app shell on every route", () => {
   it.each(ROUTES)(
-    '$path shows the same header, links and order',
-    async ({ path, active }) => {
-      await mountAt(path)
+    "$path shows the same shell, links and order",
+    async ({ path, rail: railActive, tab: tabActive }) => {
+      await mountAt(path);
 
-      // Exactly one site header, and it comes before the page content.
-      const header = siteHeader()
-      expect(document.body.querySelector('header, nav, main')).toBe(header)
+      // One main landmark that the skip link targets.
+      const mains = screen.getAllByRole("main");
+      expect(mains).toHaveLength(1);
+      expect(mains[0]).toHaveAttribute("id", "main");
 
-      // Only the shared navigation landmarks exist; pages add no navs or sidebars of their own.
+      // The skip link is the very first focusable element.
+      const first = document.body.querySelector<HTMLElement>(
+        "a[href], button, input, select, textarea, [tabindex]",
+      );
+      expect(first).toHaveAttribute("href", "#main");
+      expect(first).toHaveTextContent("Skip to main content");
+
+      // Only the shared navigation landmarks exist: rail, mobile tabs and the page footer.
       const navNames = screen
-        .getAllByRole('navigation')
-        .map((nav) => nav.getAttribute('aria-label'))
-      expect(navNames.filter((name) => name !== 'Footer')).toEqual(['Primary', 'Quick navigation'])
+        .getAllByRole("navigation")
+        .map((nav) => nav.getAttribute("aria-label"));
+      expect(navNames.filter((name) => name !== "Footer")).toEqual([
+        "Primary",
+        "Primary",
+      ]);
 
-      const primary = within(header).getByRole('navigation', { name: 'Primary' })
-      expect(linkPairs(primary)).toEqual(PRIMARY.map(([label, href]) => [label, href]))
+      // No page adds a second site header: every header outside <main> is a shell bar.
+      const outside = screen
+        .getAllByRole("banner")
+        .filter((el) => !el.closest("main"));
+      expect(
+        outside.map((el) => el.getAttribute("data-testid")).sort(),
+      ).toEqual(["shell-mobilebar", "shell-topbar"]);
 
-      const bottom = screen.getByRole('navigation', { name: 'Quick navigation' })
-      expect(linkPairs(bottom)).toEqual(BOTTOM.map(([label, href]) => [label, href]))
+      const rail = screen.getByTestId("shell-rail");
+      // The logo link sits first in the rail; the items follow it in order.
+      expect(
+        linkPairs(rail).filter(([label]) => label !== "RaahPrahari home"),
+      ).toEqual(RAIL.map(([label, href]) => [label, href]));
+      const tabs = screen.getByTestId("shell-tabs");
+      expect(linkPairs(tabs)).toEqual(
+        TABS.map(([label, href]) => [label, href]),
+      );
 
-      // Rail utilities, in order: language, theme, Community Login.
-      const controls = [
-        within(header).getByRole('group', { name: 'Language' }),
-        within(header).getByRole('button', { name: /theme/i }),
-        within(header).getByRole('button', { name: 'Community Login' }),
-      ]
-      for (let i = 1; i < controls.length; i++) {
-        expect(
-          controls[i - 1].compareDocumentPosition(controls[i]) & Node.DOCUMENT_POSITION_FOLLOWING,
-        ).toBeTruthy()
-      }
-      // The rail does not repeat Report Hazard (pages carry it); the raised
-      // bottom tab and the mobile menu still do.
-      expect(within(header).queryAllByRole('link', { name: 'Report Hazard' })).toEqual([])
-      expect(within(bottom).getByRole('link', { name: 'Report Hazard' })).toHaveAttribute('href', '/report')
-      expect(within(header).getByRole('button', { name: 'Open menu' })).toBeInTheDocument()
+      // The current item follows the route.
+      expect(currentHref(rail)).toEqual(railActive ? [railActive] : []);
+      expect(currentHref(tabs)).toEqual(tabActive ? [tabActive] : []);
 
-      // Active item follows the route.
-      const expectedPrimary = PRIMARY.some(([, href]) => href === active) ? [active] : []
-      expect(currentHref(primary)).toEqual(expectedPrimary)
-      expect(currentHref(bottom)).toEqual(active && BOTTOM.some(([, href]) => href === active) ? [active] : [])
+      // Report hazard is in the desktop top bar and the centre tab.
+      const topBar = screen.getByTestId("shell-topbar");
+      expect(
+        hrefPath(within(topBar).getByRole("link", { name: "Report hazard" })),
+      ).toBe("/report");
+      expect(
+        hrefPath(within(tabs).getByRole("link", { name: "Report a hazard" })),
+      ).toBe("/report");
     },
     30_000,
-  )
+  );
 
-  it('maps routes to the active nav item', () => {
-    expect(activeNavTarget('/')).toBe('/')
-    expect(activeNavTarget('/advisories/')).toBe('/advisories')
-    expect(activeNavTarget('/advisories/RP-418203')).toBe('/advisories')
-    expect(activeNavTarget('/help/freshness')).toBe('/help')
-    expect(activeNavTarget('/report/review')).toBe('/report')
-    expect(activeNavTarget('/check', 'list')).toBe('/advisories')
-    expect(activeNavTarget('/check')).toBe('/map')
-    expect(activeNavTarget('/contact')).toBe('/contact')
-    expect(activeNavTarget('/reports')).toBe('/reports')
-  })
+  it("keeps Review queue and Official updates out of the rail without a role", async () => {
+    await mountAt("/");
+    const rail = screen.getByTestId("shell-rail");
+    expect(
+      within(rail).queryByRole("link", { name: "Review queue" }),
+    ).toBeNull();
+    expect(
+      within(rail).queryByRole("link", { name: "Official updates" }),
+    ).toBeNull();
+  }, 30_000);
 
-  // The mobile menu's contents, Escape and close-on-route-change are covered on the
-  // header in isolation in src/components/site-chrome.a11y.test.tsx.
-})
+  it("maps routes to the current shell item", () => {
+    expect(activeNavTarget("/")).toBe("/");
+    expect(activeNavTarget("/advisories/")).toBe("/advisories");
+    expect(activeNavTarget("/advisories/RP-418203")).toBe("/advisories");
+    expect(activeNavTarget("/help/freshness")).toBe("/help");
+    expect(activeNavTarget("/report/review")).toBe("/report");
+    expect(activeNavTarget("/check", "list")).toBe("/advisories");
+    expect(activeNavTarget("/check")).toBe("/map");
+    expect(activeNavTarget("/reports")).toBe("/reports");
+    expect(activeNavTarget("/profile")).toBe("/profile");
+    expect(activeNavTarget("/contributions")).toBe("/contributions");
+  });
+
+  // Menu keyboard behaviour, sign-in focus return and the breakpoint contract are
+  // covered in src/components/app-shell/*.test.tsx.
+});

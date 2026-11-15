@@ -16,7 +16,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary-hover',
-        report: 'bg-report text-report-foreground hover:bg-report-hover',
+        // Orange gradient with dark text and a soft glow (glass redesign).
+        report: 'glass-btn-accent',
         destructive:
           'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
         outline:

@@ -1,6 +1,16 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useId, useState } from 'react'
-import { ArrowRight, CloudDownload, MapPin, Search, ShieldCheck, TriangleAlert, UsersRound } from 'lucide-react'
+import {
+  ArrowRight,
+  CloudDownload,
+  Map as MapIcon,
+  MapPin,
+  Search,
+  ShieldCheck,
+  TriangleAlert,
+  UsersRound,
+  Zap,
+} from 'lucide-react'
 import { AdvisoryCard } from '@/components/advisory-card'
 import { PrototypeRibbon } from '@/components/prototype-ribbon'
 import type { TranslationKey } from '@/i18n/dictionary'
@@ -28,38 +38,51 @@ const FEATURES = [
 /** The featured card shows this seeded segment and links to its detail page. */
 const HOME_SAMPLE_SEGMENT_ID = 'nh107-02'
 
+/**
+ * The headline with one word picked out in orange gradient text. The text is
+ * unchanged (one node per part, read as one heading); only the styling differs.
+ */
+function HeroTitle({ title, highlight }: { title: string; highlight: string | null }) {
+  const at = highlight ? title.search(new RegExp(`\\b${highlight}\\b`)) : -1
+  if (!highlight || at < 0) return <>{title}</>
+  return (
+    <>
+      {title.slice(0, at)}
+      <span className="home-you">{title.slice(at, at + highlight.length)}</span>
+      {title.slice(at + highlight.length)}
+    </>
+  )
+}
+
 function Home() {
-  const { t } = usePrefs()
+  const { t, lang } = usePrefs()
   const { segments } = useAppStore()
   const sampleSegment = segments.find((s) => s.id === HOME_SAMPLE_SEGMENT_ID)
   if (!sampleSegment) throw new Error(`Missing sample segment "${HOME_SAMPLE_SEGMENT_ID}"`)
 
   return (
     <div className="home-page">
+      {/* The photo is the app-wide fixed backdrop (.rp-backdrop in __root). */}
       <section aria-labelledby="hero-title" className="home-hero photo-surface">
-        <img
-          src="/img/hero-mountain.png"
-          alt=""
-          fetchPriority="high"
-          className="home-hero-image rp-hero-zoom"
-        />
-        <div aria-hidden className="home-hero-overlay" />
         <div className="home-content">
           <div className="home-copy rp-hero-stagger">
-            <p className="home-eyebrow">
+            <p className="home-eyebrow glass-accent">
               <span aria-hidden />
               {t('hero.eyebrow')}
             </p>
-            <h1 id="hero-title">{t('hero.title')}</h1>
+            <h1 id="hero-title">
+              <HeroTitle title={t('hero.title')} highlight={lang === 'en' ? 'you' : null} />
+            </h1>
             <p>{t('hero.body')}</p>
+            <span aria-hidden className="home-underline" />
             <HomeRoadSearch />
             <div className="home-actions">
-              <Link to="/traveller" className="rp-interactive home-action home-action-check">
-                <Search aria-hidden />
+              <Link to="/traveller" className="home-action home-action-check glass-btn-frost">
+                <MapIcon aria-hidden />
                 <span>Check a road</span>
                 <ArrowRight aria-hidden />
               </Link>
-              <Link to="/report" search={{ segment: undefined }} className="rp-interactive home-action home-action-report">
+              <Link to="/report" search={{ segment: undefined }} className="home-action home-action-report glass">
                 <TriangleAlert aria-hidden />
                 <span>Report a hazard</span>
                 <ArrowRight aria-hidden />
@@ -76,7 +99,7 @@ function Home() {
             const { topic, icon: Icon, title, body } = feature
             return (
             <li key={topic}>
-              <Link to="/help/$topic" params={{ topic }}>
+              <Link to="/help/$topic" params={{ topic }} className="glass">
                 <Icon aria-hidden />
                 <span>
                   <strong>{t(title)}</strong>
@@ -110,7 +133,7 @@ function HomeRoadSearch() {
   return (
     <form
       role="search"
-      className="home-search"
+      className="home-search glass-strong"
       onSubmit={(event) => {
         event.preventDefault()
         const q = query.trim()
@@ -118,9 +141,10 @@ function HomeRoadSearch() {
       }}
     >
       <label htmlFor={id} className="home-search-label">
+        <MapPin aria-hidden />
         {t('home.searchLabel')}
       </label>
-      <div className="home-search-field">
+      <div className="home-search-field glass">
         <Search aria-hidden />
         <input
           id={id}
@@ -130,16 +154,20 @@ function HomeRoadSearch() {
           placeholder={t('home.searchPlaceholder')}
           autoComplete="off"
         />
-        <button type="submit" className="rp-interactive">
+        <button type="submit" className="glass-btn-accent">
           {t('home.searchSubmit')}
+          <ArrowRight aria-hidden />
         </button>
       </div>
       <div className="home-search-quick">
-        <span>{t('search.quick')}</span>
+        <span>
+          <Zap aria-hidden />
+          {t('search.quick')}
+        </span>
         <ul>
           {QUICK_ROADS.map((code) => (
             <li key={code}>
-              <Link to="/traveller" search={{ q: code }} className="rp-interactive">
+              <Link to="/traveller" search={{ q: code }} className="glass-pill">
                 {code}
               </Link>
             </li>
@@ -162,15 +190,15 @@ function IllustrativeRoute() {
       <div aria-hidden className="home-route-line home-route-line-two" />
       <div className="home-route-pin home-route-pin-one">
         <MapPin aria-hidden />
-        <span>32.2435° N<br />77.1890° E</span>
+        <span className="glass-pill">32.2435° N<br />77.1890° E</span>
       </div>
       <div className="home-route-pin home-route-pin-two">
         <MapPin aria-hidden />
-        <span>32.1876° N<br />77.1420° E</span>
+        <span className="glass-pill">32.1876° N<br />77.1420° E</span>
       </div>
       <div className="home-route-pin home-route-pin-three">
         <MapPin aria-hidden />
-        <span>32.1042° N<br />77.0931° E</span>
+        <span className="glass-pill">32.1042° N<br />77.0931° E</span>
       </div>
     </div>
   )

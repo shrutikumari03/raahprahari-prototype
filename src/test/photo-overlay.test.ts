@@ -81,7 +81,8 @@ describe('photo hero overlays follow the theme', () => {
       ['routes/help.css', '.help-banner'],
       ['routes/advisories.index.css', '.advisories-list-banner'],
       ['routes/traveller.css', '.traveller-results-banner'],
-      ['routes/home.css', '.home-hero-overlay'],
+      // Home no longer has its own photo overlay: the photo is the app-wide
+      // .rp-backdrop, whose overlay is tested in glass-redesign.test.ts.
     ]
     for (const [file, selector] of banners) {
       const rule =

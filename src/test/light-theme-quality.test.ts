@@ -104,8 +104,11 @@ describe("light theme visual rules", () => {
     expect(logo).toContain("logo-on-dark");
   });
 
-  it("light mode removes backdrop blur", () => {
-    expect(styles).toMatch(/:root:not\(\.dark\) \[class\*='backdrop-blur'\]/);
+  it("light mode keeps backdrop blur (the glass design frosts in both themes)", () => {
+    // The old rule that stripped every backdrop-blur in light mode is gone, so
+    // the glass panels show the photo through them in the light theme too.
+    expect(styles).not.toMatch(/:root:not\(\.dark\) \[class\*='backdrop-blur'\]/);
+    expect(styles).toMatch(/\.glass-strong \{\s*background-color: var\(--glass-panel-strong\);/);
   });
 });
 
@@ -159,7 +162,7 @@ describe("app shell layout does not overlap or hide content", () => {
   });
   it("rail items never wrap and keep 44px targets", () => {
     expect(rail).toMatch(
-      /min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium/,
+      /min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium/,
     );
     expect(bars).toMatch(/min-h-14 min-w-11 flex-col/);
     // Language buttons (signed out) are 44px targets too.

@@ -159,7 +159,7 @@ export function StatusChip({
               : undefined
           }
           className={cn(
-            "rp-shell-transition inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-full border border-shell-divider bg-shell-surface text-sm text-shell-text hover:bg-shell-raised",
+            "glass-pill inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-2 text-sm text-shell-text",
             compact ? "px-0" : "px-3",
           )}
         >
@@ -268,7 +268,7 @@ export function ShellStatusBanner({
     <div
       role="status"
       data-testid="shell-status-banner"
-      className="rp-shell flex w-full items-start gap-3 border-b border-shell-divider bg-shell-surface px-4 py-2 text-sm text-shell-text sm:px-6"
+      className="rp-shell glass flex w-full items-start gap-3 border-x-0 border-t-0 px-4 py-2 text-sm text-shell-text sm:px-6"
     >
       {status.online === "offline" ? (
         <WifiOff aria-hidden className="mt-0.5 size-4 shrink-0" />

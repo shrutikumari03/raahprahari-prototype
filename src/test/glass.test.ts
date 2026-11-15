@@ -3,9 +3,10 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * Glass surfaces: where they are used, the no-support fallback, and text
- * contrast on them in both themes. jsdom does no compositing, so contrast is
- * computed from the tokens: the glass colour blended over its worst backdrop.
+ * Floating overlays (menus, popovers, dialogs) and the shell's supporting
+ * glass rules. The app-wide .glass design and the backdrop are covered in
+ * glass-redesign.test.ts. jsdom does no compositing, so contrast is computed
+ * from the tokens: the overlay colour blended over its worst backdrop.
  */
 const read = (p: string) => readFileSync(join(process.cwd(), "src", p), "utf8");
 const styles = read("styles.css");
@@ -55,62 +56,36 @@ const contrast = (a: RGB, b: RGB) => {
   return (hi + 0.05) / (lo + 0.05);
 };
 
-describe("glass tokens and classes", () => {
-  it("define translucent surfaces from existing tokens and a theme-aware 1px edge", () => {
-    expect(glass("--glass-bar")).toEqual(["--shell-surface", 0.75]);
-    expect(glass("--glass-float")).toEqual(["--shell-bg", 0.66]);
+describe("overlay glass tokens and classes", () => {
+  it("define translucent overlays from existing tokens and a theme-aware 1px edge", () => {
     expect(glass("--glass-shell-overlay")).toEqual(["--shell-surface", 0.85]);
     expect(glass("--glass-menu")).toEqual(["--popover", 0.85]);
     expect(glass("--glass-dialog")).toEqual(["--background", 0.85]);
-    // Stronger frost on the bars that float over content; the rail keeps 16px.
-    expect(light["--glass-float-filter"]).toBe("blur(8px) saturate(180%)");
     expect(light["--glass-overlay-filter"]).toBe("blur(18px) saturate(180%)");
-    expect(light["--glass-blur"]).toBe("16px");
     expect(light["--glass-edge"]).toBe("color-mix(in srgb, var(--shell-text) 14%, transparent)");
   });
 
   it("are solid without backdrop-filter support and frosted only inside @supports", () => {
-    const start = plain.search(/@layer components \{\s*\.rp-glass-bar/);
+    const start = plain.search(/@layer components \{\s*\.rp-glass-menu/);
     expect(start).toBeGreaterThan(-1);
     const layer = plain.slice(start);
     const supports = layer.slice(layer.indexOf("@supports"));
     const base = layer.slice(0, layer.indexOf("@supports"));
-    expect(base).toMatch(/\.rp-glass-bar \{[^}]*background-color: var\(--shell-surface\);/);
     expect(base).toMatch(/\.rp-glass-menu \{\s*background-color: var\(--popover\);/);
+    expect(base).toMatch(/\.rp-glass-dialog \{\s*background-color: var\(--background\);/);
     expect(base).not.toMatch(/backdrop-filter/);
     expect(supports).toMatch(/^@supports \(\(backdrop-filter: blur\(1px\)\) or \(-webkit-backdrop-filter: blur\(1px\)\)\)/);
-    expect(supports).toMatch(/-webkit-backdrop-filter: blur\(var\(--glass-blur\)\);\s*backdrop-filter: blur\(var\(--glass-blur\)\);/);
-    expect(base).toMatch(/\.rp-glass-float \{[^}]*background-color: var\(--shell-bg\);/);
-    expect(supports).toMatch(/\.rp-glass-float \{\s*-webkit-backdrop-filter: var\(--glass-float-filter\);\s*backdrop-filter: var\(--glass-float-filter\);\s*background-color: var\(--glass-float\);/);
     expect(supports).toMatch(/-webkit-backdrop-filter: var\(--glass-overlay-filter\);\s*backdrop-filter: var\(--glass-overlay-filter\);/);
   });
 
-  it("use no gradients, glow or animation", () => {
-    const block = plain.slice(plain.indexOf("--glass-blur"), plain.indexOf(".rp-shell a:not"));
-    expect(block).not.toMatch(/gradient|box-shadow|animation|transition|filter: drop-shadow/);
+  it("the bar classes of the previous round are gone", () => {
+    expect(plain).not.toMatch(/rp-glass-bar|rp-glass-float|--glass-float|--glass-bar/);
   });
 });
 
-describe("glass contrast stays at WCAG AA in both themes", () => {
+describe("overlay contrast stays at WCAG AA in both themes", () => {
   const themes = { light, dark } as const;
   for (const [themeName, theme] of Object.entries(themes)) {
-    it(`${themeName}: rail and mobile top bar over the shell background`, () => {
-      for (const token of ["--glass-bar", "--glass-float"]) {
-        const [base, alpha] = glass(token);
-        const surface = over(hex(theme, base), alpha, hex(theme, "--shell-bg"));
-        for (const text of ["--shell-text", "--shell-muted"])
-          expect(contrast(hex(theme, text), surface), `${token} ${text}`).toBeGreaterThanOrEqual(4.5);
-      }
-    });
-
-    it(`${themeName}: sticky top bar and bottom tabs over any page content`, () => {
-      const [base, alpha] = glass("--glass-float");
-      for (const backdrop of [BLACK, WHITE]) {
-        const surface = over(hex(theme, base), alpha, backdrop);
-        expect(contrast(hex(theme, "--shell-text"), surface)).toBeGreaterThanOrEqual(4.5);
-      }
-    });
-
     it(`${themeName}: overlays over any page content (black or white behind)`, () => {
       const cases: [string, string[]][] = [
         ["--glass-shell-overlay", ["--shell-text", "--shell-muted"]],
@@ -133,31 +108,17 @@ describe("where glass is used", () => {
   const rail = read("components/app-shell/rail.tsx");
   const bars = read("components/app-shell/top-bars.tsx");
 
-  it("on the rail, both top bars and the bottom tabs, replacing their solid fill", () => {
-    expect(rail).toMatch(/rp-glass-bar sticky top-0 hidden h-svh/);
-    expect(rail).not.toMatch(/border-shell-divider bg-shell-bg/);
-    // Desktop top bar: sticky from 1024px so content scrolls under the glass.
-    expect(bars).toMatch(
-      /rp-glass-float sticky top-0 z-\(--z-header\) flex h-14 [^"]*max-lg:hidden/,
-    );
-    expect(bars).toMatch(/rp-glass-float flex h-14 shrink-0 items-center gap-1 [^"]*lg:hidden/);
-    expect(bars).toMatch(/rp-glass-float fixed inset-x-0 bottom-0 z-\(--z-bottom-nav\) border-t/);
-    expect(bars).not.toMatch(/rp-glass-bar/);
-    expect(bars).not.toMatch(/bg-shell-bg/);
+  it("has no solid shell fills left on the bars", () => {
+    expect(bars).not.toMatch(/bg-shell-bg|rp-glass-bar|rp-glass-float/);
+    expect(rail).not.toMatch(/border-shell-divider bg-shell-bg|rp-glass-bar/);
   });
 
-  it("puts only full-contrast text on the bars that float over content", () => {
+  it("puts only full-contrast text on the bottom tabs", () => {
     const tabs = bars.slice(bars.indexOf("export function BottomTabs"));
     expect(tabs).not.toMatch(/text-shell-muted/);
     // The current tab is marked by a bar and weight, not by colour alone.
     expect(tabs).toMatch(/isActive \? "font-semibold" : "font-medium"/);
     expect(tabs).toContain('data-testid="tab-active-bar"');
-    const desktop = bars.slice(
-      bars.indexOf("export function DesktopTopBar"),
-      bars.indexOf("export function MobileTopBar"),
-    );
-    // The search icon is muted, but it sits on the input's solid surface.
-    expect(desktop).toMatch(/text-shell-muted"\s*\/>\s*<input[\s\S]*?bg-shell-surface/);
   });
 
   it("keeps sticky page panels below the sticky top bar", () => {
@@ -181,7 +142,7 @@ describe("where glass is used", () => {
     expect(read("components/ui/dialog.tsx")).toContain("rp-glass-dialog");
   });
 
-  it("not on inputs, the map or the report wizard", () => {
+  it("not on inputs, the map or the report wizard (their own surfaces stay as they are)", () => {
     for (const file of [
       "components/ui/input.tsx",
       "components/ui/textarea.tsx",
@@ -190,7 +151,7 @@ describe("where glass is used", () => {
       "features/map/leaflet-segment-map.css",
       "features/reports/report-step-page.tsx",
     ])
-      expect(read(file), file).not.toMatch(/rp-glass/);
+      expect(read(file), file).not.toMatch(/rp-glass|\bglass(-strong|-accent|-pill)?\b/);
   });
 });
 

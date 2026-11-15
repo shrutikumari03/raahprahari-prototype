@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { DeliveryStatusBadge } from "@/components/delivery-status-badge";
+import { scrollContentToTop } from "@/components/motion";
 import {
   LocalSaveStatus,
   useLocalSaveStatus,
@@ -443,7 +444,7 @@ export function ReportStepPage({
 
   const go = (path: ReportPath) => {
     navigate(path);
-    window.scrollTo({ top: 0 });
+    scrollContentToTop();
   };
 
   const continueObservation = () => {

@@ -116,6 +116,7 @@ describe("app shell: rail, top bar and bottom tabs", () => {
     fireEvent.click(hi);
     await waitFor(() => expect(hi).toHaveAttribute("aria-pressed", "true"));
     expect(en).toHaveAttribute("aria-pressed", "false");
+    // The desktop top bar's Report hazard button follows the language.
     expect(
       within(topBar()).getByRole("link", { name: "ख़तरा बताएँ" }),
     ).toBeVisible();

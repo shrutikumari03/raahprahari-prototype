@@ -818,9 +818,71 @@
   margin-top: 1rem;
 }
 
+/* Desktop with the rail on laptop-height screens: the hero, its search and the
+   feature strip fit one screen. The headline follows the viewport height and
+   the space kept free for the feature strip matches its real height. Width is
+   the page width beside the rail (as for every home layout step); height is
+   still the viewport's. */
+@media (max-height: 900px) {
+@container home (min-width: 1024px) {
+  /* The feature strip is absolutely placed at the bottom, so this padding is
+     the room kept for it: its offset (1.25rem) + its height (~7.6rem) + a
+     1.5rem gap, so the action buttons never crowd the cards. */
+  .home-content {
+    padding-top: 1.25rem;
+    padding-bottom: 10.35rem;
+    row-gap: 1rem;
+  }
+
+  .home-copy h1 {
+    font-size: clamp(2.6rem, 6.6svh, 4.3rem);
+  }
+
+  .home-copy > p {
+    margin-top: 0.75rem;
+  }
+
+  .home-actions {
+    margin-top: 0.75rem;
+  }
+
+  .home-features {
+    bottom: 1.25rem;
+  }
+
+  /* The feature strip now uses the bottom edge, so the label moves to the
+     free top-right corner of the hero. */
+  .home-prototype-label {
+    top: 1rem;
+    bottom: auto;
+  }
+}
+}
+
+/* Compact action pair: 40px tall on desktop pointers, side by side when the
+   column allows, with a smaller icon and label. */
+.home-actions {
+  gap: 0.6rem;
+}
+
 .home-action {
-  min-height: 2.9rem;
-  border-radius: 0.8rem;
+  min-height: 2.5rem;
+  gap: 0.5rem;
+  border-radius: 0.7rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.home-action svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Touch screens keep a 44px target. */
+@container home (max-width: 768px) {
+  .home-action {
+    min-height: 2.75rem;
+  }
 }
 
 /* Feature strip: three distinct cards with an orange icon tile. */

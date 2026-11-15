@@ -1530,3 +1530,89 @@ textarea::placeholder {
     );
   }
 }
+
+/* ── Interactive card hover ──────────────────────────────────────────────────
+   One hover treatment for every card that leads somewhere: advisory cards,
+   help topics, route and traveller result rows (.rp-card), review queue cards
+   and My Reports cards (.rp-hover-card).
+   Each card exposes its own edge colour as --card-accent, so hover brightens
+   the status or severity it already shows instead of painting it orange or blue.
+   Lift uses `translate`, which the global reduced-motion block turns off. */
+.rp-card,
+.rp-hover-card {
+  --card-accent: var(--link);
+  transition-property: translate, scale, border-color, box-shadow, background-color;
+  transition-duration: 220ms;
+  transition-timing-function: var(--ease-out);
+}
+.rp-status-card {
+  --card-accent: var(--level-accent, var(--status-unknown));
+}
+.rp-review-card {
+  --card-accent: var(--severity-accent);
+}
+.traveller-result-row {
+  --card-accent: var(--result-accent);
+}
+.rp-hover-card:has(a:active) {
+  scale: var(--scale-press-card);
+  transition-duration: var(--motion-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rp-card:hover,
+  .rp-hover-card:hover {
+    translate: 0 -4px;
+  }
+  .rp-card:hover:not(.is-selected),
+  .rp-hover-card:hover:not(.is-selected) {
+    border-color: color-mix(in oklab, var(--card-accent) 45%, var(--border));
+    background-color: color-mix(in oklab, var(--card) 95%, var(--card-accent));
+    box-shadow:
+      var(--shadow-3),
+      -6px 0 18px -10px var(--card-accent);
+  }
+}
+
+/* The status edge itself: kept on hover and focus (the shorthand border-color
+   above would otherwise repaint it), and brightened in the dark theme. */
+.rp-status-card.rp-card:hover,
+.rp-status-card.rp-card:focus-within,
+.rp-review-card.rp-hover-card:hover,
+.rp-review-card.rp-hover-card:focus-within {
+  border-left-color: var(--card-accent);
+}
+.dark .rp-status-card.rp-card:hover,
+.dark .rp-review-card.rp-hover-card:hover {
+  border-left-color: color-mix(in oklab, var(--card-accent) 78%, white);
+}
+.traveller-result-row.rp-card:hover::before {
+  width: 4px;
+  background: color-mix(in oklab, var(--result-accent) 78%, white);
+}
+
+/* Keyboard: the same emphasis without the lift, plus a visible ring. */
+.rp-hover-card:has(:focus-visible),
+.rp-card:has(:focus-visible),
+a.rp-card:focus-visible,
+a.rp-hover-card:focus-visible {
+  border-color: color-mix(in oklab, var(--card-accent) 45%, var(--border));
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.rp-status-card.rp-card:has(:focus-visible),
+.rp-review-card.rp-hover-card:has(:focus-visible) {
+  border-left-color: var(--card-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rp-card,
+  .rp-hover-card {
+    transition-property: border-color, box-shadow, background-color;
+  }
+  .rp-hover-card:hover,
+  .rp-hover-card:has(a:active) {
+    translate: none;
+    scale: none;
+  }
+}

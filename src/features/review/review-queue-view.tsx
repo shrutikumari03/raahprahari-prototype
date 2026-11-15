@@ -50,7 +50,7 @@ function QueueCard({
     <li
       data-testid={`queue-item-${report.ref}`}
       data-severity={report.severity}
-      className="rp-info-card rp-review-card list-none"
+      className="rp-info-card rp-review-card rp-hover-card list-none"
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h3 className="m-0 min-w-0 text-base font-semibold text-foreground">

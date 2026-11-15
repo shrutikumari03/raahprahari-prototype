@@ -103,14 +103,32 @@ export function RevealObserver() {
   return null
 }
 
+/** The desktop content column, which scrolls instead of the window from xl. */
+const contentScroller = () =>
+  typeof document === 'undefined' ? null : document.getElementById('rp-content')
+
+/** How far the page has scrolled: the window below xl, the content column from xl. */
+function scrollOffset() {
+  return Math.max(window.scrollY, contentScroller()?.scrollTop ?? 0)
+}
+
+/** Scrolls the page back to its top, whichever element is scrolling. */
+export function scrollContentToTop(behavior: ScrollBehavior = 'auto') {
+  window.scrollTo({ top: 0, behavior })
+  const scroller = contentScroller()
+  // Element.scrollTo is missing in some test DOMs; real browsers all have it.
+  if (scroller && typeof scroller.scrollTo === 'function') scroller.scrollTo({ top: 0, behavior })
+}
+
 /** True once the page has scrolled past `offset` pixels. */
 export function useScrolled(offset = 4) {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > offset)
+    const onScroll = () => setScrolled(scrollOffset() > offset)
     onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    // Scroll events do not bubble; capturing on window also hears #rp-content.
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true })
+    return () => window.removeEventListener('scroll', onScroll, { capture: true })
   }, [offset])
   return scrolled
 }
@@ -132,7 +150,7 @@ export function BackToTop() {
       // Below 1024px: bottom-left, 1.5rem above the shell's tab bar. From 1024px
       // the rail fills the left edge, so it moves to the right, above the ribbon.
       className="rp-fab fixed bottom-[calc(var(--shell-tabs-height)+1.5rem+env(safe-area-inset-bottom))] left-3 z-(--z-bottom-nav) rounded-full border border-border shadow-lg lg:right-4 lg:bottom-12 lg:left-auto"
-      onClick={() => window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })}
+      onClick={() => scrollContentToTop(prefersReducedMotion() ? 'auto' : 'smooth')}
     >
       <ArrowUp />
     </Button>

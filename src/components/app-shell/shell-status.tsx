@@ -170,7 +170,7 @@ export function StatusChip({
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="rp-shell rp-glass-shell-overlay w-80 text-shell-text"
+        className="rp-shell w-80 text-shell-text"
       >
         <h2 className="mb-2 text-sm font-semibold">
           {t("shell.statusDetails")}
@@ -194,7 +194,7 @@ export function StatusDetailsDialog({
   const { t } = usePrefs();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rp-shell rp-glass-shell-overlay text-shell-text">
+      <DialogContent className="rp-shell text-shell-text">
         <DialogHeader>
           <DialogTitle>{t("shell.statusDetails")}</DialogTitle>
           <DialogDescription className="text-shell-muted">

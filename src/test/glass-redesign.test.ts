@@ -247,3 +247,197 @@ describe("shell and home use the glass", () => {
     expect(read("components/ui/button.tsx")).toMatch(/report: 'glass-btn-accent'/);
   });
 });
+
+/* ── Phase 2A: src/components/ui/* use the Phase 1 glass utilities ──────────── */
+const ui = (name: string) => read(`components/ui/${name}.tsx`);
+const UI_FILES = [
+  "card", "input", "textarea", "select", "dialog", "sheet", "dropdown-menu",
+  "popover", "tabs", "table", "alert", "switch", "skeleton", "tooltip", "sonner",
+] as const;
+
+describe("phase 2A: only the existing Phase 1 glass tokens", () => {
+  it("adds no glass values: the --glass-* tokens are exactly the Phase 1 set", () => {
+    const names = new Set([...plain.matchAll(/(--glass-[\w-]+):/g)].map((m) => m[1]));
+    expect([...names].sort()).toEqual(
+      [
+        "--glass-accent-base", "--glass-accent-glow", "--glass-accent-line",
+        "--glass-accent-text", "--glass-accent-tint", "--glass-divider",
+        "--glass-fallback", "--glass-highlight", "--glass-hover", "--glass-line",
+        "--glass-panel", "--glass-panel-strong", "--glass-shadow",
+      ].sort(),
+    );
+  });
+
+  it("the components only name the six Phase 1 utilities", () => {
+    const allowed = new Set(["glass", "glass-strong", "glass-accent", "glass-pill", "glass-btn-accent", "glass-btn-frost"]);
+    for (const name of UI_FILES) {
+      const used = [...ui(name).matchAll(/(?<![\w-])(glass[\w-]*)(?![\w-])/g)].map((m) => m[1]);
+      for (const cls of used) expect(allowed.has(cls), `${name}: ${cls}`).toBe(true);
+    }
+  });
+
+  it("replaces every solid card, popover, background and muted fill", () => {
+    for (const name of UI_FILES.filter((n) => n !== "switch"))
+      expect(
+        // after:bg-foreground is the line-tab underline, not a surface.
+        ui(name).replace(/after:bg-foreground/g, ""),
+        name,
+      ).not.toMatch(/(?<![\w-])bg-(card|popover|background|muted|foreground)(?![\w-])/);
+    // The switch keeps its on/off colours and a solid knob: the control must
+    // stay readable as a state (3:1), whatever is behind it.
+    expect(ui("switch")).toMatch(/data-\[state=checked\]:bg-primary data-\[state=unchecked\]:bg-input/);
+  });
+
+  it("glass surfaces carry no shadow utility (it would replace the glass shadow)", () => {
+    for (const name of ["card", "input", "textarea", "select", "dialog", "sheet", "dropdown-menu", "popover", "table", "alert", "skeleton", "tooltip", "switch"])
+      expect(ui(name), name).not.toMatch(/(?<![\w-])shadow-(xs|sm|md|lg|xl|2xl)(?![\w-])/);
+  });
+});
+
+describe("phase 2A: each component", () => {
+  it("cards, alerts, tables and skeleton cards are .glass panels at the card radius", () => {
+    expect(ui("card")).toMatch(/'glass text-card-foreground flex flex-col gap-6 rounded-2xl py-6'/);
+    expect(ui("alert")).toMatch(/'glass relative grid [^']*rounded-2xl/);
+    expect(ui("table")).toMatch(/className="glass relative w-full overflow-x-auto rounded-2xl"/);
+    expect(ui("skeleton")).toMatch(/'glass grid gap-3 rounded-2xl p-4'/);
+    // Table rows: strong panel on hover/selected (never the lightening
+    // --glass-hover, which pushes muted text under AA in dark), glass dividers.
+    expect(ui("table")).toMatch(/hover:bg-\(--glass-panel-strong\)/);
+    expect(ui("table")).toMatch(/data-\[state=selected\]:bg-\(--glass-panel-strong\)/);
+    expect(ui("table")).toMatch(/data-\[state=selected\]:shadow-\[inset_3px_0_0_var\(--glass-accent-line\)\]/);
+    expect(ui("table")).not.toMatch(/--glass-hover/);
+    expect(ui("table")).toMatch(/border-\(--glass-divider\)/);
+  });
+
+  it("dialogs, sheets, menus, popovers, select lists and tooltips are .glass-strong", () => {
+    expect(ui("dialog")).toMatch(/rounded-3xl glass-strong p-6/);
+    expect(ui("sheet")).toMatch(/'glass-strong fixed z-\(--z-sheet\)/);
+    for (const side of ["rounded-l-3xl", "rounded-r-3xl", "rounded-b-3xl", "rounded-t-3xl"])
+      expect(ui("sheet")).toContain(side);
+    expect(ui("dropdown-menu").match(/rounded-2xl glass-strong/g)).toHaveLength(2);
+    expect(ui("popover")).toMatch(/rounded-2xl glass-strong p-4/);
+    expect(ui("select")).toMatch(/overflow-y-auto rounded-2xl glass-strong text-popover-foreground/);
+    expect(ui("tooltip")).toMatch(/rounded-xl glass-strong px-3 py-1\.5 text-xs text-balance text-foreground/);
+    expect(ui("tooltip")).toMatch(/bg-\(--glass-panel-strong\) fill-\(--glass-panel-strong\)/);
+  });
+
+  it("inputs, textareas and select triggers are glass fields with a clear focus ring", () => {
+    const fields = [
+      ui("input").match(/'rp-field glass min-h-11[^']*'/)?.[0] ?? "",
+      ui("textarea").match(/'rp-field glass flex[^']*'/)?.[0] ?? "",
+      ui("select").match(/"rp-field glass flex[^"]*"/)?.[0] ?? "",
+    ];
+    const sources = [ui("input"), ui("textarea"), ui("select")];
+    fields.forEach((field, i) => {
+      expect(field, `field ${i}`).toContain("rounded-xl");
+      // A visible edge on the glass (3:1 is checked below) and a full-strength
+      // ring; the ring is on a second class string in input.tsx, so use the file.
+      expect(field).toContain("border-muted-foreground/70");
+      expect(sources[i]).toContain("focus-visible:ring-[3px]");
+      expect(sources[i]).toMatch(/focus-visible:ring-ring(?![/\w])/);
+      expect(sources[i]).not.toMatch(/ring-ring\/50/);
+    });
+    // Placeholder: the --muted-foreground token (about 72% white in dark).
+    expect(fields[0]).toContain("placeholder:text-muted-foreground");
+    expect(fields[1]).toContain("placeholder:text-muted-foreground");
+    expect(fields[2]).toContain("data-[placeholder]:text-muted-foreground");
+    // The test in motion.test.tsx relies on these two classes staying.
+    expect(fields[0]).toContain("rp-field");
+  });
+
+  it("tabs: a glass list, a strong active tab, and muted (not 60%) inactive labels", () => {
+    const tabs = ui("tabs");
+    expect(tabs).toMatch(/default: 'glass rounded-xl'/);
+    expect(tabs).toContain("data-[state=active]:bg-(--glass-panel-strong)");
+    expect(tabs).toContain("data-[state=active]:border-(--glass-line)");
+    expect(tabs).toContain("text-muted-foreground rp-press");
+    expect(tabs).not.toMatch(/text-foreground\/60/);
+  });
+
+  it("toasts are glass-strong: the fill comes from tokens, with a solid fallback", () => {
+    expect(ui("sonner")).toContain("toastOptions={{ classNames: { toast: 'glass-strong' } }}");
+    // The fill is not set inline (an inline style would beat the stylesheet).
+    expect(ui("sonner")).not.toMatch(/'--normal-bg':/);
+    expect(plain).toMatch(/\.toaster\[data-sonner-toaster\]\[data-sonner-theme\] \{\s*--normal-bg: var\(--glass-fallback\);/);
+    expect(plain).toMatch(/@supports \(\(backdrop-filter: blur\(1px\)\) or \(-webkit-backdrop-filter: blur\(1px\)\)\) \{\s*\.toaster\[data-sonner-toaster\]\[data-sonner-theme\] \{\s*--normal-bg: var\(--glass-panel-strong\);/);
+  });
+});
+
+describe("phase 2A: contrast of the new surfaces", () => {
+  /** Scrim colour and alpha: `rgb(R G B / N%)`. */
+  const scrim = (theme: Theme): [RGB, number] => {
+    const m = /^rgb\((\d+) (\d+) (\d+) \/ (\d+)%\)$/.exec(resolve(theme, "--scrim"));
+    if (!m) throw new Error(`--scrim is not rgb(R G B / N%): ${resolve(theme, "--scrim")}`);
+    return [[Number(m[1]), Number(m[2]), Number(m[3])], Number(m[4]) / 100];
+  };
+  const TEXT = ["--foreground", "--popover-foreground", "--muted-foreground", "--link"];
+  /** Body and muted text only: see the link-over-black note in the dialog test. */
+  const BODY = TEXT.slice(0, 3);
+
+  for (const name of ["light", "dark"] as const) {
+    const theme = THEMES[name];
+
+    it(`${name}: dialogs and sheets keep body and muted text AA over any page content (the scrim darkens it first)`, () => {
+      const [sc, sa] = scrim(theme);
+      for (const content of [BLACK, WHITE]) {
+        const behind = over(sc, sa, content);
+        const surface = layer(theme, "--glass-panel-strong", behind);
+        for (const text of BODY)
+          expect(contrast(hex(theme, text), surface), `${text} over ${content}`).toBeGreaterThanOrEqual(4.5);
+        // Link text is only guaranteed over the backdrop and the page surfaces
+        // (next test): in the light theme, over pure black content (the map page
+        // is dark in both themes) it reaches 3.7:1, below AA.
+        if (name === "dark")
+          expect(contrast(hex(theme, "--link"), surface), `--link over ${content}`).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+
+    it(`${name}: menus, popovers, select lists and tooltips pass over the backdrop and the page surfaces`, () => {
+      const unders = [...backdrops(name), hex(theme, "--background"), hex(theme, "--card")];
+      for (const under of unders) {
+        const surface = layer(theme, "--glass-panel-strong", under);
+        for (const text of TEXT)
+          expect(contrast(hex(theme, text), surface), text).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+
+    it(`${name}: field edge and focus ring are at least 3:1 against the glass field`, () => {
+      for (const bg of backdrops(name)) {
+        const surround = layer(theme, "--glass-panel-strong", bg);
+        const fill = layer(theme, "--glass-panel", surround);
+        const [c] = [hex(theme, "--muted-foreground")];
+        const edge = over(c, 0.7, fill);
+        expect(contrast(edge, fill), "edge on fill").toBeGreaterThanOrEqual(3);
+        expect(contrast(edge, surround), "edge on surround").toBeGreaterThanOrEqual(3);
+        expect(contrast(hex(theme, "--ring"), fill), "ring").toBeGreaterThanOrEqual(3);
+      }
+    });
+
+    it(`${name}: placeholder, tab labels and table text pass on their glass`, () => {
+      for (const bg of backdrops(name)) {
+        const panel = layer(theme, "--glass-panel", bg);
+        const strongOnPanel = layer(theme, "--glass-panel-strong", panel);
+        const hover = layer(theme, "--glass-panel-strong", panel);
+        const selected = hover;
+        // Placeholder and inactive tab labels: muted text on the panel.
+        expect(contrast(hex(theme, "--muted-foreground"), panel)).toBeGreaterThanOrEqual(4.5);
+        // Active tab: foreground on the strong panel over the tab list.
+        expect(contrast(hex(theme, "--foreground"), strongOnPanel)).toBeGreaterThanOrEqual(4.5);
+        // Table rows: hover and selected states.
+        for (const row of [hover, selected])
+          for (const text of ["--foreground", "--muted-foreground"])
+            expect(contrast(hex(theme, text), row), text).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+  }
+
+  it("the old 60% inactive tab colour and a 70% placeholder would not pass in dark (why tokens are used)", () => {
+    // foreground at 60% and 70% over the dark panel at its worst backdrop.
+    const worst = backdrops("dark").map((bg) => layer(dark, "--glass-panel", bg));
+    const fg = hex(dark, "--foreground");
+    const at = (alpha: number) => Math.min(...worst.map((s) => contrast(over(fg, alpha, s), s)));
+    expect(at(0.6)).toBeLessThan(4.5);
+    expect(at(0.7)).toBeLessThan(4.5);
+    expect(Math.min(...worst.map((s) => contrast(hex(dark, "--muted-foreground"), s)))).toBeGreaterThanOrEqual(4.5);
+  });
+});

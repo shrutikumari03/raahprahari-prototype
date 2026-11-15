@@ -51,7 +51,7 @@ export function AccountMenu({
         <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="rp-shell rp-glass-shell-overlay w-60 text-shell-text"
+          className="rp-shell w-60 text-shell-text"
         >
           {pageLinks ? (
             <>

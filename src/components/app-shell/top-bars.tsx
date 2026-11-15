@@ -190,7 +190,7 @@ export function MobileTopBar({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="rp-shell rp-glass-shell-overlay text-shell-text"
+          className="rp-shell text-shell-text"
         >
           <DropdownMenuRadioGroup
             value={lang}

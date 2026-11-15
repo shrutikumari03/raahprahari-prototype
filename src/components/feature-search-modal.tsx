@@ -183,7 +183,7 @@ export function FeatureSearchModal({
   return (
     <Dialog open={open} onOpenChange={changeOpen}>
       <DialogContent
-        className="top-[12vh] translate-y-0 gap-0 overflow-hidden border-border rp-glass-menu p-0 text-popover-foreground shadow-lg sm:max-w-xl"
+        className="top-[12vh] translate-y-0 gap-0 overflow-hidden p-0 text-popover-foreground sm:max-w-xl"
         showCloseButton={false}
         onCloseAutoFocus={(event) => {
           const target = shortcutOrigin.current ?? returnFocusRef?.current;

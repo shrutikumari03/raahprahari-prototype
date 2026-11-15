@@ -1484,53 +1484,6 @@ textarea::placeholder {
     transition: none;
   }
 }
-/* ── Glass surfaces ──────────────────────────────────────────────────────────
-   Frosted glass for the shell bars and for floating overlays (menus,
-   popovers, dialogs). Built from existing theme tokens only; no new colours.
-   Without backdrop-filter support each surface is the solid token. Every
-   opacity is the lowest that keeps WCAG AA over a black or a white backdrop;
-   the contrast is checked in src/test/glass.test.ts. In components layer, so
-   a caller's own bg-* utility still wins. */
-:root {
-  /* Overlays: 85% is the lowest at which their muted secondary text keeps AA
-     over any page content. */
-  --glass-overlay-filter: blur(18px) saturate(180%);
-  --glass-shell-overlay: color-mix(in srgb, var(--shell-surface) 85%, transparent);
-  --glass-menu: color-mix(in srgb, var(--popover) 85%, transparent);
-  --glass-dialog: color-mix(in srgb, var(--background) 85%, transparent);
-  /* 1px edge: low-opacity ink on light, low-opacity ivory on dark. */
-  --glass-edge: color-mix(in srgb, var(--shell-text) 14%, transparent);
-}
-@layer components {
-  .rp-glass-menu {
-    background-color: var(--popover);
-  }
-  .rp-glass-dialog {
-    background-color: var(--background);
-  }
-  .rp-glass-shell-overlay {
-    border-color: var(--glass-edge);
-    background-color: var(--shell-surface);
-  }
-  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .rp-glass-menu,
-    .rp-glass-dialog,
-    .rp-glass-shell-overlay {
-      -webkit-backdrop-filter: var(--glass-overlay-filter);
-      backdrop-filter: var(--glass-overlay-filter);
-    }
-    .rp-glass-menu {
-      background-color: var(--glass-menu);
-    }
-    .rp-glass-dialog {
-      background-color: var(--glass-dialog);
-    }
-    .rp-glass-shell-overlay {
-      background-color: var(--glass-shell-overlay);
-    }
-  }
-}
-
 /* Light-mode hover rule elsewhere adds a background to bare links; shell
    items manage their own hover with tokens. */
 :root:not(.dark) .rp-shell a:not([class*='bg-']):hover,
@@ -1918,5 +1871,18 @@ a.rp-hover-card:focus-visible {
   .glass-btn-accent:hover,
   .glass-btn-frost:hover {
     translate: none;
+  }
+}
+
+/* Toasts (sonner): its own CSS fills a toast from --normal-bg, so point that at
+   the glass tokens: the solid fallback by default, glass-strong where
+   backdrop-filter works (the toast also carries .glass-strong for the blur).
+   Three parts in the selector beat sonner's two-part theme rule. */
+.toaster[data-sonner-toaster][data-sonner-theme] {
+  --normal-bg: var(--glass-fallback);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .toaster[data-sonner-toaster][data-sonner-theme] {
+    --normal-bg: var(--glass-panel-strong);
   }
 }

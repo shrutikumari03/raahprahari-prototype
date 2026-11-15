@@ -2,12 +2,10 @@
 import { env } from "../config/env";
 
 export function EnvBanner() {
-  if (env.appEnv === "pilot") return null; // pilot me banner nahi
+  // Only demo shows a banner (synthetic-data warning). Development and pilot show none.
+  if (env.appEnv !== "demo") return null;
 
-  const text =
-    env.appEnv === "demo"
-      ? "DEMO: yahan ka saara data synthetic (nakli) hai. Asli advisory nahi hai."
-      : "DEVELOPMENT build: sirf testing ke liye.";
+  const text = "DEMO: yahan ka saara data synthetic (nakli) hai. Asli advisory nahi hai.";
 
   return (
     <div

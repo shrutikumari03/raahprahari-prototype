@@ -23,7 +23,7 @@ RaahPrahari runs in three isolated environments. Each has its own Supabase proje
 
 `EnvBanner` is rendered once in `src/routes/__root.tsx`, below the site header.
 
-- development: "DEVELOPMENT build" warning
+- development: no banner
 - demo: synthetic-data warning
 - pilot: no banner
 

@@ -9,6 +9,13 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    // Vite skips .env.local in test mode, and src/config/env.ts validates at import.
+    // Dummy, non-secret values keep module load valid without real credentials.
+    env: {
+      VITE_APP_ENV: 'development',
+      VITE_SUPABASE_URL: 'http://localhost:54321',
+      VITE_SUPABASE_ANON_KEY: 'test-anon-key',
+    },
     testTimeout: 120000,
     hookTimeout: 120000,
     pool: 'threads',

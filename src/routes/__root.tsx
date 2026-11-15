@@ -1,9 +1,11 @@
+
 import {
   HeadContent,
   Scripts,
   createRootRoute,
   useRouterState,
 } from "@tanstack/react-router";
+import { EnvBanner } from "@/components/EnvBanner";
 
 import { SkipLink } from "@/components/ui/feedback";
 import { Toaster } from "@/components/ui/sonner";
@@ -11,23 +13,42 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { NotFoundPage } from "@/components/error-pages";
 import { AppShell } from "@/components/app-shell/app-shell";
 import { SiteFooter } from "@/components/app-shell/site-footer";
-import { BackToTop, PageTransition, RevealObserver } from "@/components/motion";
-import { BootGate, RouteProgress, bootGuardScript } from "@/components/boot-screen";
+import {
+  BackToTop,
+  PageTransition,
+  RevealObserver,
+} from "@/components/motion";
+import {
+  BootGate,
+  RouteProgress,
+  bootGuardScript,
+} from "@/components/boot-screen";
 import { PrototypeRibbon } from "@/components/prototype-ribbon";
 import { AccountScopeBoundary } from "@/components/account-scope-boundary";
 import { AuthSessionBridge } from "@/components/auth-session-bridge";
 import { SyncProvider } from "@/components/sync-provider";
-import { PreferencesProvider, themeBootScript, usePrefs } from "@/i18n/preferences";
+import {
+  PreferencesProvider,
+  themeBootScript,
+  usePrefs,
+} from "@/i18n/preferences";
 
 import "../styles.css";
 
-if (import.meta.env.DEV && import.meta.env.VITE_DEV_RECEIPT_STUB === "true") {
+if (
+  import.meta.env.DEV &&
+  import.meta.env.VITE_DEV_RECEIPT_STUB === "true"
+) {
   void import("@/dev/receipt-stub").catch((error: unknown) => {
-    console.error("Unable to initialize the development receipt stub", error);
+    console.error(
+      "Unable to initialize the development receipt stub",
+      error,
+    );
   });
 }
 
 const siteName = "RaahPrahari — Know before you go";
+
 const siteDescription =
   "Check reported road hazards, information freshness, and official restrictions across Uttarakhand before your journey.";
 
@@ -36,19 +57,19 @@ export const Route = createRootRoute({
     const isNotFound = matches.some(
       (match) => match.status === "notFound" || match._notFound,
     );
-    const title = isNotFound ? "Page not found | RaahPrahari" : siteName;
+
+    const title = isNotFound
+      ? "Page not found | RaahPrahari"
+      : siteName;
+
     return {
       meta: [
-        {
-          charSet: "utf-8",
-        },
+        { charSet: "utf-8" },
         {
           name: "viewport",
           content: "width=device-width, initial-scale=1",
         },
-        {
-          title,
-        },
+        { title },
         {
           name: "description",
           content: siteDescription,
@@ -69,16 +90,35 @@ export const Route = createRootRoute({
           name: "twitter:card",
           content: "summary_large_image",
         },
-        { name: "theme-color", content: "#07151f", media: "(prefers-color-scheme: dark)" },
-        { name: "theme-color", content: "#e6e4dc", media: "(prefers-color-scheme: light)" },
+        {
+          name: "theme-color",
+          content: "#07151f",
+          media: "(prefers-color-scheme: dark)",
+        },
+        {
+          name: "theme-color",
+          content: "#e6e4dc",
+          media: "(prefers-color-scheme: light)",
+        },
       ],
       links: [
-        // Web app manifest only. There is no service worker, so nothing is cached for offline use.
         { rel: "manifest", href: "/manifest.webmanifest" },
         { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
-        { rel: "icon", type: "image/png", href: "/favicon-32.png", sizes: "32x32" },
-        { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
-        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        {
+          rel: "icon",
+          type: "image/png",
+          href: "/favicon-32.png",
+          sizes: "32x32",
+        },
+        {
+          rel: "apple-touch-icon",
+          href: "/apple-touch-icon.png",
+          sizes: "180x180",
+        },
+        {
+          rel: "preconnect",
+          href: "https://fonts.googleapis.com",
+        },
         {
           rel: "preconnect",
           href: "https://fonts.gstatic.com",
@@ -91,6 +131,7 @@ export const Route = createRootRoute({
       ],
     };
   },
+
   shellComponent: RootDocument,
   notFoundComponent: NotFoundPage,
 });
@@ -98,10 +139,15 @@ export const Route = createRootRoute({
 /** First focusable element: jumps past the rail and top bar to the page. */
 function ShellSkipLink() {
   const { t } = usePrefs();
+
   return <SkipLink>{t("shell.skip")}</SkipLink>;
 }
-function RootDocument({ children }: { children: React.ReactNode }) {
-  // These routes render the shared PrototypeRibbon inside their own layout.
+
+function RootDocument({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const {
     isHome,
     isTraveller,
@@ -111,28 +157,30 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     isAdvisories,
     isReport,
     hasInlineRibbon,
-  } =
-    useRouterState({
-      select: (state) => ({
-        isReport: state.location.pathname.startsWith("/report"),
-        // /review, /review/$ref and /contributions always render the ribbon at
-        // the top of their content, so the floating copy would be a duplicate.
-        hasInlineRibbon:
-          state.location.pathname === "/contributions" ||
-          state.location.pathname === "/review" ||
-          state.location.pathname.startsWith("/review/"),
-        isHome: state.location.pathname === "/",
-        isTraveller: state.location.pathname === "/traveller",
-        isMap: state.location.pathname === "/map",
-        isHelp: state.location.pathname === "/help",
-        isNotFound: state.matches.some(
-          (match) => match.status === "notFound" || match._notFound,
-        ),
-        isAdvisories:
-          state.location.pathname === "/advisories" ||
-          state.location.pathname === "/advisories/",
-      }),
-    });
+  } = useRouterState({
+    select: (state) => ({
+      isReport: state.location.pathname.startsWith("/report"),
+
+      hasInlineRibbon:
+        state.location.pathname === "/contributions" ||
+        state.location.pathname === "/review" ||
+        state.location.pathname.startsWith("/review/"),
+
+      isHome: state.location.pathname === "/",
+      isTraveller: state.location.pathname === "/traveller",
+      isMap: state.location.pathname === "/map",
+      isHelp: state.location.pathname === "/help",
+
+      isNotFound: state.matches.some(
+        (match) =>
+          match.status === "notFound" || match._notFound,
+      ),
+
+      isAdvisories:
+        state.location.pathname === "/advisories" ||
+        state.location.pathname === "/advisories/",
+    }),
+  });
 
   return (
     <html
@@ -142,18 +190,27 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        <script
+          dangerouslySetInnerHTML={{ __html: themeBootScript }}
+        />
         <HeadContent />
       </head>
+
       <body>
         <BootGate />
-        <script dangerouslySetInnerHTML={{ __html: bootGuardScript }} />
+
+        <script
+          dangerouslySetInnerHTML={{ __html: bootGuardScript }}
+        />
+
         <noscript>
           <style>{"#rp-boot{display:none!important}"}</style>
         </noscript>
+
         <PreferencesProvider>
           <TooltipProvider>
             <AuthSessionBridge />
+
             <AccountScopeBoundary>
               <SyncProvider>
                 <ShellSkipLink />
@@ -161,15 +218,21 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <RouteProgress />
                 <RevealObserver />
                 <BackToTop />
+
                 <AppShell
-                  footer={!isHome && !isTraveller && !isMap && !isHelp ? <SiteFooter /> : null}
+                  footer={
+                    !isHome &&
+                    !isTraveller &&
+                    !isMap &&
+                    !isHelp ? (
+                      <SiteFooter />
+                    ) : null
+                  }
                 >
+                  <EnvBanner />
+
                   {children}
-                  {/* Fixed on screen, but kept inside <main> so it sits in a landmark.
-                      /review and /contributions render it inline (hasInlineRibbon).
-                      Below 1024px it sits 1.5rem above the tab bar, clear of the raised
-                      Report button (1.25rem above the bar). left-16 keeps it right of the
-                      back-to-top button, so a wrapped ribbon at 200% zoom cannot cover it. */}
+
                   {!isHome &&
                     !isTraveller &&
                     !isMap &&
@@ -187,6 +250,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </AccountScopeBoundary>
           </TooltipProvider>
         </PreferencesProvider>
+
         <Toaster />
         <Scripts />
       </body>

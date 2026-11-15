@@ -9,3 +9,11 @@ test-results/
 .tanstack/
 # Supabase CLI local state (linked project ref)
 supabase/.temp/
+# Environment files (secrets)
+.env
+.env.*
+!.env.example
+*.local
+supabase/functions/.env
+supabase/functions/.env.*
+!supabase/functions/.env.example

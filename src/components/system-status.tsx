@@ -97,7 +97,7 @@ function IntegrationRow({ item }: { item: IntegrationStatus }) {
       </div>
       <p>{t(item.reason)}</p>
       <div className="mt-3 border-t border-border pt-3 text-sm">
-        <p className="m-0! text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="m-0! text-xs font-semibold text-muted-foreground">
           {t("status.channelLabel")}
         </p>
         {channel ? (

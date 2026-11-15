@@ -490,6 +490,9 @@ export const en = {
   'home.featOfflineTitle': 'Offline-Aware Access',
   'home.featOfflineBody': 'Planned, not available yet. Needs a connection today.',
   'home.planned': 'Planned',
+  'home.searchLabel': 'Search a road, town or highway',
+  'home.searchPlaceholder': 'NH-7, Joshimath, Nainital…',
+  'home.searchSubmit': 'Search',
   'state.loading': 'Loading road information',
   'state.errorTitle': 'Road information could not be loaded.',
   'state.errorBody': 'Try again. This does not confirm current road conditions.',
@@ -664,7 +667,7 @@ export const en = {
   'traveller.title': 'Search road conditions',
   'traveller.body':
     'Choose a route to review available observations, evidence freshness, and official restrictions. Missing information is shown as unknown.',
-  'help.eyebrow': 'HELP & SAFETY CENTRE',
+  'help.eyebrow': 'Help & safety centre',
   'help.title': 'Travel informed. Understand the conditions.',
   'help.subtitle':
     'Learn how to interpret road reports and use RaahPrahari responsibly.',
@@ -689,7 +692,7 @@ export const en = {
   'help.restrictions': 'Following official restrictions',
   'help.restrictionsBody': 'Learn how to find and respect official road restrictions.',
   'help.reminder': 'A missing report does not establish road conditions.',
-  'help.reminderLabel': 'SAFETY REMINDER',
+  'help.reminderLabel': 'Safety reminder',
   'help.reminderTitle': 'No current report does not mean a road is safe.',
   'help.reminderBody':
     'Road conditions can change quickly in mountainous regions. Always check the latest information, follow official restrictions, and use multiple sources before you travel.',
@@ -729,7 +732,7 @@ export const en = {
   'contact.title': 'Contact',
   'contact.body':
     'Contact details are not configured in this synthetic prototype.',
-  'aboutPage.eyebrow': 'ABOUT',
+  'aboutPage.eyebrow': 'About',
   'aboutPage.description':
     'RaahPrahari shows reported road hazards, information freshness and official restrictions together so travellers can decide with more context.',
   'aboutPage.prototypeTitle': 'What this prototype is',
@@ -785,7 +788,7 @@ export const en = {
   'aboutPage.checkRoad': 'Check a road',
   'aboutPage.viewAdvisories': 'View advisories',
   'aboutPage.help': 'Help',
-  'contactPage.eyebrow': 'CONTACT',
+  'contactPage.eyebrow': 'Contact',
   'contactPage.description':
     'This prototype has no message-delivery service. Submissions are not sent.',
   'contactPage.formTitle': 'Send a message',
@@ -805,7 +808,7 @@ export const en = {
   'contactPage.emergency': 'In an emergency, contact local emergency services.',
   'footer.tagline': 'Know before you go.',
   'footer.contributions': 'Points & reputation',
-  'contrib.eyebrow': 'COMMUNITY',
+  'contrib.eyebrow': 'Community',
   'contrib.title': 'Points, reputation and leaderboard',
   'contrib.description':
     'How reviewed community reports are recognised. Everything here depends on a reviewer’s decision, not on how much is sent.',
@@ -1102,7 +1105,7 @@ export const en = {
   'audit.reason.appealsLocal': 'Saved in this browser only. Nobody receives or reviews it.',
   'audit.reason.noMessageService':
     'The form checks the fields, then says the message was not sent. No message service is connected.',
-  'review.eyebrow': 'REVIEWER',
+  'review.eyebrow': 'Reviewer',
   'review.title': 'Review queue',
   'review.description':
     'Community reports waiting for a decision, the ones you have claimed, and the ones already settled.',
@@ -1235,7 +1238,7 @@ export const en = {
   'palette.feature.contact.title': 'Contact',
   'palette.feature.contact.description': 'Contact form. Messages are not sent in this prototype.',
   'footer.status': 'System status',
-  'status.eyebrow': 'SYSTEM STATUS',
+  'status.eyebrow': 'System status',
   'status.title': 'System status',
   'status.description':
     'What is connected, what is simulated and what is unavailable in this build, with what each channel last reported on this device.',
@@ -1311,6 +1314,17 @@ export const en = {
     'This page reports configuration and the last results seen on this device. It does not probe any service, and a connection does not confirm report delivery.',
   'nav.homeLabel': 'RaahPrahari — home',
   'nav.footer': 'Footer',
+  'nav.contributions': 'Contributions',
+  'nav.section': 'Current section',
+  'sync.chip.online': 'Online',
+  'sync.chip.offline': 'Offline',
+  'sync.chip.checking': 'Checking…',
+  'sync.chip.waiting': '{count} waiting',
+  'sync.chip.failed': '{count} failed',
+  'sync.chip.server': 'Server unreachable',
+  'sync.chip.stale': 'Sync out of date',
+  'sync.chip.label': 'Connection and sync status: {status}',
+  'sync.panelTitle': 'Connection and sync',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -1798,6 +1812,9 @@ export const hi: Record<TranslationKey, string> = {
   'home.featOfflineTitle': 'ऑफ़लाइन-जागरूक पहुँच',
   'home.featOfflineBody': 'नियोजित, अभी उपलब्ध नहीं। आज कनेक्शन चाहिए।',
   'home.planned': 'नियोजित',
+  'home.searchLabel': 'सड़क, शहर या राजमार्ग खोजें',
+  'home.searchPlaceholder': 'जैसे NH-7, जोशीमठ या नैनीताल',
+  'home.searchSubmit': 'खोजें',
   'state.loading': 'सड़क की जानकारी लोड हो रही है',
   'state.errorTitle': 'सड़क की जानकारी लोड नहीं हो सकी।',
   'state.errorBody': 'फिर कोशिश करें। इससे सड़क की मौजूदा स्थिति की पुष्टि नहीं होती।',
@@ -2616,4 +2633,15 @@ export const hi: Record<TranslationKey, string> = {
     'यह पृष्ठ कॉन्फ़िगरेशन और इस डिवाइस पर दिखे अंतिम परिणाम बताता है। यह किसी सेवा को जाँचता नहीं, और कनेक्शन से रिपोर्ट भेजे जाने की पुष्टि नहीं होती।',
   'nav.homeLabel': 'राहप्रहरी — होम',
   'nav.footer': 'फ़ुटर',
+  'nav.contributions': 'योगदान',
+  'nav.section': 'वर्तमान भाग',
+  'sync.chip.online': 'ऑनलाइन',
+  'sync.chip.offline': 'ऑफ़लाइन',
+  'sync.chip.checking': 'जाँच हो रही है…',
+  'sync.chip.waiting': '{count} प्रतीक्षा में',
+  'sync.chip.failed': '{count} विफल',
+  'sync.chip.server': 'सर्वर उपलब्ध नहीं',
+  'sync.chip.stale': 'सिंक पुराना है',
+  'sync.chip.label': 'कनेक्शन और सिंक स्थिति: {status}',
+  'sync.panelTitle': 'कनेक्शन और सिंक',
 };

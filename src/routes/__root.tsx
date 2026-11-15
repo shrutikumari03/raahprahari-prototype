@@ -102,10 +102,25 @@ function ShellSkipLink() {
 }
 function RootDocument({ children }: { children: React.ReactNode }) {
   // These routes render the shared PrototypeRibbon inside their own layout.
-  const { isHome, isTraveller, isMap, isHelp, isNotFound, isAdvisories, isReport } =
+  const {
+    isHome,
+    isTraveller,
+    isMap,
+    isHelp,
+    isNotFound,
+    isAdvisories,
+    isReport,
+    hasInlineRibbon,
+  } =
     useRouterState({
       select: (state) => ({
         isReport: state.location.pathname.startsWith("/report"),
+        // /review, /review/$ref and /contributions always render the ribbon at
+        // the top of their content, so the floating copy would be a duplicate.
+        hasInlineRibbon:
+          state.location.pathname === "/contributions" ||
+          state.location.pathname === "/review" ||
+          state.location.pathname.startsWith("/review/"),
         isHome: state.location.pathname === "/",
         isTraveller: state.location.pathname === "/traveller",
         isMap: state.location.pathname === "/map",
@@ -150,18 +165,21 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                   footer={!isHome && !isTraveller && !isMap && !isHelp ? <SiteFooter /> : null}
                 >
                   {children}
+                  {/* Fixed on screen, but kept inside <main> so it sits in a landmark.
+                      /review and /contributions render it inline (hasInlineRibbon). */}
+                  {!isHome &&
+                    !isTraveller &&
+                    !isMap &&
+                    !isHelp &&
+                    !isNotFound &&
+                    !isReport &&
+                    !isAdvisories &&
+                    !hasInlineRibbon && (
+                      <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-(--z-bottom-nav) lg:bottom-2">
+                        <PrototypeRibbon />
+                      </div>
+                    )}
                 </AppShell>
-                {!isHome &&
-                  !isTraveller &&
-                  !isMap &&
-                  !isHelp &&
-                  !isNotFound &&
-                  !isReport &&
-                  !isAdvisories && (
-                    <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-(--z-bottom-nav) lg:bottom-2">
-                      <PrototypeRibbon />
-                    </div>
-                  )}
               </SyncProvider>
             </AccountScopeBoundary>
           </TooltipProvider>

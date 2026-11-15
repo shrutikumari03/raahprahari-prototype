@@ -231,7 +231,7 @@ export function FeatureSearchModal({
           tabIndex={0}
           className="max-h-[min(60vh,24rem)] overflow-y-auto p-2 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
         >
-          <div className="flex items-center justify-between px-2 py-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <div className="flex items-center justify-between px-2 py-1.5 text-xs font-semibold text-muted-foreground">
             <span id={`${baseId}-heading`}>
               {suggested ? t("palette.suggested") : t("palette.results")}
             </span>
@@ -332,7 +332,7 @@ export function FeatureSearchModal({
 
 function Kbd({ children }: { children: ReactNode }) {
   return (
-    <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
+    <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
       {children}
     </kbd>
   );

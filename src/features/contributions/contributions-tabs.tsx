@@ -235,7 +235,7 @@ function LeaderboardTab() {
                 </TableCell>
                 <TableCell>
                   <span className="font-medium">{entry.handle}</span>{" "}
-                  <span className="block font-mono text-[11px] text-muted-foreground sm:inline">
+                  <span className="block font-mono text-xs text-muted-foreground sm:inline">
                     (
                     {entry.you
                       ? t("contrib.board.you")

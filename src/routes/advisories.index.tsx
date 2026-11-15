@@ -55,7 +55,7 @@ function AdvisoriesPage() {
     <div className="advisories-list-page pb-8">
       <header className="advisories-list-banner photo-surface">
         <div className="rp-container py-5">
-          <p className="mb-1 inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-[var(--orange-on-dark)] uppercase">
+          <p className="mb-1 inline-flex items-center gap-2 text-xs font-semibold text-[var(--orange-on-dark)]">
             <span aria-hidden className="h-0.5 w-7 bg-brand-orange" />
             {t("hero.eyebrow")}
           </p>

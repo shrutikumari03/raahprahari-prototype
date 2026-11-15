@@ -221,7 +221,7 @@ export function LedgerTab() {
                   <span className="font-medium text-foreground">
                     {t(`contrib.reason.${entry.reason}` as TranslationKey)}
                   </span>
-                  <span className="mt-0.5 block font-mono text-[11px] text-muted-foreground">
+                  <span className="mt-0.5 block font-mono text-xs text-muted-foreground">
                     {entry.reportRef}
                     {entry.reverses
                       ? ` · ${fill(t("contrib.ledger.reverses"), { id: entry.reverses })}`

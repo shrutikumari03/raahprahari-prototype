@@ -153,12 +153,17 @@ describe("app shell layout does not overlap or hide content", () => {
     expect(bars.match(/lg:hidden/g)?.length).toBeGreaterThanOrEqual(2);
     expect(shell).not.toMatch(/\b(xl|2xl|1440):(flex|hidden)\b/);
     expect(styles).not.toMatch(/--breakpoint-1440/);
+    // Viewport-height pages subtract the shell's own top bar, not a second number.
+    expect(styles).toMatch(/--rp-top-h:\s*var\(--shell-bar-height\)/);
+    expect(styles).not.toMatch(/--rp-rail-w|--rp-bottom-h/);
   });
   it("rail items never wrap and keep 44px targets", () => {
     expect(rail).toMatch(
       /min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium/,
     );
     expect(bars).toMatch(/min-h-14 min-w-11 flex-col/);
+    // Language buttons (signed out) are 44px targets too.
+    expect(rail).toMatch(/min-h-11 min-w-11 rounded-md px-2 text-sm font-medium/);
   });
   it("every shell colour comes from theme tokens, never a fixed value", () => {
     expect(shell).not.toMatch(

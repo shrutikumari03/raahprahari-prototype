@@ -34,6 +34,7 @@ const RAIL = [
   ["Live map", "/map"],
   ["Advisories", "/advisories"],
   ["My reports", "/reports"],
+  ["Contributions", "/contributions"],
   ["Help", "/help"],
 ] as const;
 
@@ -58,6 +59,7 @@ const ROUTES: { path: string; rail: string | null; tab: string | null }[] = [
   { path: "/reports", rail: "/reports", tab: "/reports" },
   { path: "/report", rail: null, tab: "/report" },
   { path: "/profile", rail: null, tab: "/profile" },
+  { path: "/contributions", rail: "/contributions", tab: null },
   { path: "/no-such-page", rail: null, tab: null },
 ];
 
@@ -183,6 +185,7 @@ describe("shared app shell on every route", () => {
     expect(activeNavTarget("/check")).toBe("/map");
     expect(activeNavTarget("/reports")).toBe("/reports");
     expect(activeNavTarget("/profile")).toBe("/profile");
+    expect(activeNavTarget("/contributions")).toBe("/contributions");
   });
 
   // Menu keyboard behaviour, sign-in focus return and the breakpoint contract are

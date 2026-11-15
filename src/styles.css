@@ -132,16 +132,19 @@ code {
   --action-info: var(--blue-on-light);
   --action-caution: #a44200;
   --action-restricted: #b4232f;
-  --status-closed: var(--action-restricted);
+  --status-closed: var(--status-dnt);
   --status-stale: #56616a;
   --status-unknown: #56616a;
   --action-blue: var(--action-info);
   --radius: 0.875rem;
 
-  --status-clear: #245c98;
-  --status-caution: var(--action-caution);
-  --status-avoid: #a44200;
-  --status-dnt: var(--status-closed);
+  /* Road status: four distinct hues, each at least 4.5:1 on background, card
+     and muted, and never green (docs/change-order.md). Clear is its own
+     cyan-blue, not the link colour. Icons and labels always come with them. */
+  --status-clear: #0b5f87;
+  --status-caution: #715400;
+  --status-avoid: #a43c0a;
+  --status-dnt: #b01e3a;
   --status-official: var(--orange-on-light);
 
   --chart-1: var(--status-clear);
@@ -198,14 +201,15 @@ code {
   --action-info: var(--blue-on-dark);
   --action-caution: #ffd166;
   --action-restricted: #ff7868;
-  --status-closed: var(--action-restricted);
+  --status-closed: var(--status-dnt);
   --status-stale: #a7b5bf;
   --status-unknown: #a7b5bf;
   --action-blue: var(--action-info);
-  --status-clear: #92c5ff;
-  --status-caution: var(--action-caution);
-  --status-avoid: #ff7868;
-  --status-dnt: var(--status-closed);
+  /* Road status (dark): same four hues, lifted for the navy surfaces. */
+  --status-clear: #7cd0ff;
+  --status-caution: #ffd166;
+  --status-avoid: #ff9a3d;
+  --status-dnt: #ff6b81;
   --status-official: #ff8766;
   --chart-1: var(--status-clear);
   --chart-2: var(--status-caution);
@@ -1301,6 +1305,21 @@ textarea::placeholder {
   max-width: 90rem;
 }
 
+/* Header and navigation chrome (light theme). Orange is the one accent and
+   marks where you are; selection rings are neutral so blue never competes.
+   The darker orange keeps the current-page underline above 3:1. */
+:root:not(.dark) .rp-underline::after {
+  background: var(--orange-on-light);
+}
+:root:not(.dark) .rp-lang .rp-lang-btn[aria-pressed='true'],
+:root:not(.dark) .rp-chrome-nav a[aria-current='page'].rp-press {
+  box-shadow: inset 0 0 0 2px var(--foreground);
+}
+/* The bottom nav shows the current page with its orange top marker instead. */
+:root:not(.dark) .rp-bottom-nav a[aria-current='page'].rp-press {
+  box-shadow: none;
+}
+
 /* Language switch: the focus ring follows the pill and sits inside it, so it
    never spills over the neighbouring links or becomes a circle over the label. */
 .rp-lang .rp-lang-btn:focus-visible,
@@ -1486,4 +1505,34 @@ textarea::placeholder {
 :root:not(.dark) .rp-shell a:not([class*='bg-']):hover,
 :root:not(.dark) .rp-shell button:not([class*='bg-']):not(:disabled):hover {
   background-color: var(--shell-raised);
+}
+
+/* ── Unslop: shared status accents ───────────────────────────────────────────
+   Any element with data-level gets --level-accent from the status tokens, so
+   card edges always match the badge. Unknown is grey and dashed, never green. */
+[data-level='clear'] { --level-accent: var(--status-clear); }
+[data-level='caution'] { --level-accent: var(--status-caution); }
+[data-level='avoid'] { --level-accent: var(--status-avoid); }
+[data-level='do_not_travel'] { --level-accent: var(--status-dnt); }
+[data-level='unknown'] { --level-accent: var(--status-unknown); }
+
+.rp-status-card {
+  position: relative;
+  overflow: hidden;
+  border-left-width: 4px;
+  border-left-color: var(--level-accent, var(--status-unknown));
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--level-accent, transparent) 9%, transparent), transparent 45%),
+    var(--card);
+}
+.rp-status-card[data-level='unknown'] {
+  border-left-style: dashed;
+}
+
+/* Height pages lose to the app shell's top bar. Screens sized to the
+   viewport (home hero, traveller, help, advisories, page banner) subtract
+   it. The shell has a 56px top bar at every width, so it is one value
+   taken from the shell token, never a second hard-coded number. */
+:root {
+  --rp-top-h: var(--shell-bar-height);
 }

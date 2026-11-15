@@ -14,11 +14,12 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { TranslationKey } from "@/i18n/dictionary";
 import { usePrefs } from "@/i18n/preferences";
 import type { Lang } from "@/lib/app-store";
 import { useAccountSession } from "@/lib/account-session";
 import { cn } from "@/lib/utils";
-import { AccountMenu } from "./account-menu";
+import { AccountMenu, ITEM } from "./account-menu";
 import { TAB_NAV, type ShellPath } from "./nav";
 import { ShellLogo } from "./shell-logo";
 import { StatusChip, type ShellStatus } from "./shell-status";
@@ -110,10 +111,13 @@ export function DesktopTopBar({
 /** Mobile top bar (56px): logo, search icon, language, status dot, avatar. */
 export function MobileTopBar({
   status,
+  section,
   onOpenLogin,
   onOpenSearch,
 }: {
   status: ShellStatus;
+  /** Label of the current section, from sectionLabel(). */
+  section: TranslationKey | null;
   onOpenLogin: () => void;
   onOpenSearch: () => void;
 }) {
@@ -132,6 +136,17 @@ export function MobileTopBar({
       className="rp-shell flex h-14 shrink-0 items-center gap-1 border-b border-shell-divider bg-shell-bg px-3 text-shell-text lg:hidden"
     >
       <ShellLogo />
+      {/* The section you are in. Visible from 640px; below that the bar has no
+          room beside the wordmark, so it is announced but not shown. */}
+      {section ? (
+        <p
+          data-testid="shell-section"
+          className="m-0 min-w-0 truncate font-display text-base font-semibold max-sm:sr-only"
+        >
+          <span className="sr-only">{t("nav.section")}: </span>
+          {t(section)}
+        </p>
+      ) : null}
       <div className="flex-1" />
       <Button
         asChild
@@ -163,8 +178,10 @@ export function MobileTopBar({
             value={lang}
             onValueChange={(value) => setLang(value as Lang)}
           >
-            <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="hi" lang="hi">
+            <DropdownMenuRadioItem value="en" className={ITEM}>
+              English
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="hi" lang="hi" className={ITEM}>
               हिन्दी
             </DropdownMenuRadioItem>
           </DropdownMenuRadioGroup>
@@ -175,6 +192,7 @@ export function MobileTopBar({
         <AccountMenu
           status={status}
           onOpenSearch={onOpenSearch}
+          pageLinks
           trigger={
             <button
               type="button"
@@ -192,10 +210,12 @@ export function MobileTopBar({
         />
       ) : (
         // Signed out: the same menu (theme, language, about) plus Community Login.
+        // Page links too, so Contributions, Advisories and Help stay reachable.
         <AccountMenu
           status={status}
           onOpenLogin={onOpenLogin}
           onOpenSearch={onOpenSearch}
+          pageLinks
           trigger={
             <Button
               type="button"

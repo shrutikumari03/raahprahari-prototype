@@ -221,7 +221,7 @@ export function SchematicMap({
         )}
       </svg>
       {!terrain && (
-        <p className="pointer-events-none absolute right-3 bottom-2 font-mono text-[10px] text-muted-foreground">
+        <p className="pointer-events-none absolute right-3 bottom-2 font-mono text-xs text-muted-foreground">
           {t('map.schematic')}
         </p>
       )}
@@ -234,7 +234,7 @@ export function MapLegend({ className }: { className?: string }) {
   const levels: AdvisoryLevel[] = ['clear', 'caution', 'avoid', 'do_not_travel', 'unknown']
   return (
     <div className={cn('rounded-2xl border border-border bg-card p-4', className)}>
-      <p className="mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">{t('map.legend')}</p>
+      <p className="mb-3 text-xs font-semibold text-muted-foreground">{t('map.legend')}</p>
       <ul className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3 xl:grid-cols-2">
         {levels.map((l) => {
           const Icon = LEVEL_META[l].icon

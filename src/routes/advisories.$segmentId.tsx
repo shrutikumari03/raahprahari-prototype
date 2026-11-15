@@ -129,9 +129,9 @@ export function Banner({
           <ArrowLeft aria-hidden className="size-4" />
           Back to search
         </Link>
-        <p className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-link">
+        <p className="mb-1 flex items-center gap-2 text-sm font-semibold text-link">
           <RouteIcon aria-hidden className="size-4" />
-          MOUNTAIN ROAD
+          Mountain road
           {reportRef && (
             <span className="font-mono tracking-normal">· {reportRef}</span>
           )}
@@ -160,7 +160,7 @@ function RouteSummary({ segment }: { segment: Segment }) {
         />
         <SummaryItem icon={MapPin} label="Elevation unavailable" />
       </dl>
-      <p className="basis-full text-[11px] text-muted-foreground">
+      <p className="basis-full text-xs text-muted-foreground">
         All route estimates are illustrative.
       </p>
     </div>
@@ -404,7 +404,7 @@ function InfoCard({
   return (
     <section
       className={cn(
-        "rounded-lg border border-border bg-card p-3 sm:p-4",
+        "rounded-xl border border-border bg-card p-3 sm:p-4",
         className,
       )}
     >
@@ -432,7 +432,7 @@ function Fact({
         aria-hidden
         className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground"
       />
-      <dt className="text-[11px] text-muted-foreground">{label}</dt>
+      <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd className="rp-wrap-anywhere text-xs font-medium">{value}</dd>
     </div>
   );
@@ -479,7 +479,7 @@ function OfficialRestrictionCard({
   return (
     <section
       className={cn(
-        "rounded-lg border border-border bg-card p-3 sm:p-4",
+        "rounded-xl border border-border bg-card p-3 sm:p-4",
         className,
       )}
     >
@@ -501,7 +501,7 @@ function OfficialRestrictionCard({
             className="size-4 shrink-0 text-status-unknown"
           />
           No current official information
-          <span className="ml-auto text-[11px] text-status-unknown">
+          <span className="ml-auto text-xs text-status-unknown">
             UNKNOWN
           </span>
         </p>
@@ -546,6 +546,8 @@ function TerrainPanel({
               setView('list')
             }}
             label={`Interactive map of ${place(segment.from)} – ${place(segment.to)}`}
+            // The page-level ribbon from the root layout is always shown here.
+            showRibbon={false}
             className="rp-lmap-fill"
           />
         ) : (
@@ -772,7 +774,7 @@ function ReportGallery({ report }: { report: CommunityReport }) {
                   aria-hidden
                   className="mx-auto size-5 text-muted-foreground"
                 />
-                <p className="mt-1 text-[10px] text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Community image unavailable in demo
                 </p>
               </div>
@@ -823,6 +825,7 @@ function ReportLocationMap({ segment }: { segment: Segment }) {
             onUnavailable={() => setUnavailable(true)}
             label={`Map of the reported road section, ${place(segment.from)} – ${place(segment.to)}`}
             className="rp-lmap-fill"
+            showRibbon={false}
           />
         )}
       </div>

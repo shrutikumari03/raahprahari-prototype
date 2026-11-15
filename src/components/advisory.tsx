@@ -220,7 +220,7 @@ export function RoadCode({
   return (
     <span
       className={cn(
-        "font-mono text-xs font-medium tracking-tight text-muted-foreground",
+        "font-mono text-xs font-medium text-muted-foreground",
         className,
       )}
     >

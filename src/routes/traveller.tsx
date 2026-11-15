@@ -334,7 +334,7 @@ function TravellerPage() {
       <div className="traveller-page traveller-landing">
         <section className="traveller-search-panel" aria-labelledby="traveller-title">
           <div className="traveller-panel-content">
-            <p className="traveller-eyebrow">ROAD ADVISORIES · UTTARAKHAND</p>
+            <p className="traveller-eyebrow">Road advisories · Uttarakhand</p>
             <h1 id="traveller-title">Where are you travelling?</h1>
             <p className="traveller-panel-description">
               Search reported road conditions, evidence freshness, and official restrictions.

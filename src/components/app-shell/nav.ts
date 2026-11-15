@@ -1,4 +1,5 @@
 import {
+  Award,
   BookOpen,
   CircleHelp,
   ClipboardCheck,
@@ -20,6 +21,7 @@ export type ShellPath =
   | "/map"
   | "/advisories"
   | "/reports"
+  | "/contributions"
   | "/help"
   | "/review"
   | "/official"
@@ -46,6 +48,7 @@ export const RAIL_NAV: readonly ShellNavItem[] = [
     icon: BookOpen,
     requiresSignIn: true,
   },
+  { to: "/contributions", label: "nav.contributions", icon: Award },
   { to: "/help", label: "nav.help", icon: CircleHelp },
 ];
 
@@ -107,6 +110,27 @@ export function activeNavTarget(
   if (under("/review")) return "/review";
   if (under("/official")) return "/official";
   if (path === "/profile") return "/profile";
+  if (path === "/contributions") return "/contributions";
+  return null;
+}
+
+/**
+ * The mobile top bar names the section you are in; pages keep their own h1.
+ * Ported from the previous site chrome's sectionLabel(): the current shell
+ * item's label, plus a few routes that have no item of their own.
+ */
+export function sectionLabel(
+  pathname: string,
+  active: ShellPath | null,
+): TranslationKey | null {
+  const item = [...RAIL_NAV, REVIEW_ITEM, OFFICIAL_ITEM, ...TAB_NAV].find(
+    ({ to }) => to === active,
+  );
+  if (item) return item.label;
+  if (pathname.startsWith("/status")) return "footer.status";
+  if (pathname.startsWith("/review")) return "review.title";
+  if (pathname.startsWith("/official")) return "official.title";
+  if (pathname.startsWith("/profile")) return "nav.account";
   return null;
 }
 

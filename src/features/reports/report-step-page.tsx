@@ -14,6 +14,7 @@ import {
   Search,
   Send,
   TreePine,
+  TriangleAlert,
   Waves,
   Wind,
   X,
@@ -750,10 +751,16 @@ export function ReportStepPage({
                   <li
                     key={item.label}
                     aria-current={active ? "step" : undefined}
-                    className="flex min-w-0 flex-col items-center gap-1 text-center"
+                    className={`relative flex min-w-0 flex-col items-center gap-1 text-center ${
+                      index > 0
+                        ? `before:absolute before:top-4 before:right-[calc(50%+1.25rem)] before:h-0.5 before:w-[calc(100%-1.75rem)] before:rounded-full ${
+                            currentStep >= number ? "before:bg-brand-orange" : "before:bg-border"
+                          }`
+                        : ""
+                    }`}
                   >
                     <span
-                      className={`flex size-8 items-center justify-center rounded-full border text-xs font-semibold ${
+                      className={`relative flex size-8 items-center justify-center rounded-full border-2 text-xs font-semibold ${
                         active
                           ? "border-brand-orange bg-brand-orange text-report-foreground"
                           : complete
@@ -789,7 +796,7 @@ export function ReportStepPage({
           }
         >
           {step === "observation" && (
-            <aside className="relative hidden min-h-[42rem] overflow-hidden rounded-2xl border border-border bg-card lg:block">
+            <aside className="relative hidden h-[min(36rem,calc(100svh-8rem))] overflow-hidden rounded-2xl border border-border bg-card lg:sticky lg:top-24 lg:block lg:self-start">
               <img
                 src="/img/hero-road.png"
                 alt="Illustrative mountain road through a Himalayan valley."
@@ -866,17 +873,29 @@ export function ReportStepPage({
                             hazardType: "",
                           }));
                         }}
-                        className={`flex min-h-20 items-center gap-3 rounded-xl border p-3 text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
+                        className={`relative flex min-h-24 flex-col items-start justify-between gap-3 rounded-xl border-2 p-3 text-left text-sm transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
                           draft.hazardType === value
-                            ? "border-brand-orange bg-brand-orange/10 font-semibold"
-                            : "border-border bg-background/40 hover:bg-accent"
+                            ? "border-brand-orange bg-brand-orange/12 font-semibold shadow-[0_0_0_4px_color-mix(in_srgb,var(--brand-orange)_18%,transparent)]"
+                            : "border-border bg-background/40 hover:border-brand-orange/60 hover:bg-accent"
                         }`}
                       >
-                        <Icon
+                        <span
                           aria-hidden
-                          className="size-5 shrink-0 text-brand-orange"
-                        />
+                          className={`flex size-10 items-center justify-center rounded-lg ${
+                            draft.hazardType === value
+                              ? "bg-brand-orange text-report-foreground"
+                              : "bg-brand-orange/15 text-brand-orange"
+                          }`}
+                        >
+                          <Icon className="size-5" />
+                        </span>
                         <span>{label}</span>
+                        {draft.hazardType === value && (
+                          <Check
+                            aria-hidden
+                            className="absolute top-2.5 right-2.5 size-4 text-brand-orange"
+                          />
+                        )}
                       </button>
                     ))}
                   </div>
@@ -1010,14 +1029,15 @@ export function ReportStepPage({
                   />
                 </div>
 
-                <div className="mt-5 overflow-hidden rounded-xl border border-border">
-                  <img
-                    src="/img/hero-road.png"
-                    alt=""
-                    className="h-28 w-full object-cover sm:h-36"
-                  />
-                  <div className="flex flex-wrap items-center justify-between gap-3 p-3">
-                    <div>
+                <div className="mt-5 rounded-xl border-2 border-dashed border-brand-orange/45 bg-brand-orange/5">
+                  <div className="flex flex-wrap items-center justify-between gap-3 p-4">
+                    <span
+                      aria-hidden
+                      className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-brand-orange/15 text-brand-orange"
+                    >
+                      <ImagePlus className="size-6" />
+                    </span>
+                    <div className="mr-auto min-w-0">
                       <p className="text-sm font-medium">
                         Photo evidence is optional
                       </p>
@@ -1035,9 +1055,15 @@ export function ReportStepPage({
                     </Button>
                   </div>
                 </div>
-                <p className="mt-4 rounded-xl border border-status-caution/50 bg-status-caution/10 p-3 text-sm">
-                  Capture evidence only when you are away from traffic. Do not
-                  stop in a dangerous area.
+                <p className="mt-4 flex items-start gap-3 rounded-xl border border-status-caution/50 border-l-4 border-l-status-caution bg-status-caution/10 p-3 text-sm">
+                  <TriangleAlert
+                    aria-hidden
+                    className="mt-0.5 size-4 shrink-0 text-status-caution"
+                  />
+                  <span>
+                    Capture evidence only when you are away from traffic. Do not
+                    stop in a dangerous area.
+                  </span>
                 </p>
                 <StepActions
                   back={() => go("/")}
@@ -1069,17 +1095,28 @@ export function ReportStepPage({
                       <button
                         type="button"
                         onClick={() => cameraInput.current?.click()}
-                        className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-medium hover:bg-accent"
+                        className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-orange/45 bg-brand-orange/5 px-3 text-sm font-semibold transition-colors motion-reduce:transition-none hover:border-brand-orange hover:bg-brand-orange/10"
                       >
-                        <Camera aria-hidden className="size-4" /> Take photo
+                        <span
+                          aria-hidden
+                          className="flex size-11 items-center justify-center rounded-full bg-brand-orange/15 text-brand-orange"
+                        >
+                          <Camera className="size-5" />
+                        </span>
+                        Take photo
                       </button>
                       <button
                         type="button"
                         onClick={() => libraryInput.current?.click()}
-                        className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-medium hover:bg-accent"
+                        className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-background/40 px-3 text-center text-sm font-semibold transition-colors motion-reduce:transition-none hover:border-brand-orange hover:bg-brand-orange/10"
                       >
-                        <ImagePlus aria-hidden className="size-4" /> Choose
-                        existing photo
+                        <span
+                          aria-hidden
+                          className="flex size-11 items-center justify-center rounded-full bg-muted text-foreground"
+                        >
+                          <ImagePlus className="size-5" />
+                        </span>
+                        Choose existing photo
                       </button>
                     </div>
                     <input
@@ -1867,7 +1904,7 @@ function ReviewSection({
     <section className="rounded-xl border border-border p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-semibold">{title}</h3>
-        <Button type="button" variant="ghost" className="h-9" onClick={edit}>
+        <Button type="button" variant="ghost" className="h-11" onClick={edit}>
           Edit
         </Button>
       </div>

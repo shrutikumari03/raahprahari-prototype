@@ -54,8 +54,9 @@ export function AdvisoryCard({
     const level = communityReport.severity === "high" ? "avoid" : "caution";
     return (
       <article
+        data-level={level}
         className={cn(
-          "rp-card rp-enter rounded-lg border border-border bg-card",
+          "rp-card rp-enter rp-status-card rounded-xl border border-border bg-card",
           className,
         )}
       >
@@ -100,7 +101,10 @@ export function AdvisoryCard({
       advisory.evidence.find((r) => r.kind === "hazard") ?? report;
 
     return (
-      <article className={cn("home-advisory photo-surface", className)}>
+      <article
+        data-level={advisory.level}
+        className={cn("home-advisory photo-surface", className)}
+      >
         <Link
           to="/advisories/$segmentId"
           params={{ segmentId: segment.id }}
@@ -108,7 +112,7 @@ export function AdvisoryCard({
         >
           <p className="home-advisory-kicker">
             <TriangleAlert aria-hidden />
-            ROAD ADVISORY
+            Road advisory
           </p>
           <div className="home-advisory-status">
             <ActionBadge
@@ -154,8 +158,9 @@ export function AdvisoryCard({
 
   return (
     <article
+      data-level={advisory.level}
       className={cn(
-        "rp-card rp-enter rounded-xl border border-border bg-card",
+        "rp-card rp-enter rp-status-card rounded-xl border border-border bg-card",
         className,
       )}
     >

@@ -158,10 +158,7 @@ export function DeliveryStepper({
                     <span className="text-sm font-medium">{stage.title}</span>
                   </div>
                   {isActive ? (
-                    <span
-                      aria-hidden
-                      className="text-xs uppercase tracking-wide text-muted-foreground"
-                    >
+                    <span aria-hidden className="text-xs text-muted-foreground">
                       Current
                     </span>
                   ) : null}

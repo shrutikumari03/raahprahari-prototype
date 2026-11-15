@@ -62,6 +62,7 @@ const RAIL_LINKS = [
   ["Check a road", "/traveller"],
   ["Live map", "/map"],
   ["Advisories", "/advisories"],
+  ["Contributions", "/contributions"],
   ["Help", "/help"],
 ] as const;
 

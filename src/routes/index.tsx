@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useId, useState } from 'react'
 import { ArrowRight, CloudDownload, MapPin, Search, ShieldCheck, TriangleAlert, UsersRound } from 'lucide-react'
 import { AdvisoryCard } from '@/components/advisory-card'
 import { PrototypeRibbon } from '@/components/prototype-ribbon'
@@ -45,8 +46,13 @@ function Home() {
         <div aria-hidden className="home-hero-overlay" />
         <div className="home-content">
           <div className="home-copy rp-hero-stagger">
+            <p className="home-eyebrow">
+              <span aria-hidden />
+              {t('hero.eyebrow')}
+            </p>
             <h1 id="hero-title">{t('hero.title')}</h1>
             <p>{t('hero.body')}</p>
+            <HomeRoadSearch />
             <div className="home-actions">
               <Link to="/traveller" className="rp-interactive home-action home-action-check">
                 <Search aria-hidden />
@@ -91,6 +97,59 @@ function Home() {
   )
 }
 
+/** Road codes from the seeded corridors; each opens the existing traveller search. */
+const QUICK_ROADS = ['NH-7', 'NH-107', 'NH-34', 'NH-9'] as const
+
+/** Hands the query to the traveller search (/traveller?q=), which does the matching. */
+function HomeRoadSearch() {
+  const { t } = usePrefs()
+  const navigate = useNavigate()
+  const [query, setQuery] = useState('')
+  const id = useId()
+
+  return (
+    <form
+      role="search"
+      className="home-search"
+      onSubmit={(event) => {
+        event.preventDefault()
+        const q = query.trim()
+        void navigate({ to: '/traveller', search: q ? { q } : {} })
+      }}
+    >
+      <label htmlFor={id} className="home-search-label">
+        {t('home.searchLabel')}
+      </label>
+      <div className="home-search-field">
+        <Search aria-hidden />
+        <input
+          id={id}
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={t('home.searchPlaceholder')}
+          autoComplete="off"
+        />
+        <button type="submit" className="rp-interactive">
+          {t('home.searchSubmit')}
+        </button>
+      </div>
+      <div className="home-search-quick">
+        <span>{t('search.quick')}</span>
+        <ul>
+          {QUICK_ROADS.map((code) => (
+            <li key={code}>
+              <Link to="/traveller" search={{ q: code }} className="rp-interactive">
+                {code}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </form>
+  )
+}
+
 function IllustrativeRoute() {
   return (
     <div
@@ -98,7 +157,7 @@ function IllustrativeRoute() {
       aria-label="Illustrative route only with three synthetic coordinate pins"
       className="home-route"
     >
-      <span className="home-route-label">ILLUSTRATIVE ROUTE ONLY</span>
+      <span className="home-route-label">Illustrative route only</span>
       <div aria-hidden className="home-route-line home-route-line-one" />
       <div aria-hidden className="home-route-line home-route-line-two" />
       <div className="home-route-pin home-route-pin-one">

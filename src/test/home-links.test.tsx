@@ -71,10 +71,25 @@ describe('home page links', () => {
     }
   }, 30_000)
 
+  it('the road search hands its query to the traveller search', async () => {
+    const { router, main } = await mountHome()
+    const form = within(main).getByRole('search')
+    fireEvent.change(within(form).getByLabelText('Search a road, town or highway'), {
+      target: { value: 'Joshimath' },
+    })
+    fireEvent.click(within(form).getByRole('button', { name: 'Search' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/traveller'))
+    expect(router.state.location.search).toEqual({ q: 'Joshimath' })
+  }, 30_000)
+
   it('has no dead controls in the page content', async () => {
     const { main } = await mountHome()
-    // Every action on the home page is a real link; there are no inert buttons.
-    expect(within(main).queryAllByRole('button')).toEqual([])
+    // Every action is a real link, except the road search's submit button,
+    // which is covered by the test above.
+    const buttons = within(main).queryAllByRole('button')
+    expect(buttons.map((b) => b.textContent)).toEqual(['Search'])
+    expect(buttons[0]).toHaveAttribute('type', 'submit')
+    expect(buttons[0].closest('form[role="search"]')).not.toBeNull()
     for (const link of within(main).getAllByRole('link')) {
       const href = link.getAttribute('href') ?? ''
       expect(href, `${link.textContent} has no destination`).toMatch(/^\/[^#]*/)

@@ -17,7 +17,7 @@ function Block({
 }) {
   return (
     <div className="border-t border-border py-3.5">
-      <h4 className="mb-1.5 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+      <h4 className="mb-1.5 text-xs font-semibold text-muted-foreground">
         {title}
       </h4>
       <div className="space-y-1.5 text-sm">{children}</div>
@@ -303,7 +303,7 @@ export function SegmentDetail({
       {adv.evidence.length > 0 && (
         <div className="border-t border-border pt-3.5">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+            <h4 className="text-xs font-semibold text-muted-foreground">
               {t("segment.reports")}
             </h4>
           </div>
@@ -336,7 +336,7 @@ function OverviewSegmentDetail({
   return (
     <section
       className={cn(
-        "rounded-lg border border-border bg-card p-3 sm:p-4",
+        "rounded-xl border border-border bg-card p-3 sm:p-4",
         className,
       )}
     >
@@ -350,7 +350,7 @@ function OverviewSegmentDetail({
             aria-hidden
             className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground"
           />
-          <dt className="text-[11px] text-muted-foreground">Starting point</dt>
+          <dt className="text-xs text-muted-foreground">Starting point</dt>
           <dd className="rp-wrap-anywhere text-xs font-medium">
             {place(segment.from)}
           </dd>
@@ -360,7 +360,7 @@ function OverviewSegmentDetail({
             aria-hidden
             className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground"
           />
-          <dt className="text-[11px] text-muted-foreground">Total distance</dt>
+          <dt className="text-xs text-muted-foreground">Total distance</dt>
           <dd className="rp-wrap-anywhere text-xs font-medium">
             {segment.distanceKm} km (illustrative)
           </dd>
@@ -370,7 +370,7 @@ function OverviewSegmentDetail({
             aria-hidden
             className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground"
           />
-          <dt className="text-[11px] text-muted-foreground">End point</dt>
+          <dt className="text-xs text-muted-foreground">End point</dt>
           <dd className="rp-wrap-anywhere text-xs font-medium">
             {place(segment.to)}
           </dd>
@@ -380,7 +380,7 @@ function OverviewSegmentDetail({
             aria-hidden
             className="row-span-2 mt-0.5 size-4 shrink-0 text-muted-foreground"
           />
-          <dt className="text-[11px] text-muted-foreground">Estimated time</dt>
+          <dt className="text-xs text-muted-foreground">Estimated time</dt>
           <dd className="rp-wrap-anywhere text-xs font-medium">
             {duration(segment.typicalMinutes)} (illustrative)
           </dd>
@@ -461,6 +461,7 @@ export function MapSegmentDetail({
 
   return (
     <section
+      data-level={advisory.level}
       className={cn("rp-map-detail-panel", className)}
       aria-labelledby="rp-map-segment-title"
     >

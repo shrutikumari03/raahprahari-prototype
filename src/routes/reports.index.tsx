@@ -54,8 +54,8 @@ function ReportsIndexPage() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Traveller</p>
-          <h1 className="font-display text-3xl">My Reports</h1>
+          <p className="text-sm font-medium text-muted-foreground">Traveller</p>
+          <h1 className="font-display text-3xl font-semibold">My Reports</h1>
         </div>
         <Button asChild variant="outline">
           <Link to="/report" search={{ segment: undefined }}>New report</Link>

@@ -167,6 +167,31 @@ describe("account menu keyboard use", () => {
       within(menu).queryByRole("menuitem", { name: "Log out" }),
     ).toBeNull();
   });
+
+  it("mobile account menu lists Advisories, Help and Contributions first, and closes on Escape", async () => {
+    setAccountSession(SIGNED_IN);
+    const user = userEvent.setup();
+    mount();
+    const trigger = within(screen.getByTestId("shell-mobilebar")).getByRole(
+      "button",
+      { name: "Account menu" },
+    );
+    trigger.focus();
+    await user.keyboard("{Enter}");
+    const menu = await screen.findByRole("menu");
+    const links = within(menu)
+      .getAllByRole("menuitem")
+      .slice(0, 3)
+      .map((item) => [item.textContent, item.getAttribute("href")]);
+    expect(links).toEqual([
+      ["Advisories", "/advisories"],
+      ["Help", "/help"],
+      ["Contributions", "/contributions"],
+    ]);
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+    expect(trigger).toHaveFocus();
+  });
 });
 
 describe("sign-in dialog focus", () => {

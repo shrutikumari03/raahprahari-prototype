@@ -28,10 +28,10 @@
 .rp-map-search {
   display: flex;
   min-width: 0;
-  height: 40px;
+  height: 44px;
   align-items: center;
   gap: 12px;
-  padding: 0 12px;
+  padding: 0 4px 0 12px;
   border: 1px solid var(--tone-244253);
   border-radius: 10px;
   color: var(--tone-b7c8d2);
@@ -60,8 +60,8 @@
 
 .rp-map-clear {
   display: inline-flex;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
@@ -86,9 +86,10 @@
 }
 
 .rp-map-toggle button {
+  position: relative;
   display: inline-flex;
   min-width: 68px;
-  height: 32px;
+  height: 36px;
   align-items: center;
   justify-content: center;
   gap: 7px;
@@ -100,6 +101,14 @@
   font: inherit;
   font-size: 12px;
   cursor: pointer;
+}
+
+/* The segmented control is 44px tall; stretch each button's hit area to the
+   control's full height without changing how the pill looks. */
+.rp-map-toggle button::after {
+  position: absolute;
+  inset: -4px 0;
+  content: '';
 }
 
 .rp-map-toggle button[aria-pressed='true'] {
@@ -197,7 +206,7 @@
   overflow: auto;
   padding: 14px 16px 10px;
   border: 1px solid var(--tone-244554);
-  border-radius: 14px;
+  border-radius: 1rem;
   color: var(--tone-e6e4dc);
   background: color-mix(in srgb, var(--tone-051721) 97%, transparent);
   box-shadow: 0 14px 34px color-mix(in srgb, var(--tone-shadow) 35%, transparent);
@@ -230,12 +239,13 @@
 
 .rp-map-detail-close {
   display: grid;
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   flex: 0 0 auto;
   place-items: center;
+  margin: -7px -7px 0 0;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--tone-c1d0d8);
   background: transparent;
   cursor: pointer;
@@ -262,7 +272,7 @@
   margin: 0;
   color: var(--tone-f0f3f5);
   font-size: clamp(17px, 1.5vw, 21px);
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.25;
 }
 
@@ -278,7 +288,7 @@
   gap: 7px;
   margin: -5px 0 0;
   color: var(--tone-bfccd3);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .rp-map-segment-meta .font-mono {
@@ -288,7 +298,7 @@
 .rp-map-freshness {
   align-self: flex-start;
   margin-top: -6px;
-  font-size: 10px !important;
+  font-size: 12px !important;
 }
 
 .rp-map-condition {
@@ -316,7 +326,7 @@
 .rp-map-condition p {
   margin: 3px 0 0;
   color: var(--tone-aebfc8);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -345,7 +355,7 @@
 .rp-map-observation-grid dt {
   overflow: hidden;
   color: var(--tone-9eb2be);
-  font-size: 10px;
+  font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -353,7 +363,7 @@
 .rp-map-observation-grid dd {
   margin: 5px 0 0;
   color: var(--tone-e0e8ed);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.35;
 }
 
@@ -361,7 +371,7 @@
   display: block;
   margin-top: 3px;
   color: var(--tone-98aab5);
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.35;
 }
 
@@ -375,7 +385,7 @@
   align-items: center;
   gap: 7px;
   color: var(--tone-e1e9ed);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .rp-map-official-heading svg {
@@ -395,15 +405,15 @@
   max-width: 100%;
   margin: 0;
   color: var(--tone-f0e2d3);
-  font-size: 11px;
-  font-weight: 550;
+  font-size: 12px;
+  font-weight: 500;
   overflow-wrap: anywhere;
 }
 
 .rp-map-restriction small,
 .rp-map-no-official {
   color: var(--tone-aebfc8);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .rp-map-no-official {
@@ -412,7 +422,7 @@
 
 .rp-map-details-link {
   display: flex;
-  min-height: 38px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
   gap: 9px;
@@ -441,8 +451,8 @@
 .rp-map-reports h3 {
   margin: 0 0 8px;
   color: var(--tone-e6edf1);
-  font-size: 11px;
-  font-weight: 650;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .rp-map-reports ul {
@@ -474,14 +484,20 @@
   color: var(--tone-aebfc8);
 }
 
-.rp-map-report-row:has(.bg-status-avoid) .rp-map-report-icon {
-  border-color: var(--tone-f26464);
-  color: var(--tone-f26464);
+/* Report icons take the same status colour as their badge. */
+.rp-map-report-row:has(.bg-status-caution) .rp-map-report-icon {
+  border-color: var(--status-caution);
+  color: var(--status-caution);
 }
 
-.rp-map-report-row:has(.bg-status-caution) .rp-map-report-icon {
-  border-color: var(--tone-ffae35);
-  color: var(--tone-ffae35);
+.rp-map-report-row:has(.bg-status-avoid) .rp-map-report-icon {
+  border-color: var(--status-avoid);
+  color: var(--status-avoid);
+}
+
+.rp-map-report-row:has(.bg-status-dnt) .rp-map-report-icon {
+  border-color: var(--status-dnt);
+  color: var(--status-dnt);
 }
 
 .rp-map-report-icon svg {
@@ -504,7 +520,7 @@
 .rp-map-report-title strong {
   min-width: 0;
   color: var(--tone-e6edf1);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
 }
@@ -512,7 +528,7 @@
 .rp-map-report-title > span {
   flex: 0 0 auto;
   padding: 2px 5px;
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
 }
 
@@ -524,7 +540,7 @@
 .rp-map-report-copy p {
   margin: 4px 0 0;
   color: var(--tone-b7c5cc);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -532,7 +548,7 @@
   display: block;
   margin-top: 6px;
   color: var(--tone-91a6b1);
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -540,7 +556,7 @@
   margin: auto 0 0;
   padding-top: 2px;
   color: var(--tone-9aaeb9);
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .rp-map-fallback-notice {
@@ -583,15 +599,15 @@
   margin: 3px 0 0;
   color: var(--tone-f0f3f5);
   font-size: 22px;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .rp-map-kicker {
   margin: 0;
   color: var(--tone-84bddd);
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.12em;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .rp-map-list-heading > span {
@@ -610,7 +626,7 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--tone-294451);
-  border-radius: 12px;
+  border-radius: 1rem;
   background: var(--tone-0a1e29);
 }
 
@@ -631,7 +647,7 @@
   color: var(--tone-a9bac4);
   background: var(--tone-0d2532);
   font: inherit;
-  font-size: 11px;
+  font-size: 12px;
   text-align: left;
   cursor: pointer;
 }
@@ -669,16 +685,12 @@
     padding: 8px 12px;
   }
 
-  .rp-map-search {
-    height: 38px;
-  }
-
   .rp-map-toggle button {
     min-width: 49px;
-    height: 30px;
+    height: 36px;
     gap: 4px;
     padding: 0 7px;
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .rp-map-toggle svg {
@@ -713,7 +725,7 @@
     left: 8px;
     width: auto;
     padding: 5px 8px;
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .rp-map-legend.rp-lmap-legend h2 {
@@ -773,7 +785,7 @@
   }
 
   .rp-map-search input {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .rp-map-toggle button {
@@ -788,4 +800,63 @@
   inset: 0;
   overflow: auto;
   padding: 1rem;
+}
+
+/* ── Unslop: status-led detail panel and list cards ──────────────────────────
+   --level-accent comes from data-level on the panel (styles.css). */
+.rp-map-detail-panel[data-level] {
+  border-top: 4px solid var(--level-accent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--level-accent) 16%, transparent), transparent 10rem),
+    color-mix(in srgb, var(--tone-051721) 97%, transparent);
+}
+
+.rp-map-segment-title-row h2 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.rp-map-condition {
+  border: 1px solid color-mix(in srgb, var(--level-accent, var(--tone-244554)) 45%, transparent);
+  border-left: 4px solid var(--level-accent, var(--tone-244554));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--level-accent, transparent) 10%, transparent);
+  padding: 12px 14px;
+}
+
+.rp-map-condition > svg {
+  color: var(--level-accent, currentColor);
+}
+
+.rp-map-condition strong {
+  font-size: 14px;
+}
+
+.rp-map-condition p {
+  font-size: 13px;
+}
+
+.rp-map-observation-grid {
+  border: 1px solid var(--tone-244554);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.rp-map-observation-grid dd {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rp-map-list-card > article.rp-status-card {
+  border-left: 4px solid var(--level-accent, var(--status-unknown));
+}
+
+.rp-map-list-card > article.rp-status-card[data-level='unknown'] {
+  border-left-style: dashed;
+}
+
+.rp-map-legend.rp-lmap-legend {
+  border-radius: 14px;
 }

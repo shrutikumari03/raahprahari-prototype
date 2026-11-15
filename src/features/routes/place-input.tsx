@@ -50,7 +50,7 @@ export function PlaceInput({
 
   return (
     <div className={cn('relative', className)}>
-      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold text-muted-foreground">
         {label}
       </label>
       <div className="relative">

@@ -145,7 +145,7 @@ export function RouteSearchCard({
       )}
 
       <div>
-        <p className="mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">{t('search.quick')}</p>
+        <p className="mb-2 text-xs font-semibold text-muted-foreground">{t('search.quick')}</p>
         <div className="flex flex-wrap gap-1.5">
           {QUICK_PICKS.map((id) => {
             const selected = id === from || id === to
@@ -172,7 +172,7 @@ export function RouteSearchCard({
       {recent.length > 0 && (
         <div>
           <div className="mb-1 flex items-center justify-between">
-            <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{t('search.recent')}</p>
+            <p className="text-xs font-semibold text-muted-foreground">{t('search.recent')}</p>
             <Button type="button" variant="ghost" size="sm" className="h-9 text-muted-foreground" onClick={() => {
               captureGhosts(recent.map(({ from, to }) => ({ from, to })))
               setRecent((prev) => prev.filter((r) => !r.from || !r.to))

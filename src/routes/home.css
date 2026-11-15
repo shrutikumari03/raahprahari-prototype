@@ -5,7 +5,7 @@
 .home-hero {
   position: relative;
   isolation: isolate;
-  min-height: calc(100svh - 4rem);
+  min-height: calc(100svh - var(--rp-top-h));
   overflow: hidden;
   background: var(--tone-07151f);
 }
@@ -44,7 +44,7 @@
   z-index: 1;
   display: grid;
   width: min(100%, 90rem);
-  min-height: calc(100svh - 4rem);
+  min-height: calc(100svh - var(--rp-top-h));
   margin-inline: auto;
   padding: 3rem 3.25rem 10rem;
   grid-template-columns: minmax(18rem, 1.05fr) minmax(16rem, 1fr) minmax(
@@ -68,7 +68,7 @@
   font-family: var(--font-heading);
   font-size: clamp(3.55rem, 5.35vw, 4.9rem);
   font-weight: 700;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
   line-height: 1.04;
   text-wrap: balance;
 }
@@ -104,8 +104,8 @@
   line-height: 1.2;
   text-decoration: none;
   transition:
-    filter 160ms ease,
-    transform 160ms ease;
+    background-color 160ms ease,
+    filter 160ms ease;
 }
 
 .home-action svg {
@@ -114,19 +114,30 @@
   flex: none;
 }
 
-.home-action:hover {
-  filter: brightness(1.12);
-  transform: translateY(-1px);
+/* Checking a road is the inverse of the page: off-white on the dark hero,
+   navy on the light one. Reporting a hazard keeps the orange accent. */
+.home-action-check {
+  background: var(--foreground);
+  color: var(--background);
 }
 
-.home-action-check {
-  background: var(--primary);
-  color: var(--primary-foreground);
+.home-action-check:hover {
+  background: color-mix(in srgb, var(--foreground) 86%, var(--background));
 }
 
 .home-action-report {
   background: var(--brand-orange);
   color: var(--text-on-ivory);
+}
+
+.home-action-report:hover {
+  filter: brightness(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-action {
+    transition: none;
+  }
 }
 
 .home-route {
@@ -163,8 +174,8 @@
   transform: translateX(-50%);
   color: var(--tone-d7e8f4);
   font-family: var(--font-mono-rp);
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
@@ -174,9 +185,7 @@
   height: 2px;
   border-radius: 999px;
   background: var(--tone-36adff);
-  box-shadow:
-    0 0 7px 2px color-mix(in srgb, var(--tone-1796ff) 90%, transparent),
-    0 0 20px 4px color-mix(in srgb, var(--tone-1796ff) 55%, transparent);
+  box-shadow: 0 0 4px 1px color-mix(in srgb, var(--tone-1796ff) 45%, transparent);
   transform-origin: left center;
 }
 
@@ -202,7 +211,7 @@
   gap: 0.45rem;
   color: var(--tone-f2f5f5);
   font-family: var(--font-mono-rp);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   line-height: 1.35;
   text-shadow: var(--photo-text-shadow-tone);
   white-space: nowrap;
@@ -214,7 +223,7 @@
   flex: none;
   color: var(--tone-31a8ff);
   fill: color-mix(in srgb, var(--tone-0b6db4) 45%, transparent);
-  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--tone-239eff) 90%, transparent));
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--tone-239eff) 50%, transparent));
 }
 
 .home-route-pin-one {
@@ -240,7 +249,7 @@
   justify-self: end;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--tone-9eb4be) 50%, transparent);
-  border-radius: 0.9rem;
+  border-radius: 1rem;
   background:
     linear-gradient(145deg, color-mix(in srgb, var(--tone-04111a) 97%, transparent), color-mix(in srgb, var(--tone-031018) 95%, transparent)),
     url("/img/map-terrain.png") center / cover;
@@ -260,9 +269,9 @@
   gap: 0.5rem;
   margin: 0;
   color: var(--tone-ff8a43);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .home-advisory-kicker svg {
@@ -279,11 +288,6 @@
   justify-content: space-between;
   gap: 0.55rem;
   margin-top: 0.75rem;
-}
-
-.home-advisory-status [class*="rounded-full"] {
-  border-color: var(--tone-a64d19);
-  background: color-mix(in srgb, var(--tone-f07a00) 18%, transparent);
 }
 
 .home-advisory-status .home-avoid-badge {
@@ -313,7 +317,7 @@
   min-height: 3.45rem;
   padding: 0.6rem 0 0.55rem 2.2rem;
   border-bottom: 1px solid color-mix(in srgb, var(--tone-9eb4be) 18%, transparent);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   line-height: 1.4;
 }
 
@@ -338,7 +342,7 @@
 .home-advisory-footer {
   margin: 0.6rem 0 0;
   color: var(--tone-b7c1c8);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
 }
 
 .home-features {
@@ -413,7 +417,7 @@
 
 .home-features small {
   color: var(--tone-d7dce0);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
 }
 
 .home-prototype-label {
@@ -424,7 +428,7 @@
   margin: 0;
   color: var(--tone-e1e6e9);
   font-family: var(--font-mono-rp);
-  font-size: 0.55rem;
+  font-size: 0.75rem;
   letter-spacing: 0.04em;
 }
 
@@ -506,14 +510,6 @@
     font-size: 0.98rem;
   }
 
-  .home-action-check {
-    background-color: var(--tone-2767ab);
-  }
-
-  .home-action-report {
-    background-color: var(--brand-orange);
-  }
-
   .home-route {
     min-height: 9.5rem;
     width: 100%;
@@ -532,7 +528,7 @@
   }
 
   .home-route-pin {
-    font-size: 0.55rem;
+    font-size: 0.75rem;
   }
 
   .home-route-pin svg {
@@ -615,7 +611,7 @@
     bottom: auto;
     padding: 0.5rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
     text-align: right;
-    font-size: 0.5rem;
+    font-size: 0.75rem;
   }
 }
 
@@ -634,15 +630,299 @@
 
   .home-route-pin {
     gap: 0.2rem;
-    font-size: 0.5rem;
+    font-size: 0.75rem;
   }
 }
 
 .home-features .home-planned {
   margin-top: 0.15rem;
   color: var(--orange-on-dark);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+/* ── Unslop: hero hierarchy, road search, feature cards ─────────────────────
+   Theme tokens (not --tone-*) so the panels read correctly over the dark
+   photo in dark theme and the pale photo in light theme. */
+
+.home-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  border: 1px solid color-mix(in srgb, var(--brand-orange) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--background) 70%, transparent);
+  padding: 0.35rem 0.85rem 0.35rem 0.6rem;
+  color: var(--foreground);
+  font-size: 0.82rem;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+}
+
+.home-eyebrow span {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--brand-orange);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-orange) 25%, transparent);
+}
+
+.home-search {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 16%, transparent);
+  border-radius: 1.1rem;
+  background: color-mix(in srgb, var(--background) 82%, transparent);
+  padding: 1rem;
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--tone-shadow) 28%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.home-search-label {
+  color: var(--foreground);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.home-search-field {
+  display: flex;
+  min-height: 3.25rem;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid var(--input);
+  border-radius: 0.8rem;
+  background: var(--card);
+  padding: 0.3rem 0.3rem 0.3rem 0.9rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.home-search-field:focus-within {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-orange) 30%, transparent);
+}
+
+.home-search-field > svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  color: var(--muted-foreground);
+}
+
+.home-search-field input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.home-search-field input::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+
+.home-search-field button {
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: var(--brand-orange);
+  padding: 0 1.1rem;
+  color: var(--text-on-ivory);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.home-search-field button:hover {
+  filter: brightness(1.08);
+}
+
+.home-search-field button:focus-visible,
+.home-search-quick a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.home-search-quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.home-search-quick > span {
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+}
+
+.home-search-quick ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-search-quick a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+  padding: 0 0.85rem;
+  color: var(--foreground);
+  font-family: var(--font-mono-rp);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.home-search-quick a:hover {
+  border-color: var(--brand-orange);
+}
+
+/* The copy column carries the search panel now, so it gets a little more room
+   and a slightly smaller headline to keep clear of the feature cards. */
+@media (min-width: 769px) {
+  .home-copy {
+    max-width: 34rem;
+  }
+
+  .home-copy h1 {
+    font-size: clamp(3.2rem, 4.6vw, 4.3rem);
+  }
+
+  .home-content {
+    padding-bottom: 11.5rem;
+  }
+}
+
+/* With the search panel above them, the two actions sit as a quieter pair. */
+.home-actions {
+  margin-top: 1rem;
+}
+
+.home-action {
+  min-height: 2.9rem;
+  border-radius: 0.8rem;
+}
+
+/* Feature strip: three distinct cards with an orange icon tile. */
+.home-features {
+  gap: 1rem;
+}
+
+.home-features li,
+.home-features li:first-child {
+  padding: 0;
+}
+
+.home-features li + li {
+  border-left: 0;
+}
+
+.home-features li > a {
+  gap: 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--background) 78%, transparent);
+  padding: 0.85rem 1rem;
+  backdrop-filter: blur(8px);
+  transition: border-color 160ms ease;
+}
+
+.home-features li > a:hover {
+  border-color: color-mix(in srgb, var(--brand-orange) 70%, transparent);
+}
+
+.home-features li svg {
+  box-sizing: content-box;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--brand-orange) 18%, transparent);
+  padding: 0.55rem;
+  color: var(--brand-orange);
+}
+
+.home-features strong {
+  color: var(--foreground);
+  font-size: 0.92rem;
+}
+
+.home-features small {
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+}
+
+.home-features .home-planned {
+  width: fit-content;
+  margin-top: 0.3rem;
+  border: 1px solid color-mix(in srgb, var(--link) 55%, transparent);
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  color: var(--foreground);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Featured advisory: a status-coloured top edge, matching its badge. */
+.home-advisory {
+  border-top: 4px solid var(--level-accent, var(--status-unknown));
+}
+
+/* Grid and flex children default to min-width: auto; without this the input's
+   intrinsic width pushes the button and chips past a narrow screen. */
+.home-search,
+.home-search > *,
+.home-search-quick ul {
+  min-width: 0;
+}
+
+.home-search-field input {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .home-search {
+    width: 100%;
+    padding: 0.85rem;
+  }
+
+  .home-search-field button {
+    padding-inline: 0.85rem;
+  }
+
+  .home-features {
+    gap: 0.6rem;
+    padding: 0.75rem 1.25rem 1.5rem;
+    background: transparent;
+  }
+
+  .home-features li,
+  .home-features li:first-child {
+    min-height: 0;
+    padding: 0;
+  }
+
+  .home-features li + li {
+    border-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-search-field,
+  .home-features li > a {
+    transition: none;
+  }
 }

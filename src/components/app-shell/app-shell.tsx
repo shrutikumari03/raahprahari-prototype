@@ -9,7 +9,7 @@ import { useRouterState } from "@tanstack/react-router";
 import { FeatureSearchModal } from "@/components/feature-search-modal";
 import { LoginDialog } from "@/components/login-dialog";
 import { cn } from "@/lib/utils";
-import { activeNavTarget, shellSearchHidden } from "./nav";
+import { activeNavTarget, sectionLabel, shellSearchHidden } from "./nav";
 import { Rail } from "./rail";
 import {
   ShellStatusBanner,
@@ -46,6 +46,7 @@ export function AppShell({
     }),
   });
   const active = activeNavTarget(pathname, view);
+  const section = sectionLabel(pathname, active);
   const status = useShellStatus();
   const { collapsed, toggle } = useRailCollapsed();
 
@@ -116,6 +117,7 @@ export function AppShell({
       >
         <MobileTopBar
           status={status}
+          section={section}
           onOpenLogin={openLogin}
           onOpenSearch={openPalette}
         />

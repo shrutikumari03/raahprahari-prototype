@@ -14,7 +14,7 @@
 }
 
 .help-page {
-  min-height: calc(100svh - 4rem);
+  min-height: calc(100svh - var(--rp-top-h));
   display: flex;
   flex-direction: column;
 }
@@ -48,10 +48,9 @@
   gap: 0.55rem;
   margin: 0 0 0.65rem;
   color: var(--tone-d7ecff);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .help-eyebrow span {
@@ -135,7 +134,7 @@
   align-items: center;
   gap: 0.9rem;
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   background: var(--card);
   padding: 0.75rem 0.85rem;
   color: inherit;
@@ -224,18 +223,16 @@
   background: color-mix(in srgb, var(--link) 16%, transparent);
   padding: 0.12rem 0.45rem;
   color: var(--foreground);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
+  font-size: 0.75rem;
+  font-weight: 600;
   line-height: 1.4;
-  text-transform: uppercase;
 }
 
 .help-empty {
   grid-column: 1 / -1;
   margin: 0;
   border: 1px dashed var(--input);
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   padding: 1rem;
   color: var(--muted-foreground);
   font-size: 0.875rem;
@@ -246,7 +243,7 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 0.8rem;
+  border-radius: 1rem;
   background: var(--card);
 }
 
@@ -264,9 +261,9 @@
   gap: 0.6rem;
   margin: 0 0 0.85rem;
   color: var(--tone-ff6a30);
-  font-size: 0.67rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .help-reminder-label svg {
@@ -317,7 +314,7 @@
   gap: 0.45rem;
   padding-inline: 0.45rem;
   color: var(--muted-foreground);
-  font-size: 0.67rem;
+  font-size: 0.75rem;
   line-height: 1.35;
   text-align: center;
 }
@@ -372,8 +369,7 @@
   background: transparent;
   padding: 0;
   color: var(--muted-foreground);
-  font-size: 0.6rem;
-  text-transform: uppercase;
+  font-size: 0.75rem;
 }
 
 .help-detail-banner .help-banner-content {
@@ -403,7 +399,7 @@
 .help-detail-card {
   width: min(100%, 54rem);
   border: 1px solid var(--border);
-  border-radius: 0.9rem;
+  border-radius: 1rem;
   background: var(--card);
   padding: clamp(1.25rem, 4vw, 2rem);
 }
@@ -437,7 +433,7 @@
 .help-planned-detail {
   width: fit-content;
   margin-top: 0.8rem;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 767px) {
@@ -499,6 +495,6 @@
   }
 
   .help-topic-description {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
 }

@@ -5,18 +5,19 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 
+import { SkipLink } from "@/components/ui/feedback";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SkipLink } from "@/components/ui/feedback";
 import { NotFoundPage } from "@/components/error-pages";
-import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { AppShell } from "@/components/app-shell/app-shell";
+import { SiteFooter } from "@/components/app-shell/site-footer";
 import { BackToTop, PageTransition, RevealObserver } from "@/components/motion";
 import { BootGate, RouteProgress, bootGuardScript } from "@/components/boot-screen";
 import { PrototypeRibbon } from "@/components/prototype-ribbon";
 import { AccountScopeBoundary } from "@/components/account-scope-boundary";
 import { AuthSessionBridge } from "@/components/auth-session-bridge";
 import { SyncProvider } from "@/components/sync-provider";
-import { PreferencesProvider, themeBootScript } from "@/i18n/preferences";
+import { PreferencesProvider, themeBootScript, usePrefs } from "@/i18n/preferences";
 
 import "../styles.css";
 
@@ -94,6 +95,11 @@ export const Route = createRootRoute({
   notFoundComponent: NotFoundPage,
 });
 
+/** First focusable element: jumps past the rail and top bar to the page. */
+function ShellSkipLink() {
+  const { t } = usePrefs();
+  return <SkipLink>{t("shell.skip")}</SkipLink>;
+}
 function RootDocument({ children }: { children: React.ReactNode }) {
   // These routes render the shared PrototypeRibbon inside their own layout.
   const {
@@ -150,44 +156,33 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <AuthSessionBridge />
             <AccountScopeBoundary>
               <SyncProvider>
-                <SkipLink>Skip to content</SkipLink>
+                <ShellSkipLink />
                 <PageTransition />
                 <RouteProgress />
                 <RevealObserver />
                 <BackToTop />
-                {/* App shell: below xl the header is a top bar and the bottom
-                    tabs need room under the content; from xl the header is a
-                    fixed left rail and the content starts after it. */}
-                {/* From xl the shell is exactly one viewport tall: the rail is
-                    fixed and only the content column (#rp-content) scrolls, so
-                    the document itself never does. Below xl the page scrolls
-                    normally above the bottom tabs. */}
-                <div className="rp-shell flex min-h-svh flex-col overflow-x-clip pb-[calc(var(--rp-bottom-h)+env(safe-area-inset-bottom))] xl:h-svh xl:min-h-0 xl:overflow-hidden xl:pb-0 xl:pl-(--rp-rail-w)">
-                  <SiteHeader />
-                  <div
-                    id="rp-content"
-                    data-scroll-restoration-id="rp-content"
-                    className="rp-content flex min-h-0 min-w-0 flex-1 flex-col xl:relative xl:overflow-y-auto xl:overscroll-contain"
-                  >
-                  <main id="main" aria-busy="true" className="min-w-0 flex-1">
-                    {children}
-                    {/* Fixed on screen, but kept inside <main> so it sits in a landmark. */}
-                    {!isHome &&
-                      !isTraveller &&
-                      !isMap &&
-                      !isHelp &&
-                      !isNotFound &&
-                      !isReport &&
-                      !isAdvisories &&
-                      !hasInlineRibbon && (
-                        <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-(--z-bottom-nav) xl:bottom-2">
-                          <PrototypeRibbon />
-                        </div>
-                      )}
-                  </main>
-                  {!isHome && !isTraveller && !isMap && !isHelp && <SiteFooter />}
-                  </div>
-                </div>
+                <AppShell
+                  footer={!isHome && !isTraveller && !isMap && !isHelp ? <SiteFooter /> : null}
+                >
+                  {children}
+                  {/* Fixed on screen, but kept inside <main> so it sits in a landmark.
+                      /review and /contributions render it inline (hasInlineRibbon).
+                      Below 1024px it sits 1.5rem above the tab bar, clear of the raised
+                      Report button (1.25rem above the bar). left-16 keeps it right of the
+                      back-to-top button, so a wrapped ribbon at 200% zoom cannot cover it. */}
+                  {!isHome &&
+                    !isTraveller &&
+                    !isMap &&
+                    !isHelp &&
+                    !isNotFound &&
+                    !isReport &&
+                    !isAdvisories &&
+                    !hasInlineRibbon && (
+                      <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(var(--shell-tabs-height)+1.5rem+env(safe-area-inset-bottom))] left-16 z-(--z-bottom-nav) flex justify-end lg:bottom-2">
+                        <PrototypeRibbon />
+                      </div>
+                    )}
+                </AppShell>
               </SyncProvider>
             </AccountScopeBoundary>
           </TooltipProvider>

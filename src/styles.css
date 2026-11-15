@@ -614,14 +614,6 @@ a:active > .rp-ripple::after {
   }
 }
 
-/* Header gains a shadow once the page has scrolled. */
-.rp-header {
-  transition: box-shadow var(--motion-base) var(--ease-out);
-}
-.rp-header[data-scrolled='true'] {
-  box-shadow: var(--shadow-header);
-}
-
 /* Clickable cards. */
 .rp-card {
   transition-property: border-color, box-shadow, translate, scale;
@@ -1256,13 +1248,9 @@ html.rp-theme-fade *::after {
 }
 
 /* Crisp content: no frosted glass, no soft-focus text in light mode. */
-:root:not(.dark) [class*='backdrop-blur'],
-:root:not(.dark) .rp-header {
+:root:not(.dark) [class*='backdrop-blur'] {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-}
-:root:not(.dark) .rp-header {
-  background-color: var(--background);
 }
 :root:not(.dark) body {
   -webkit-font-smoothing: auto;
@@ -1301,18 +1289,13 @@ textarea::placeholder {
   box-shadow: 0 0 0 5px color-mix(in oklab, var(--brand-orange) 55%, transparent);
 }
 
-.rp-header .rp-container {
-  max-width: 90rem;
-}
-
 /* Header and navigation chrome (light theme). Orange is the one accent and
    marks where you are; selection rings are neutral so blue never competes.
    The darker orange keeps the current-page underline above 3:1. */
 :root:not(.dark) .rp-underline::after {
   background: var(--orange-on-light);
 }
-:root:not(.dark) .rp-lang .rp-lang-btn[aria-pressed='true'],
-:root:not(.dark) .rp-chrome-nav a[aria-current='page'].rp-press {
+:root:not(.dark) .rp-lang .rp-lang-btn[aria-pressed='true'] {
   box-shadow: inset 0 0 0 2px var(--foreground);
 }
 /* The bottom nav shows the current page with its orange top marker instead. */
@@ -1440,6 +1423,73 @@ textarea::placeholder {
   }
 }
 
+/* ---------------------------------------------------------------------
+   App shell (left rail, top bar, bottom tabs). Its own tokens so the shell
+   reads the same on every route in both themes. Hex values live only here.
+   --------------------------------------------------------------------- */
+:root {
+  --shell-bg: #e6e4dc;
+  --shell-surface: #f8f6ef;
+  --shell-raised: #ffffff;
+  --shell-text: #111719;
+  --shell-muted: #4b5558;
+  --shell-divider: #bcc2be;
+  --shell-focus: #245c98;
+  --shell-link: #245c98;
+  /* The active-item edge bar: ivory on dark, ink on light so it stays visible. */
+  --shell-active-bar: #111719;
+  --shell-rail-expanded: 240px;
+  --shell-rail-collapsed: 72px;
+  --shell-bar-height: 56px;
+  --shell-tabs-height: 64px;
+}
+.dark {
+  --shell-bg: #111719;
+  --shell-surface: #272a2d;
+  --shell-raised: #30363a;
+  --shell-text: #e6e4dc;
+  --shell-muted: #b7bcb9;
+  --shell-divider: #465056;
+  --shell-focus: #f4d6a6;
+  --shell-link: #92c5ff;
+  --shell-active-bar: #e6e4dc;
+}
+@theme inline {
+  --color-shell-bg: var(--shell-bg);
+  --color-shell-surface: var(--shell-surface);
+  --color-shell-raised: var(--shell-raised);
+  --color-shell-text: var(--shell-text);
+  --color-shell-muted: var(--shell-muted);
+  --color-shell-divider: var(--shell-divider);
+  --color-shell-focus: var(--shell-focus);
+  --color-shell-link: var(--shell-link);
+  --color-shell-active-bar: var(--shell-active-bar);
+}
+/* One visible focus ring for every shell control: 3px, focus token, 3px offset. */
+:root .rp-shell :focus-visible,
+:root:not(.dark) .rp-shell :focus-visible {
+  outline: 3px solid var(--shell-focus);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+.rp-shell-transition {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    width 200ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rp-shell-transition {
+    transition: none;
+  }
+}
+/* Light-mode hover rule elsewhere adds a background to bare links; shell
+   items manage their own hover with tokens. */
+:root:not(.dark) .rp-shell a:not([class*='bg-']):hover,
+:root:not(.dark) .rp-shell button:not([class*='bg-']):not(:disabled):hover {
+  background-color: var(--shell-raised);
+}
+
 /* ── Unslop: shared status accents ───────────────────────────────────────────
    Any element with data-level gets --level-accent from the status tokens, so
    card edges always match the badge. Unknown is grey and dashed, never green. */
@@ -1462,156 +1512,22 @@ textarea::placeholder {
   border-left-style: dashed;
 }
 
-
-/* ── Unslop: app shell ────────────────────────────────────────────────────────
-   One <header> (site-chrome.tsx) is a top bar below xl and a fixed left rail
-   from xl. --rp-top-h is the height pages lose to the top bar, so screens
-   sized to the viewport (map, home hero, traveller) subtract it. */
+/* Height the app shell's bars take from the viewport. Screens sized to the
+   viewport (home hero, traveller, help, advisories, page banner) subtract
+   it. The 56px top bar is there at every width; below 1024px the fixed
+   bottom tabs (and the safe area under them) are too, so a "full screen"
+   hero ends at the tabs instead of behind them. Built only from the shell
+   tokens, never a second hard-coded number. The name is kept so the page
+   CSS that reads it does not change. */
 :root {
-  --rp-rail-w: 16rem;
-  --rp-top-h: 4rem;
-  /* Room reserved for the mobile bottom tabs (77px with two-line labels),
-     excluding the safe-area inset, which is added where it is used. */
-  --rp-bottom-h: 5rem;
+  --rp-top-h: var(--shell-bar-height);
 }
-@media (min-width: 1280px) {
+@media (width < 64rem) {
   :root {
-    --rp-top-h: 0rem;
-    --rp-bottom-h: 0rem;
-  }
-}
-
-/* A thin brand stripe across the top of the bar or rail. */
-.rp-header::before {
-  position: absolute;
-  inset: 0 0 auto;
-  height: 3px;
-  background: linear-gradient(90deg, var(--brand-orange) 0%, var(--brand-orange) 30%, transparent 85%);
-  content: '';
-  pointer-events: none;
-}
-
-@media (min-width: 1280px) {
-  .rp-header {
-    background: color-mix(in srgb, var(--card) 55%, var(--background));
-  }
-  /* The rail is its own column: no centred max-width, a tighter gutter. */
-  .rp-header .rp-container {
-    max-width: none;
-    padding-inline: 0.875rem;
-  }
-  .rp-header .rp-container > a:first-child {
-    padding-inline: 0.375rem;
-  }
-  .rp-rail-tools .rp-lang {
-    flex: 1;
-  }
-  .rp-rail-tools .rp-lang .rp-lang-btn {
-    flex: 1;
-  }
-}
-/* Short laptop screens: drop the tagline so the actions keep their room. */
-@media (min-width: 1280px) and (max-height: 860px) {
-  .rp-rail-tagline {
-    display: none;
-  }
-}
-/* The rail fits 768px-tall screens with More open, so it does not scroll there
-   or at 1080. Only an unusually short window (under ~680px) gets a scroll area,
-   so no control becomes unreachable. */
-@media (min-width: 1280px) {
-  .rp-rail-body {
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-  }
-}
-@media (min-width: 1280px) and (max-height: 720px) {
-  .rp-rail-body .rp-rail-link {
-    min-height: 2.25rem;
-  }
-  .rp-rail-body > a:first-child img {
-    height: 2.5rem;
-  }
-}
-
-/* "More" in the rail and the mobile menu: the list folds with a short height
-   transition; visibility switches after it, so a closed list is not reachable. */
-.rp-more-panel {
-  display: grid;
-  grid-template-rows: 1fr;
-  transition:
-    grid-template-rows var(--motion-base) var(--ease-out),
-    visibility 0s;
-}
-.rp-more[data-state='closed'] .rp-more-panel {
-  grid-template-rows: 0fr;
-  visibility: hidden;
-  transition:
-    grid-template-rows var(--motion-base) var(--ease-out),
-    visibility 0s var(--motion-base);
-}
-.rp-more-chevron {
-  transition: rotate var(--motion-base) var(--ease-out);
-}
-.rp-more[data-state='open'] .rp-more-chevron {
-  rotate: 180deg;
-}
-.rp-more > button[aria-expanded='true'] {
-  color: var(--foreground);
-}
-@media (prefers-reduced-motion: reduce) {
-  .rp-more-panel,
-  .rp-more[data-state='closed'] .rp-more-panel,
-  .rp-more-chevron {
-    transition: none;
-  }
-}
-
-/* Rail and menu links: icon plus label; the current page gets an orange bar. */
-.rp-rail-link {
-  position: relative;
-  color: var(--muted-foreground);
-  text-decoration: none;
-  transition: background-color var(--motion-base) var(--ease-out), color var(--motion-base) var(--ease-out);
-}
-@media (hover: hover) and (pointer: fine) {
-  .rp-rail-link:hover {
-    background: color-mix(in srgb, var(--foreground) 7%, transparent);
-    color: var(--foreground);
-  }
-}
-.rp-rail-link[aria-current='page'] {
-  background: color-mix(in srgb, var(--brand-orange) 14%, transparent);
-  color: var(--foreground);
-  font-weight: 600;
-}
-.rp-rail-link[aria-current='page']::before {
-  position: absolute;
-  inset-block: 0.5rem;
-  left: 0;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--brand-orange);
-  content: '';
-}
-.rp-rail-link[aria-current='page'] svg {
-  color: var(--brand-orange);
-}
-/* Light theme marks the current page with the bar, not the generic ring. */
-:root:not(.dark) .rp-rail-link[aria-current='page'].rp-press,
-:root:not(.dark) .rp-chrome-nav .rp-rail-link[aria-current='page'].rp-press {
-  box-shadow: none;
-}
-:root:not(.dark) .rp-rail-link[aria-current='page']::before {
-  background: var(--orange-on-light);
-}
-:root:not(.dark) .rp-rail-link[aria-current='page'] svg {
-  color: var(--orange-on-light);
-}
-@media (prefers-reduced-motion: reduce) {
-  .rp-rail-link {
-    transition: none;
+    --rp-top-h: calc(
+      var(--shell-bar-height) + var(--shell-tabs-height) +
+        env(safe-area-inset-bottom)
+    );
   }
 }
 

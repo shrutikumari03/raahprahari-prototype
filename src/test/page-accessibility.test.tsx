@@ -43,7 +43,7 @@ describe("page accessibility", () => {
         ).toBeVisible();
         expect(container.querySelectorAll("h1")).toHaveLength(1);
         expect(
-          screen.getByRole("link", { name: "Skip to content" }),
+          screen.getByRole("link", { name: "Skip to main content" }),
         ).toHaveAttribute("href", "#main");
 
         const results = await axe(container);

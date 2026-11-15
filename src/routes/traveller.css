@@ -961,12 +961,13 @@
   font-size: 0.75rem;
 }
 
-/* Desktop with the rail: the landing fills exactly one screen. The map takes
-   the remaining height; if the form column ever needs more room than the
-   screen has, it scrolls inside its own column instead of the whole page. */
+/* Desktop with the rail: the landing fills exactly the screen below the app
+   shell's top bar. The map takes the remaining height; if the form column ever
+   needs more room than the screen has, it scrolls inside its own column
+   instead of the whole page. */
 @media (min-width: 1280px) {
   .traveller-landing {
-    height: 100svh;
+    height: calc(100svh - var(--rp-top-h));
     min-height: 0;
   }
 

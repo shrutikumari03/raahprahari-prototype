@@ -132,7 +132,7 @@ export function Rail({
       data-testid="shell-rail"
       data-collapsed={collapsed}
       className={cn(
-        "rp-shell rp-shell-transition sticky top-0 hidden h-svh shrink-0 flex-col border-r border-shell-divider bg-shell-bg text-shell-text lg:flex",
+        "rp-shell rp-shell-transition rp-glass-bar sticky top-0 hidden h-svh shrink-0 flex-col border-r text-shell-text lg:flex",
         collapsed ? "w-(--shell-rail-collapsed)" : "w-(--shell-rail-expanded)",
       )}
     >

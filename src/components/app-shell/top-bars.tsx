@@ -74,7 +74,9 @@ export function DesktopTopBar({
   return (
     <header
       data-testid="shell-topbar"
-      className="rp-shell flex h-14 shrink-0 items-center gap-3 border-b border-shell-divider bg-shell-bg px-4 text-shell-text max-lg:hidden"
+      // Sticky from 1024px so page content scrolls under the glass. Its
+      // height is --shell-bar-height; sticky page panels sit below it.
+      className="rp-shell rp-glass-float sticky top-0 z-(--z-header) flex h-14 shrink-0 items-center gap-3 border-b px-4 text-shell-text max-lg:hidden"
     >
       {showSearch ? (
         <form
@@ -133,7 +135,7 @@ export function MobileTopBar({
   return (
     <header
       data-testid="shell-mobilebar"
-      className="rp-shell flex h-14 shrink-0 items-center gap-1 border-b border-shell-divider bg-shell-bg px-3 text-shell-text lg:hidden"
+      className="rp-shell rp-glass-float flex h-14 shrink-0 items-center gap-1 border-b px-3 text-shell-text lg:hidden"
     >
       {/* At 360px the controls on the right need about 200px, so the logo is
           the part that gives way: the wordmark is smaller below 640px, hidden
@@ -181,7 +183,7 @@ export function MobileTopBar({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="rp-shell border-shell-divider bg-shell-surface text-shell-text"
+          className="rp-shell rp-glass-shell-overlay text-shell-text"
         >
           <DropdownMenuRadioGroup
             value={lang}
@@ -255,7 +257,7 @@ export function BottomTabs({
     <nav
       aria-label={t("nav.primary")}
       data-testid="shell-tabs"
-      className="rp-shell fixed inset-x-0 bottom-0 z-(--z-bottom-nav) border-t border-shell-divider bg-shell-bg pb-[env(safe-area-inset-bottom)] text-shell-text lg:hidden"
+      className="rp-shell rp-glass-float fixed inset-x-0 bottom-0 z-(--z-bottom-nav) border-t pb-[env(safe-area-inset-bottom)] text-shell-text lg:hidden"
     >
       <ul className="m-0 flex h-16 list-none items-end justify-around p-0 px-1">
         {TAB_NAV.map((item) => {
@@ -286,11 +288,21 @@ export function BottomTabs({
                   if (item.requiresSignIn && onGuard(item.to))
                     event.preventDefault();
                 }}
+                // Every label uses --shell-text: on glass over any page content
+                // the muted grey would drop below AA. The current tab is shown
+                // by a 2px bar and semibold text, not by colour alone.
                 className={cn(
-                  "rp-shell-transition flex min-h-14 min-w-11 flex-col items-center justify-center gap-0.5 text-xs font-medium",
-                  isActive ? "text-shell-text" : "text-shell-muted",
+                  "rp-shell-transition relative flex min-h-14 min-w-11 flex-col items-center justify-center gap-0.5 text-xs text-shell-text",
+                  isActive ? "font-semibold" : "font-medium",
                 )}
               >
+                {isActive ? (
+                  <span
+                    aria-hidden
+                    data-testid="tab-active-bar"
+                    className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-shell-active-bar"
+                  />
+                ) : null}
                 <Icon aria-hidden className="size-5" />
                 <span>{label}</span>
               </Link>

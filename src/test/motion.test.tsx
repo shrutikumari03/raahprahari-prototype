@@ -61,10 +61,11 @@ describe('motion tokens', () => {
     expect(ms.length).toBe(4)
     expect(Math.max(...ms)).toBeLessThanOrEqual(500)
     const infinite = [...css.matchAll(/animation:[^;]*infinite[^;]*;/g)].map((m) => m[0])
-    // Skeleton shimmer and the boot-screen logo pulse (disabled under reduced motion).
-    expect(infinite).toHaveLength(2)
+    // Only the skeleton shimmer loops (disabled under reduced motion). The
+    // boot-screen logo no longer pulses: the screen is brief and fades out.
+    expect(infinite).toHaveLength(1)
     expect(infinite.some((a) => a.includes('rp-shimmer'))).toBe(true)
-    expect(infinite.some((a) => a.includes('rp-boot-pulse'))).toBe(true)
+    expect(css).not.toMatch(/rp-boot-pulse/)
   })
 
   it('animates only transform properties and opacity inside keyframes', () => {

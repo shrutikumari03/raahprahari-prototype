@@ -1327,7 +1327,11 @@ textarea::placeholder {
   isolation: isolate;
 }
 
-/* Start screen: in the server HTML, revealed only if loading takes over 300ms. */
+/* Start screen: in the server HTML. Hidden unless the guard script in
+   boot-screen.tsx sets data-phase='shown' (first open of a session, load
+   slower than 300ms). It fades out over 250ms (data-phase='leaving'), at most
+   800ms after it started, then is removed. Hidden and click-through in every
+   other phase, and without JavaScript. */
 .rp-boot {
   position: fixed;
   inset: 0;
@@ -1339,7 +1343,20 @@ textarea::placeholder {
   color: var(--foreground);
   opacity: 0;
   visibility: hidden;
-  animation: rp-boot-reveal 0s linear 300ms forwards;
+  pointer-events: none;
+}
+.rp-boot[data-phase='shown'] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.rp-boot[data-phase='leaving'] {
+  opacity: 0;
+  visibility: visible;
+  transition: opacity 250ms var(--ease-out);
+}
+.rp-boot[data-phase='gone'] {
+  display: none;
 }
 .rp-boot[data-state='error'] {
   inset: 5rem 1rem auto auto;
@@ -1350,7 +1367,7 @@ textarea::placeholder {
   box-shadow: 0 12px 35px color-mix(in srgb, var(--tone-shadow) 30%, transparent);
   opacity: 1;
   visibility: visible;
-  animation: none;
+  pointer-events: auto;
 }
 .rp-boot-body {
   display: grid;
@@ -1362,9 +1379,6 @@ textarea::placeholder {
 .rp-boot-error {
   width: min(24rem, 100%);
 }
-.rp-boot-logo {
-  animation: rp-boot-pulse 1.8s ease-in-out infinite;
-}
 .rp-boot-title {
   font-weight: 600;
 }
@@ -1375,18 +1389,6 @@ textarea::placeholder {
   background: var(--primary);
   color: var(--primary-foreground);
   font-weight: 600;
-}
-@keyframes rp-boot-reveal {
-  to {
-    opacity: 1;
-    visibility: visible;
-  }
-}
-@keyframes rp-boot-pulse {
-  50% {
-    opacity: 0.6;
-    transform: scale(0.97);
-  }
 }
 .rp-route-progress {
   position: fixed;
@@ -1413,8 +1415,9 @@ textarea::placeholder {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .rp-boot-logo {
-    animation: none;
+  /* The guard script hides it at once; this covers a fade already running. */
+  .rp-boot[data-phase='leaving'] {
+    transition: none;
   }
   .rp-route-progress {
     animation: none;
@@ -1483,6 +1486,85 @@ textarea::placeholder {
     transition: none;
   }
 }
+/* ── Glass surfaces ──────────────────────────────────────────────────────────
+   Frosted glass for the shell bars and for floating overlays (menus,
+   popovers, dialogs). Built from existing theme tokens only; no new colours.
+   Without backdrop-filter support each surface is the solid token. Every
+   opacity is the lowest that keeps WCAG AA over a black or a white backdrop;
+   the contrast is checked in src/test/glass.test.ts. In components layer, so
+   a caller's own bg-* utility still wins. */
+:root {
+  /* Rail: it sits beside the page, with nothing behind it to frost. */
+  --glass-blur: 16px;
+  --glass-bar: color-mix(in srgb, var(--shell-surface) 75%, transparent);
+  /* Top bars and bottom tabs: the sticky desktop bar and the fixed tabs sit
+     over scrolling page content, so this is where the frost shows. Based on
+     the darker (dark theme) or paler (light theme) shell background: 66% is
+     the lowest opacity at which --shell-text keeps AA over a white backdrop
+     in the dark theme. Text placed directly on them uses --shell-text.
+     8px blur: screenshots showed 24px averages this app's dark pages, small
+     text and thin lines into a flat colour, so the glass looked solid; at 8px
+     what passes underneath stays visible as soft shapes. The blur radius does
+     not change the worst-case contrast above. */
+  --glass-float: color-mix(in srgb, var(--shell-bg) 66%, transparent);
+  --glass-float-filter: blur(8px) saturate(180%);
+  /* Overlays: 85% is the lowest at which their muted secondary text keeps AA
+     over any page content. */
+  --glass-overlay-filter: blur(18px) saturate(180%);
+  --glass-shell-overlay: color-mix(in srgb, var(--shell-surface) 85%, transparent);
+  --glass-menu: color-mix(in srgb, var(--popover) 85%, transparent);
+  --glass-dialog: color-mix(in srgb, var(--background) 85%, transparent);
+  /* 1px edge: low-opacity ink on light, low-opacity ivory on dark. */
+  --glass-edge: color-mix(in srgb, var(--shell-text) 14%, transparent);
+}
+@layer components {
+  .rp-glass-bar {
+    border-color: var(--glass-edge);
+    background-color: var(--shell-surface);
+  }
+  .rp-glass-float {
+    border-color: var(--glass-edge);
+    background-color: var(--shell-bg);
+  }
+  .rp-glass-menu {
+    background-color: var(--popover);
+  }
+  .rp-glass-dialog {
+    background-color: var(--background);
+  }
+  .rp-glass-shell-overlay {
+    border-color: var(--glass-edge);
+    background-color: var(--shell-surface);
+  }
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .rp-glass-bar {
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      backdrop-filter: blur(var(--glass-blur));
+      background-color: var(--glass-bar);
+    }
+    .rp-glass-float {
+      -webkit-backdrop-filter: var(--glass-float-filter);
+      backdrop-filter: var(--glass-float-filter);
+      background-color: var(--glass-float);
+    }
+    .rp-glass-menu,
+    .rp-glass-dialog,
+    .rp-glass-shell-overlay {
+      -webkit-backdrop-filter: var(--glass-overlay-filter);
+      backdrop-filter: var(--glass-overlay-filter);
+    }
+    .rp-glass-menu {
+      background-color: var(--glass-menu);
+    }
+    .rp-glass-dialog {
+      background-color: var(--glass-dialog);
+    }
+    .rp-glass-shell-overlay {
+      background-color: var(--glass-shell-overlay);
+    }
+  }
+}
+
 /* Light-mode hover rule elsewhere adds a background to bare links; shell
    items manage their own hover with tokens. */
 :root:not(.dark) .rp-shell a:not([class*='bg-']):hover,

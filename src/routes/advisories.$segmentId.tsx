@@ -527,7 +527,7 @@ function TerrainPanel({
   const corridorSegments = segments.filter((s) => s.corridorId === segment.corridorId)
   return (
     <aside
-      className="min-w-0 lg:sticky lg:top-4 lg:self-start"
+      className="min-w-0 lg:sticky lg:top-[calc(var(--shell-bar-height)+1rem)] lg:self-start"
       aria-label="Route map and community reports"
     >
       <div className="relative min-h-[360px] overflow-hidden rounded-xl border border-border bg-card sm:min-h-[440px] lg:min-h-[510px]">
@@ -728,7 +728,7 @@ function HazardDetail({
           </p>
         </div>
 
-        <div className="space-y-4 lg:sticky lg:top-4 lg:self-start">
+        <div className="space-y-4 lg:sticky lg:top-[calc(var(--shell-bar-height)+1rem)] lg:self-start">
           <OfficialRestrictionCard segmentId={segment.id} />
           <section className="rounded-xl border border-border bg-card p-4">
             <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">

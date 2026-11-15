@@ -1,3 +1,4 @@
+import "./config/env";
 import { createRouter } from '@tanstack/react-router'
 import { RouteErrorPage } from '@/components/error-pages'
 

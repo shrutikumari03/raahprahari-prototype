@@ -4,6 +4,7 @@ import {
   createRootRoute,
   useRouterState,
 } from "@tanstack/react-router";
+import { EnvBanner } from "@/components/EnvBanner";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -164,6 +165,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                     normally above the bottom tabs. */}
                 <div className="rp-shell flex min-h-svh flex-col overflow-x-clip pb-[calc(var(--rp-bottom-h)+env(safe-area-inset-bottom))] xl:h-svh xl:min-h-0 xl:overflow-hidden xl:pb-0 xl:pl-(--rp-rail-w)">
                   <SiteHeader />
+                  <EnvBanner />
                   <div
                     id="rp-content"
                     data-scroll-restoration-id="rp-content"

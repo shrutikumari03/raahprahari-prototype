@@ -129,7 +129,9 @@ export function BackToTop() {
       tabIndex={visible ? 0 : -1}
       aria-hidden={visible ? undefined : true}
       data-visible={visible}
-      className="rp-fab fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-3 z-(--z-bottom-nav) rounded-full border border-border shadow-lg xl:bottom-4"
+      // Below 1024px: bottom-left, 1.5rem above the shell's tab bar. From 1024px
+      // the rail fills the left edge, so it moves to the right, above the ribbon.
+      className="rp-fab fixed bottom-[calc(var(--shell-tabs-height)+1.5rem+env(safe-area-inset-bottom))] left-3 z-(--z-bottom-nav) rounded-full border border-border shadow-lg lg:right-4 lg:bottom-12 lg:left-auto"
       onClick={() => window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })}
     >
       <ArrowUp />

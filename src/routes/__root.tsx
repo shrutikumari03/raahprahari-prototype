@@ -166,7 +166,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 >
                   {children}
                   {/* Fixed on screen, but kept inside <main> so it sits in a landmark.
-                      /review and /contributions render it inline (hasInlineRibbon). */}
+                      /review and /contributions render it inline (hasInlineRibbon).
+                      Below 1024px it sits 1.5rem above the tab bar, clear of the raised
+                      Report button (1.25rem above the bar). left-16 keeps it right of the
+                      back-to-top button, so a wrapped ribbon at 200% zoom cannot cover it. */}
                   {!isHome &&
                     !isTraveller &&
                     !isMap &&
@@ -175,7 +178,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                     !isReport &&
                     !isAdvisories &&
                     !hasInlineRibbon && (
-                      <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-(--z-bottom-nav) lg:bottom-2">
+                      <div className="rp-demo-badge-ribbon pointer-events-none fixed right-2 bottom-[calc(var(--shell-tabs-height)+1.5rem+env(safe-area-inset-bottom))] left-16 z-(--z-bottom-nav) flex justify-end lg:bottom-2">
                         <PrototypeRibbon />
                       </div>
                     )}

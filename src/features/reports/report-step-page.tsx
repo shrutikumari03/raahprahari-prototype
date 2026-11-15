@@ -796,7 +796,7 @@ export function ReportStepPage({
           }
         >
           {step === "observation" && (
-            <aside className="relative hidden h-[min(36rem,calc(100svh-8rem))] overflow-hidden rounded-2xl border border-border bg-card lg:sticky lg:top-24 lg:block lg:self-start">
+            <aside className="relative hidden h-[min(36rem,calc(100svh-8rem))] overflow-hidden rounded-2xl border border-border bg-card lg:sticky lg:top-4 lg:block lg:self-start">
               <img
                 src="/img/hero-road.png"
                 alt="Illustrative mountain road through a Himalayan valley."

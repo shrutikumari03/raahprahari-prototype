@@ -159,7 +159,7 @@ export function StatusChip({
               : undefined
           }
           className={cn(
-            "rp-shell-transition inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full border border-shell-divider bg-shell-surface text-sm text-shell-text hover:bg-shell-raised",
+            "rp-shell-transition inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-full border border-shell-divider bg-shell-surface text-sm text-shell-text hover:bg-shell-raised",
             compact ? "px-0" : "px-3",
           )}
         >

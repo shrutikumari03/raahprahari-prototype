@@ -32,17 +32,31 @@ export function ShellMark({ className }: { className?: string }) {
 }
 
 /** Logo link to "/": mark plus the "RaahPrahari" wordmark (Oxanium 600). */
-export function ShellLogo({ showWordmark = true }: { showWordmark?: boolean }) {
+export function ShellLogo({
+  showWordmark = true,
+  className,
+  wordmarkClassName,
+}: {
+  showWordmark?: boolean;
+  className?: string;
+  wordmarkClassName?: string;
+}) {
   const { t } = usePrefs();
   return (
     <Link
       to="/"
       aria-label={t("shell.homeLabel")}
-      className="inline-flex min-h-11 min-w-11 items-center gap-2 rounded-md text-shell-text"
+      className={cn(
+        "inline-flex min-h-11 min-w-11 items-center gap-2 rounded-md text-shell-text",
+        className,
+      )}
     >
       <ShellMark />
       {showWordmark ? (
-        <span aria-hidden className="font-display text-lg font-semibold">
+        <span
+          aria-hidden
+          className={cn("font-display text-lg font-semibold", wordmarkClassName)}
+        >
           RaahPrahari
         </span>
       ) : null}

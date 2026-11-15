@@ -614,14 +614,6 @@ a:active > .rp-ripple::after {
   }
 }
 
-/* Header gains a shadow once the page has scrolled. */
-.rp-header {
-  transition: box-shadow var(--motion-base) var(--ease-out);
-}
-.rp-header[data-scrolled='true'] {
-  box-shadow: var(--shadow-header);
-}
-
 /* Clickable cards. */
 .rp-card {
   transition-property: border-color, box-shadow, translate, scale;
@@ -1256,13 +1248,9 @@ html.rp-theme-fade *::after {
 }
 
 /* Crisp content: no frosted glass, no soft-focus text in light mode. */
-:root:not(.dark) [class*='backdrop-blur'],
-:root:not(.dark) .rp-header {
+:root:not(.dark) [class*='backdrop-blur'] {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-}
-:root:not(.dark) .rp-header {
-  background-color: var(--background);
 }
 :root:not(.dark) body {
   -webkit-font-smoothing: auto;
@@ -1301,18 +1289,13 @@ textarea::placeholder {
   box-shadow: 0 0 0 5px color-mix(in oklab, var(--brand-orange) 55%, transparent);
 }
 
-.rp-header .rp-container {
-  max-width: 90rem;
-}
-
 /* Header and navigation chrome (light theme). Orange is the one accent and
    marks where you are; selection rings are neutral so blue never competes.
    The darker orange keeps the current-page underline above 3:1. */
 :root:not(.dark) .rp-underline::after {
   background: var(--orange-on-light);
 }
-:root:not(.dark) .rp-lang .rp-lang-btn[aria-pressed='true'],
-:root:not(.dark) .rp-chrome-nav a[aria-current='page'].rp-press {
+:root:not(.dark) .rp-lang .rp-lang-btn[aria-pressed='true'] {
   box-shadow: inset 0 0 0 2px var(--foreground);
 }
 /* The bottom nav shows the current page with its orange top marker instead. */
@@ -1529,10 +1512,21 @@ textarea::placeholder {
   border-left-style: dashed;
 }
 
-/* Height pages lose to the app shell's top bar. Screens sized to the
+/* Height the app shell's bars take from the viewport. Screens sized to the
    viewport (home hero, traveller, help, advisories, page banner) subtract
-   it. The shell has a 56px top bar at every width, so it is one value
-   taken from the shell token, never a second hard-coded number. */
+   it. The 56px top bar is there at every width; below 1024px the fixed
+   bottom tabs (and the safe area under them) are too, so a "full screen"
+   hero ends at the tabs instead of behind them. Built only from the shell
+   tokens, never a second hard-coded number. The name is kept so the page
+   CSS that reads it does not change. */
 :root {
   --rp-top-h: var(--shell-bar-height);
+}
+@media (width < 64rem) {
+  :root {
+    --rp-top-h: calc(
+      var(--shell-bar-height) + var(--shell-tabs-height) +
+        env(safe-area-inset-bottom)
+    );
+  }
 }

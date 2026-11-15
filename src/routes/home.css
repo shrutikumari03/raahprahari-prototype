@@ -1,4 +1,8 @@
+/* Layout steps follow the width the app shell leaves for the page (viewport
+   minus the 72px or 240px rail from 1024px), not the viewport. With viewport
+   queries the three-column hero overflowed and was clipped beside the rail. */
 .home-page {
+  container: home / inline-size;
   color: var(--foreground);
 }
 
@@ -432,10 +436,12 @@
   letter-spacing: 0.04em;
 }
 
-@media (max-width: 1100px) and (min-width: 769px) {
+@container home (max-width: 1100px) and (min-width: 769px) {
   .home-content {
     padding-inline: 2rem;
-    grid-template-columns: minmax(16rem, 1fr) minmax(13rem, 0.85fr) minmax(
+    /* The illustration column may narrow (no 13rem floor), so the copy and
+       the advisory card fit from 769px without horizontal overflow. */
+    grid-template-columns: minmax(16rem, 1fr) minmax(0, 0.85fr) minmax(
         15rem,
         0.9fr
       );
@@ -452,7 +458,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@container home (max-width: 768px) {
   .home-hero,
   .home-content {
     min-height: auto;
@@ -609,13 +615,14 @@
     position: relative;
     right: auto;
     bottom: auto;
-    padding: 0.5rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+    /* No safe-area inset here: the shell already pads below the tab bar. */
+    padding: 0.5rem 1rem 0.75rem;
     text-align: right;
     font-size: 0.75rem;
   }
 }
 
-@media (max-width: 390px) {
+@container home (max-width: 390px) {
   .home-content {
     padding-inline: 1rem;
   }
@@ -792,7 +799,7 @@
 
 /* The copy column carries the search panel now, so it gets a little more room
    and a slightly smaller headline to keep clear of the feature cards. */
-@media (min-width: 769px) {
+@container home (min-width: 769px) {
   .home-copy {
     max-width: 34rem;
   }
@@ -893,7 +900,7 @@
   width: 100%;
 }
 
-@media (max-width: 768px) {
+@container home (max-width: 768px) {
   .home-search {
     width: 100%;
     padding: 0.85rem;

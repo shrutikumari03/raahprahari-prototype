@@ -135,7 +135,14 @@ export function MobileTopBar({
       data-testid="shell-mobilebar"
       className="rp-shell flex h-14 shrink-0 items-center gap-1 border-b border-shell-divider bg-shell-bg px-3 text-shell-text lg:hidden"
     >
-      <ShellLogo />
+      {/* At 360px the controls on the right need about 200px, so the logo is
+          the part that gives way: the wordmark is smaller below 640px, hidden
+          below 390px (the mark and the link's accessible name stay), and
+          truncates rather than push the account button off screen. */}
+      <ShellLogo
+        className="min-w-0 shrink"
+        wordmarkClassName="min-w-0 truncate max-sm:text-base max-390:hidden"
+      />
       {/* The section you are in. Visible from 640px; below that the bar has no
           room beside the wordmark, so it is announced but not shown. */}
       {section ? (
@@ -153,7 +160,7 @@ export function MobileTopBar({
         variant="ghost"
         size="icon"
         aria-label={t("shell.checkRoad")}
-        className="text-shell-text"
+        className="shrink-0 text-shell-text"
       >
         <Link to="/traveller">
           <Search aria-hidden />
@@ -164,10 +171,12 @@ export function MobileTopBar({
           <button
             type="button"
             aria-label={t("shell.language")}
-            className="rp-shell-transition inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-md px-2 text-sm font-medium text-shell-text hover:bg-shell-surface"
+            className="rp-shell-transition inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-md px-2 text-sm font-medium text-shell-text hover:bg-shell-surface"
           >
             {lang === "en" ? "EN" : "हिन्दी"}
-            <ChevronDown aria-hidden className="size-4" />
+            {/* Decorative; dropped below 640px to save 20px. The button keeps
+                its "Language" name and still opens the menu. */}
+            <ChevronDown aria-hidden className="size-4 max-sm:hidden" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -197,7 +206,7 @@ export function MobileTopBar({
             <button
               type="button"
               aria-label={t("shell.accountMenu")}
-              className="rp-shell-transition grid min-h-11 min-w-11 place-items-center rounded-full text-shell-text hover:bg-shell-surface"
+              className="rp-shell-transition grid min-h-11 min-w-11 shrink-0 place-items-center rounded-full text-shell-text hover:bg-shell-surface"
             >
               <span
                 aria-hidden
@@ -222,7 +231,7 @@ export function MobileTopBar({
               variant="ghost"
               size="icon"
               aria-label={t("shell.accountMenu")}
-              className="text-shell-text"
+              className="shrink-0 text-shell-text"
             >
               <UserRound aria-hidden />
             </Button>

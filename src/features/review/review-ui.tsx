@@ -1,4 +1,5 @@
 import {
+  AlertTriangle,
   CircleCheck,
   CircleHelp,
   CircleX,
@@ -17,7 +18,7 @@ import type { ReportStatus, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const badge =
-  "inline-flex shrink-0 items-center gap-1.5 rounded-md border bg-background/70 px-2 py-0.5 text-xs font-semibold whitespace-nowrap";
+  "glass-pill inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold whitespace-nowrap";
 
 /** Review status: icon and label together, never colour alone. */
 const STATUS_ICON: Record<
@@ -94,7 +95,8 @@ export function AssignmentBadge({
 export function SeverityLabel({ severity }: { severity: Severity }) {
   const { t } = usePrefs();
   return (
-    <span className="text-xs font-medium text-foreground">
+    <span className="glass-pill inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-foreground">
+      <AlertTriangle aria-hidden className="size-3.5" />
       {t("review.severityLabel").replace(
         "{level}",
         t(`review.severity.${severity}` as TranslationKey),

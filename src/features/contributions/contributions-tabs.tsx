@@ -77,9 +77,7 @@ function PointsTab() {
               <TableHead className="text-right">
                 {t("contrib.col.points")}
               </TableHead>
-              <TableHead>
-                {t("contrib.col.meaning")}
-              </TableHead>
+              <TableHead>{t("contrib.col.meaning")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -149,9 +147,7 @@ function ReputationTab() {
           <TableHeader>
             <TableRow>
               <TableHead>{t("contrib.col.level")}</TableHead>
-              <TableHead>
-                {t("contrib.col.rule")}
-              </TableHead>
+              <TableHead>{t("contrib.col.rule")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -265,8 +261,13 @@ function LeaderboardTab() {
       </Card>
       <Card title={t("contrib.agg.title")}>
         <p>{t("contrib.agg.body")}</p>
-        <p data-testid="agg-participants" className="font-semibold text-foreground!">
-          {fill(t("contrib.agg.participants"), { count: aggregate.participants })}
+        <p
+          data-testid="agg-participants"
+          className="font-semibold text-foreground!"
+        >
+          {fill(t("contrib.agg.participants"), {
+            count: aggregate.participants,
+          })}
         </p>
         {aggregate.totals ? (
           <dl
@@ -286,10 +287,7 @@ function LeaderboardTab() {
                 ],
               ] as const
             ).map(([label, value]) => (
-              <div
-                key={label}
-                className="rounded-lg border border-border bg-background/50 p-3"
-              >
+              <div key={label} className="glass rounded-lg p-3">
                 <dt className="text-xs text-muted-foreground">{t(label)}</dt>
                 <dd className="m-0 font-display text-2xl font-semibold text-foreground">
                   {value}
@@ -315,23 +313,38 @@ export function ContributionsTabs() {
         aria-label={t("contrib.tabsLabel")}
         className="grid h-auto w-full grid-cols-2 min-[520px]:grid-cols-3 lg:w-fit lg:grid-cols-5"
       >
-        <TabsTrigger value="points">
+        <TabsTrigger
+          value="points"
+          className="data-[state=active]:glass-accent"
+        >
           <Coins aria-hidden />
           {t("contrib.tab.points")}
         </TabsTrigger>
-        <TabsTrigger value="reputation">
+        <TabsTrigger
+          value="reputation"
+          className="data-[state=active]:glass-accent"
+        >
           <ShieldCheck aria-hidden />
           {t("contrib.tab.reputation")}
         </TabsTrigger>
-        <TabsTrigger value="leaderboard">
+        <TabsTrigger
+          value="leaderboard"
+          className="data-[state=active]:glass-accent"
+        >
           <Trophy aria-hidden />
           {t("contrib.tab.leaderboard")}
         </TabsTrigger>
-        <TabsTrigger value="ledger">
+        <TabsTrigger
+          value="ledger"
+          className="data-[state=active]:glass-accent"
+        >
           <History aria-hidden />
           {t("contrib.tab.ledger")}
         </TabsTrigger>
-        <TabsTrigger value="settings">
+        <TabsTrigger
+          value="settings"
+          className="data-[state=active]:glass-accent"
+        >
           <EyeOff aria-hidden />
           {t("contrib.tab.settings")}
         </TabsTrigger>

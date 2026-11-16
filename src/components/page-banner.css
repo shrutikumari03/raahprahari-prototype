@@ -17,11 +17,21 @@
   padding: 1.5rem;
   background-color: var(--backdrop-fallback-a);
   background-image:
-    linear-gradient(135deg, var(--backdrop-a), var(--backdrop-b) 50%, var(--backdrop-c)),
+    linear-gradient(
+      135deg,
+      var(--backdrop-a),
+      var(--backdrop-b) 50%,
+      var(--backdrop-c)
+    ),
     radial-gradient(circle at 88% 12%, var(--backdrop-glow), transparent 42%),
     radial-gradient(circle at 8% 92%, var(--backdrop-glow), transparent 38%),
-    url('/img/hero-road.png'),
-    linear-gradient(135deg, var(--backdrop-fallback-a), var(--backdrop-fallback-b) 55%, var(--backdrop-fallback-c));
+    url("/img/hero-road.png"),
+    linear-gradient(
+      135deg,
+      var(--backdrop-fallback-a),
+      var(--backdrop-fallback-b) 55%,
+      var(--backdrop-fallback-c)
+    );
   background-position: center;
   background-size: cover;
   background-attachment: fixed;
@@ -52,7 +62,12 @@
   /* The glass panel floats over the photo with room around it. */
   padding-block: 1.25rem;
   background:
-    linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 58%, var(--photo-scrim-c)),
+    linear-gradient(
+      90deg,
+      var(--photo-scrim-a),
+      var(--photo-scrim-b) 58%,
+      var(--photo-scrim-c)
+    ),
     url("/img/banner-strip.png") center 53% / cover;
 }
 
@@ -110,13 +125,6 @@
   border-radius: 1rem;
   padding: clamp(1rem, 3vw, 1.4rem);
 }
-/* A card that carries .glass takes its fill, edge and shadow from the glass
-   utility; the pages that have not been redesigned yet keep the solid card. */
-.rp-info-card:not(.glass) {
-  border: 1px solid var(--border);
-  background: var(--card);
-}
-
 .rp-info-card h2 {
   margin: 0;
   color: var(--foreground);
@@ -178,7 +186,6 @@
   min-height: 2.9rem;
   border: 1px solid var(--input);
   border-radius: 0.75rem;
-  background: var(--background);
   padding: 0.7rem 0.8rem;
   color: var(--foreground);
   font: inherit;
@@ -261,12 +268,6 @@
   width: fit-content;
 }
 
-.rp-info-card:not(.glass) {
-  box-shadow:
-    0 1px 2px color-mix(in srgb, var(--tone-shadow) 12%, transparent),
-    0 10px 28px -14px color-mix(in srgb, var(--tone-shadow) 35%, transparent);
-}
-
 .rp-info-card h2 {
   font-weight: 600;
 }
@@ -277,15 +278,15 @@
   border-left: 4px solid var(--severity-accent);
 }
 
-.rp-review-card[data-severity='high'] {
+.rp-review-card[data-severity="high"] {
   --severity-accent: var(--status-avoid);
 }
 
-.rp-review-card[data-severity='moderate'] {
+.rp-review-card[data-severity="moderate"] {
   --severity-accent: var(--status-caution);
 }
 
-.rp-review-card[data-severity='low'] {
+.rp-review-card[data-severity="low"] {
   --severity-accent: var(--link);
 }
 

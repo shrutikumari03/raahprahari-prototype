@@ -149,7 +149,7 @@ export function FreshnessChip({
     <span
       data-testid="freshness-chip"
       className={cn(
-        "rp-fade-in inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium text-foreground",
+        "rp-fade-in glass-pill inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium text-foreground",
         meta.chip,
         className,
       )}
@@ -188,7 +188,7 @@ export function StaleBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-dashed border-status-stale px-2.5 py-0.5 text-xs font-medium text-status-stale",
+        "glass-pill inline-flex items-center gap-1.5 rounded-full border border-dashed border-status-stale px-2.5 py-0.5 text-xs font-medium text-status-stale",
         className,
       )}
     >

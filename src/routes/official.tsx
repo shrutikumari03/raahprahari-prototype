@@ -1,16 +1,16 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useRef, useState } from 'react';
-import { ShieldAlert, Lock, ArrowLeft } from 'lucide-react';
-import { LoginDialog } from '@/components/login-dialog';
-import { PageBanner } from '@/components/page-banner';
-import { PrototypeRibbon } from '@/components/prototype-ribbon';
-import { Button } from '@/components/ui/button';
-import { usePrefs } from '@/i18n/preferences';
-import { useAccountSession } from '@/lib/account-session';
-import { OfficialNoticeForm } from '@/official/OfficialNoticeForm';
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useRef, useState } from "react";
+import { ShieldAlert, Lock, ArrowLeft } from "lucide-react";
+import { LoginDialog } from "@/components/login-dialog";
+import { PageBanner } from "@/components/page-banner";
+import { PrototypeRibbon } from "@/components/prototype-ribbon";
+import { Button } from "@/components/ui/button";
+import { usePrefs } from "@/i18n/preferences";
+import { useAccountSession } from "@/lib/account-session";
+import { OfficialNoticeForm } from "@/official/OfficialNoticeForm";
 
-export const Route = createFileRoute('/official')({
-  head: () => ({ meta: [{ title: 'Official notice | RaahPrahari' }] }),
+export const Route = createFileRoute("/official")({
+  head: () => ({ meta: [{ title: "Official notice | RaahPrahari" }] }),
   component: OfficialPageRoute,
 });
 
@@ -23,21 +23,24 @@ function OfficialPageRoute() {
   // The official role comes only from the server-controlled session role.
   // This gate is convenience; the publishing backend must enforce the role.
   const isOfficialAuthenticated =
-    session.status === 'authenticated' && session.role === 'official';
+    session.status === "authenticated" && session.role === "official";
 
   // Agar user official authenticated nahi hai, toh restricted access view dikhayein
   if (!isOfficialAuthenticated) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4 bg-background">
-        <div className="max-w-md w-full bg-card text-card-foreground border border-border rounded-xl p-8 text-center shadow-2xl space-y-6">
+      <div className="flex min-h-[80vh] items-center justify-center px-4">
+        <div className="glass-strong w-full max-w-md space-y-6 rounded-xl p-8 text-center text-card-foreground">
           <div className="w-16 h-16 bg-status-caution/10 border border-status-caution/20 rounded-full flex items-center justify-center mx-auto text-status-caution">
             <ShieldAlert aria-hidden className="w-8 h-8" />
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-xl font-bold text-foreground">Restricted Official Portal</h1>
+            <h1 className="text-xl font-bold text-foreground">
+              Restricted Official Portal
+            </h1>
             <p className="text-sm text-muted-foreground">
-              This area is restricted to authorized district authorities and road maintenance officers only. Public access is not permitted.
+              This area is restricted to authorized district authorities and
+              road maintenance officers only. Public access is not permitted.
             </p>
           </div>
 
@@ -55,7 +58,7 @@ function OfficialPageRoute() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => navigate({ to: '/' })}
+              onClick={() => navigate({ to: "/" })}
               className="w-full"
             >
               <ArrowLeft aria-hidden className="w-4 h-4" />
@@ -78,15 +81,17 @@ function OfficialPageRoute() {
   return (
     <div className="rp-info-page">
       <PageBanner
-        eyebrow={t('official.eyebrow')}
-        title={t('official.title')}
-        description={t('official.description')}
+        eyebrow={t("official.eyebrow")}
+        title={t("official.title")}
+        description={t("official.description")}
       />
       <div className="rp-info-container rp-info-content">
         <div className="mx-auto max-w-2xl">
           <div className="mb-4 flex flex-col items-start gap-2">
             <PrototypeRibbon />
-            <p className="m-0 text-sm text-muted-foreground">{t('official.notice')}</p>
+            <p className="m-0 text-sm text-muted-foreground">
+              {t("official.notice")}
+            </p>
           </div>
           <OfficialNoticeForm />
         </div>

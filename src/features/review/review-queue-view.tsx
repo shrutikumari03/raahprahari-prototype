@@ -50,7 +50,7 @@ function QueueCard({
     <li
       data-testid={`queue-item-${report.ref}`}
       data-severity={report.severity}
-      className="rp-info-card rp-review-card rp-hover-card list-none"
+      className="rp-info-card glass rp-review-card rp-hover-card list-none"
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h3 className="m-0 min-w-0 text-base font-semibold text-foreground">
@@ -207,10 +207,10 @@ export function ReviewQueueView({
                   search={{ queue: name }}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-h-14 items-center justify-between gap-2 rounded-xl border border-b-4 px-4 py-2 text-sm font-semibold transition-colors motion-reduce:transition-none",
+                    "glass-pill flex min-h-14 items-center justify-between gap-2 border-b-4 px-4 py-2 text-sm font-semibold transition-colors motion-reduce:transition-none",
                     active
-                      ? "border-brand-orange/50 border-b-brand-orange bg-brand-orange/10 text-foreground"
-                      : "border-border border-b-border bg-card text-muted-foreground hover:border-b-brand-orange/50 hover:text-foreground",
+                      ? "glass-accent border-brand-orange/50 border-b-brand-orange text-foreground"
+                      : "border-border border-b-border text-muted-foreground hover:border-b-brand-orange/50 hover:text-foreground",
                   )}
                 >
                   {t(`review.queue.${name}`)}
@@ -248,7 +248,7 @@ export function ReviewQueueView({
           </p>
         </div>
 
-        <fieldset className="m-0 grid min-w-0 gap-3 rounded-xl border border-border bg-card p-4 min-[560px]:grid-cols-2 lg:grid-cols-4">
+        <fieldset className="glass-strong m-0 grid min-w-0 gap-3 rounded-xl p-4 min-[560px]:grid-cols-2 lg:grid-cols-4">
           <legend className="px-1 text-sm font-semibold text-foreground">
             {t("review.filtersLabel")}
           </legend>

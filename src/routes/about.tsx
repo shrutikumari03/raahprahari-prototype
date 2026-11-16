@@ -46,15 +46,17 @@ function AboutPage() {
         description={t("aboutPage.description")}
       />
       <div className="rp-info-container rp-info-content">
-        <Logo variant="full" className="mb-5 max-w-[11rem]" />
+        <div className="glass-strong mb-3 rounded-2xl p-4">
+          <Logo variant="full" className="max-w-[11rem]" />
+        </div>
         <div className="grid gap-3 min-[600px]:grid-cols-2 min-[1050px]:grid-cols-3">
-          <article className="rp-info-card">
+          <article className="rp-info-card glass">
             <Database aria-hidden className="mb-3 size-5 text-brand-orange" />
             <h2>{t("aboutPage.prototypeTitle")}</h2>
             <p>{t("aboutPage.prototypeBody")}</p>
           </article>
 
-          <article className="rp-info-card">
+          <article className="rp-info-card glass">
             <BadgeInfo aria-hidden className="mb-3 size-5 text-brand-orange" />
             <h2>{t("aboutPage.readTitle")}</h2>
             <p>{t("aboutPage.readBody")}</p>
@@ -75,7 +77,7 @@ function AboutPage() {
             <p>{t("aboutPage.readNote")}</p>
           </article>
 
-          <article className="rp-info-card">
+          <article className="rp-info-card glass">
             <RouteIcon aria-hidden className="mb-3 size-5 text-brand-orange" />
             <h2>{t("aboutPage.limitsTitle")}</h2>
             <p>{t("aboutPage.limitsBody")}</p>
@@ -83,7 +85,7 @@ function AboutPage() {
         </div>
 
         <div className="mt-3 grid gap-3 min-[600px]:grid-cols-2">
-          <article id="privacy" className="rp-info-card scroll-mt-24">
+          <article id="privacy" className="rp-info-card glass scroll-mt-24">
             <LockKeyhole
               aria-hidden
               className="mb-3 size-5 text-brand-orange"
@@ -97,12 +99,15 @@ function AboutPage() {
             <p className="mt-2">{t(deliveryPrivacyKey())}</p>
             <p className="mt-2">{t("aboutPage.privacyAi")}</p>
           </article>
-          <article id="terms" className="rp-info-card scroll-mt-24">
+          <article id="terms" className="rp-info-card glass scroll-mt-24">
             <FileText aria-hidden className="mb-3 size-5 text-brand-orange" />
             <h2>{t("aboutPage.termsTitle")}</h2>
             <p>{t("aboutPage.termsBody")}</p>
           </article>
-          <article id="accessibility" className="rp-info-card scroll-mt-24">
+          <article
+            id="accessibility"
+            className="rp-info-card glass scroll-mt-24"
+          >
             <Accessibility
               aria-hidden
               className="mb-3 size-5 text-brand-orange"
@@ -110,7 +115,7 @@ function AboutPage() {
             <h2>{t("aboutPage.accessibilityTitle")}</h2>
             <p>{t("aboutPage.accessibilityBody")}</p>
           </article>
-          <article id="contact" className="rp-info-card scroll-mt-24">
+          <article id="contact" className="rp-info-card glass scroll-mt-24">
             <Mail aria-hidden className="mb-3 size-5 text-brand-orange" />
             <h2>{t("aboutPage.contactTitle")}</h2>
             <p>{t("aboutPage.contactBody")}</p>
@@ -122,7 +127,10 @@ function AboutPage() {
           </article>
         </div>
 
-        <article id="policy-status" className="rp-info-card mt-3 scroll-mt-24">
+        <article
+          id="policy-status"
+          className="rp-info-card glass mt-3 scroll-mt-24"
+        >
           <Scale aria-hidden className="mb-3 size-5 text-brand-orange" />
           <h2>{t("aboutPage.policyStatusTitle")}</h2>
           <p>{t("aboutPage.policyStatusBody")}</p>

@@ -81,7 +81,7 @@ function HelpPage() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={t("help.search")}
-              className="help-search-input"
+              className="glass help-search-input"
             />
           </label>
 
@@ -93,7 +93,7 @@ function HelpPage() {
                   key={slug}
                   to="/help/$topic"
                   params={{ topic: slug }}
-                  className="rp-card rp-enter help-topic-card"
+                  className="rp-card glass rp-enter help-topic-card"
                 >
                   <span
                     className={`help-topic-icon help-topic-icon-${slug}`}
@@ -114,7 +114,10 @@ function HelpPage() {
                       {t(descriptionKey)}
                     </span>
                   </span>
-                  <ArrowRight aria-hidden className="rp-arrow help-topic-arrow" />
+                  <ArrowRight
+                    aria-hidden
+                    className="rp-arrow help-topic-arrow"
+                  />
                 </Link>
               );
             })}
@@ -126,7 +129,10 @@ function HelpPage() {
           </div>
         </section>
 
-        <aside className="help-reminder photo-surface" aria-labelledby="help-reminder-title">
+        <aside
+          className="help-reminder glass-strong"
+          aria-labelledby="help-reminder-title"
+        >
           <div className="help-reminder-content">
             <p className="help-reminder-label">
               <ShieldAlert aria-hidden />

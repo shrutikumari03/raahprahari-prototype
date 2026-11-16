@@ -39,7 +39,7 @@ export function LevelBadge({ level }: { level: ReputationLevel }) {
       data-testid="reputation-level"
       data-level={level}
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border border-border bg-background/70 px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap sm:gap-1.5 sm:px-2",
+        "glass-pill inline-flex items-center gap-1 rounded-md border border-border px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap sm:gap-1.5 sm:px-2",
         level === "trusted" ? "text-brand-orange" : "text-foreground",
       )}
     >
@@ -61,7 +61,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <section className={cn("rp-info-card", className)}>
+    <section className={cn("rp-info-card glass", className)}>
       {Icon ? (
         <Icon aria-hidden className="mb-3 size-5 text-brand-orange" />
       ) : null}

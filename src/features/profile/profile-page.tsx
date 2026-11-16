@@ -105,7 +105,7 @@ export function ProfilePage() {
         </h1>
         <section
           aria-labelledby="profile-account"
-          className="space-y-4 rounded-xl border border-border bg-card p-6 text-card-foreground"
+          className="glass space-y-4 rounded-xl p-6 text-card-foreground"
         >
           <h2
             id="profile-account"
@@ -117,7 +117,7 @@ export function ProfilePage() {
         </section>
         <section
           aria-labelledby="profile-prefs"
-          className="space-y-6 rounded-xl border border-border bg-card p-6 text-card-foreground"
+          className="glass space-y-6 rounded-xl p-6 text-card-foreground"
         >
           <div>
             <h2

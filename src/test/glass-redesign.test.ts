@@ -229,7 +229,8 @@ describe("phase 3B advisories and reports glass surfaces", () => {
       'pathname.startsWith("/report/")',
     ])
       expect(shell).toContain(route);
-    expect(shell).toMatch(/isGlassPage && "dark"/);
+    expect(shell).toMatch(/isMap && "dark"/);
+    expect(shell).not.toMatch(/isGlassPage && "dark"/);
     expect(shell).toMatch(/!isHome && !isGlassPage && "bg-background"/);
     expect(advisoryCss).toMatch(/background:\s*transparent;/);
     expect(advisoryCss).not.toMatch(/background:\s*var\(--background\)/);
@@ -266,6 +267,86 @@ describe("phase 3B advisories and reports glass surfaces", () => {
       ).toBeGreaterThanOrEqual(3);
     }
     expect(reportSteps).toMatch(/role="alert"[\s\S]*?<TriangleAlert/);
+  });
+});
+
+describe("phase 3C remaining page glass surfaces", () => {
+  const shell = read("components/app-shell/app-shell.tsx");
+  const check = read("routes/check.tsx");
+  const routeCard = read("features/routes/route-card.tsx");
+  const help = read("routes/help.tsx");
+  const helpDetail = read("routes/help.$topic.tsx");
+  const helpCss = read("routes/help.css");
+  const about = read("routes/about.tsx");
+  const contact = read("features/contact/contact-page.tsx");
+  const profile = read("features/profile/profile-page.tsx");
+  const contributions = read("features/contributions/contribution-ui.tsx");
+  const review = read("features/review/review-queue-view.tsx");
+  const reviewDetail = read("features/review/review-detail-view.tsx");
+  const official = read("routes/official.tsx");
+  const officialForm = read("official/OfficialNoticeForm.tsx");
+  const authPage = read("features/auth/auth-pages.tsx");
+  const authForms = read("components/auth-forms.tsx");
+  const login = read("components/login-dialog.tsx");
+  const infoCss = read("components/page-banner.css");
+
+  it("uses transparent route-scoped mains for every Phase 3C page", () => {
+    for (const route of [
+      'pathname === "/check"',
+      'pathname === "/help"',
+      'pathname.startsWith("/help/")',
+      'pathname === "/about"',
+      'pathname === "/contact"',
+      'pathname === "/profile"',
+      'pathname === "/contributions"',
+      'pathname === "/review"',
+      'pathname.startsWith("/review/")',
+      'pathname === "/official"',
+      'pathname.startsWith("/auth/")',
+    ])
+      expect(shell).toContain(route);
+    expect(shell).toMatch(/!isHome && !isGlassPage && "bg-background"/);
+    expect(helpCss).toMatch(/background:\s*transparent;/);
+    expect(helpCss).not.toMatch(/background:\s*var\(--background\)/);
+    expect(infoCss).not.toMatch(/\.rp-info-card:not\(\.glass\)/);
+  });
+
+  it("uses existing glass utilities for page panels, cards, selections, and controls", () => {
+    expect(check).toMatch(/glass-strong rounded-2xl p-5/);
+    expect(check).toMatch(/glass-pill min-h-10/);
+    expect(check).toMatch(/glass-accent text-foreground/);
+    expect(routeCard).toMatch(/selected && "glass-accent"/);
+    expect(help).toMatch(/rp-card glass/);
+    expect(help).toMatch(/help-reminder glass-strong/);
+    expect(help).toMatch(/glass help-search-input/);
+    expect(helpDetail).toMatch(/help-detail-card glass/);
+    expect(about).toMatch(/glass-strong mb-3/);
+    expect(about.match(/rp-info-card glass/g)).not.toBeNull();
+    expect(contact).toMatch(/rp-info-card glass-strong/);
+    expect(contact).toMatch(/rp-contact-control glass/);
+    expect(profile.match(/className="glass space-y-/g)).toHaveLength(2);
+    expect(contributions).toMatch(/rp-info-card glass/);
+    expect(review).toMatch(/rp-info-card glass rp-review-card/);
+    expect(review).toMatch(/glass-accent border-brand-orange/);
+    expect(reviewDetail.match(/rp-info-card glass/g)).toHaveLength(5);
+    expect(official).toMatch(/glass-strong w-full max-w-md/);
+    expect(officialForm.match(/rp-info-card glass/g)).toHaveLength(3);
+    expect(authPage).toMatch(/glass-strong mx-auto max-w-md/);
+  });
+
+  it("keeps auth failures identifiable by icon and readable text", () => {
+    for (const source of [authPage, authForms, login])
+      expect(source).toMatch(/role="alert"[\s\S]{0,220}CircleAlert/);
+    for (const name of ["light", "dark"] as const) {
+      const theme = THEMES[name];
+      for (const bg of backdrops(name)) {
+        const surface = layer(theme, "--glass-panel-strong", bg);
+        expect(
+          contrast(hex(theme, "--foreground"), surface),
+          `${name} auth error text`,
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+    }
   });
 });
 
@@ -810,13 +891,11 @@ describe("phase 2B: structure", () => {
     );
   });
 
-  it("the info page has no solid fill, and a card with .glass takes the glass instead of the solid card", () => {
+  it("the info page and its cards do not declare solid fallbacks", () => {
     expect(rule(bannerCss, ".rp-info-page")).not.toMatch(/background/);
     expect(bannerCss).not.toMatch(/\.dark \.rp-info-page/);
     expect(rule(bannerCss, ".rp-info-card")).not.toMatch(/background|border:/);
-    expect(rule(bannerCss, ".rp-info-card:not(.glass)")).toMatch(
-      /background: var\(--card\)/,
-    );
+    expect(bannerCss).not.toMatch(/\.rp-info-card:not\(\.glass\)/);
   });
 
   it("error pages are a centred glass-strong card on the backdrop", () => {
@@ -830,11 +909,11 @@ describe("phase 2B: structure", () => {
     // Same tokens as .rp-backdrop: overlay over glows over the photo over the fallback.
     const css = rule(bannerCss, ".rp-error-page");
     expect(css).toMatch(/place-items: center;/);
-    expect(css).toContain(
-      "var(--backdrop-a), var(--backdrop-b) 50%, var(--backdrop-c)",
+    expect(css).toMatch(
+      /var\(--backdrop-a\),\s*var\(--backdrop-b\) 50%,\s*var\(--backdrop-c\)/,
     );
     expect(css).toContain("var(--backdrop-glow)");
-    expect(css).toContain("url('/img/hero-road.png')");
+    expect(css).toMatch(/url\(["']\/img\/hero-road\.png["']\)/);
     expect(css).toContain("var(--backdrop-fallback-a)");
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     // Headings, links and the alert role the tests and screen readers rely on.

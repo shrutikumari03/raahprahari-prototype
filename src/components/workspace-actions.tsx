@@ -119,7 +119,7 @@ function ScreenCard({ screen }: { screen: WorkspaceScreen }) {
     <section
       aria-labelledby={headingId}
       data-testid={`audit-screen-${screen.id}`}
-      className="rp-info-card"
+      className="rp-info-card glass"
     >
       <h3
         id={headingId}

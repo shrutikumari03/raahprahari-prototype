@@ -133,10 +133,7 @@ export function DeliveryStepper({
 
   return (
     <div className="space-y-4">
-      <ol
-        className="grid gap-3 md:grid-cols-2 xl:grid-cols-5"
-        aria-label="Delivery stages"
-      >
+      <ol className="grid gap-3" aria-label="Delivery stages">
         {finalStages.map((stage, index) => {
           const Icon = stage.icon;
           const isActive = index === activeIndex;

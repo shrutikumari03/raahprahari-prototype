@@ -126,7 +126,7 @@ export const Route = createRootRoute({
         },
         {
           rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+Devanagari:wght@400;600&family=Oxanium:wght@600;700&display=swap",
+          href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans+Devanagari:wght@400;600&display=swap",
         },
       ],
     };
@@ -197,6 +197,8 @@ function RootDocument({
       </head>
 
       <body>
+        {/* Fixed photo, warm glows and overlay behind every page (.rp-backdrop). */}
+        <div aria-hidden="true" className="rp-backdrop" />
         <BootGate />
 
         <script

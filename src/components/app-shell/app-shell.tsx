@@ -69,6 +69,7 @@ export function AppShell({
 
   const hideSearch = shellSearchHidden(pathname);
   const isMap = pathname === "/map";
+  const isHome = pathname === "/";
 
   const openPalette = useCallback(() => {
     if (document.activeElement instanceof HTMLElement)
@@ -95,7 +96,8 @@ export function AppShell({
   }, [paletteOpen, openPalette]);
 
   return (
-    <div className="rp-shell flex min-h-svh overflow-x-clip bg-shell-bg text-shell-text">
+    // No fill of its own: the fixed .rp-backdrop photo shows behind the shell.
+    <div className="rp-shell flex min-h-svh overflow-x-clip text-shell-text">
       <Rail
         active={active}
         collapsed={collapsed}
@@ -135,7 +137,11 @@ export function AppShell({
           id="main"
           aria-busy="true"
           className={cn(
-            "min-w-0 flex-1 bg-background text-foreground",
+            "min-w-0 flex-1 text-foreground",
+            // Glass redesign, phase by phase: Home shows the backdrop photo;
+            // pages not yet redesigned keep their solid background, so their
+            // muted text never sits on the photo.
+            !isHome && "bg-background",
             isMap && "rp-shell-map flex min-h-0 flex-col",
           )}
         >

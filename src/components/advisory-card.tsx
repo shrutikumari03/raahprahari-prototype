@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
+  ChevronRight,
   Clock3,
+  Info,
   ShieldCheck,
   TriangleAlert,
   UsersRound,
@@ -103,7 +105,7 @@ export function AdvisoryCard({
     return (
       <article
         data-level={advisory.level}
-        className={cn("home-advisory photo-surface", className)}
+        className={cn("home-advisory glass-accent", className)}
       >
         <Link
           to="/advisories/$segmentId"
@@ -148,8 +150,10 @@ export function AdvisoryCard({
               <dd>{lastUpdated}</dd>
             </div>
           </dl>
-          <p className="home-advisory-footer">
-            Illustrative synthetic information
+          <p className="home-advisory-footer glass-pill">
+            <Info aria-hidden />
+            <span>Illustrative synthetic information</span>
+            <ChevronRight aria-hidden />
           </p>
         </Link>
       </article>

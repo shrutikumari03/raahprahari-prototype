@@ -16,38 +16,47 @@ import {
 import { usePrefs } from "@/i18n/preferences";
 import { cn } from "@/lib/utils";
 
+/**
+ * A flat 15% tint of --tint over a glass pill's fill. It is a gradient layer
+ * only so the tint sits on top of the glass background colour instead of
+ * replacing it; both stops are the same colour, so it looks flat.
+ */
+const TINT_15 =
+  "bg-[linear-gradient(color-mix(in_srgb,var(--tint)_15%,transparent),color-mix(in_srgb,var(--tint)_15%,transparent))]";
 export const LEVEL_META: Record<
   AdvisoryLevel,
   { icon: typeof CircleCheck; color: string; chip: string; bar: string }
 > = {
+  // Severity is carried by the label and a different icon for every level; the
+  // tinted border and tint repeat it in colour, they never carry it alone.
   clear: {
     icon: CircleCheck,
     color: "var(--status-clear)",
-    chip: "bg-status-clear/15 border-status-clear",
+    chip: "border-status-clear [--tint:var(--status-clear)]",
     bar: "bg-status-clear",
   },
   caution: {
     icon: TriangleAlert,
     color: "var(--status-caution)",
-    chip: "bg-status-caution/15 border-status-caution",
+    chip: "border-status-caution [--tint:var(--status-caution)]",
     bar: "bg-status-caution",
   },
   avoid: {
     icon: OctagonAlert,
     color: "var(--status-avoid)",
-    chip: "bg-status-avoid/15 border-status-avoid",
+    chip: "border-status-avoid [--tint:var(--status-avoid)]",
     bar: "bg-status-avoid",
   },
   do_not_travel: {
     icon: OctagonX,
     color: "var(--status-dnt)",
-    chip: "bg-status-dnt/15 border-status-dnt",
+    chip: "border-status-dnt [--tint:var(--status-dnt)]",
     bar: "bg-status-dnt",
   },
   unknown: {
     icon: CircleQuestionMark,
     color: "var(--status-unknown)",
-    chip: "bg-status-unknown/15 border-status-unknown",
+    chip: "border-status-unknown [--tint:var(--status-unknown)]",
     bar: "bg-status-unknown",
   },
 };
@@ -74,7 +83,8 @@ export function AdvisoryBadge({
           : undefined
       }
       className={cn(
-        "rp-fade-in inline-flex items-center gap-1.5 rounded-full border font-semibold text-foreground",
+        "rp-fade-in glass-pill inline-flex items-center gap-1.5 rounded-full border font-semibold text-foreground shadow-none",
+        TINT_15,
         attention && "rp-attn",
         size === "lg" ? "px-3 py-1.5 text-sm" : "px-2.5 py-0.5 text-xs",
         meta.chip,
@@ -200,7 +210,8 @@ export function OfficialBadge({
   return (
     <span
       className={cn(
-        "rp-fade-in rp-attn [--rp-attn-color:var(--status-official)] inline-flex items-center gap-1.5 rounded-full border border-status-official bg-status-official/15 px-2.5 py-0.5 text-xs font-semibold text-foreground",
+        "rp-fade-in rp-attn [--rp-attn-color:var(--status-official)] [--tint:var(--status-official)] glass-pill inline-flex items-center gap-1.5 rounded-full border border-status-official px-2.5 py-0.5 text-xs font-semibold text-foreground shadow-none",
+        TINT_15,
         className,
       )}
     >

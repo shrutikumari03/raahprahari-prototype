@@ -19,7 +19,8 @@ code {
   --font-body:
     'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI',
     Roboto, sans-serif;
-  --font-heading: 'Oxanium', 'Inter', system-ui, sans-serif;
+  /* Glass redesign: one clean sans for headings and body (Oxanium dropped). */
+  --font-heading: 'Inter', system-ui, sans-serif;
   --font-mono-rp: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   --space-unit: 0.25rem;
   --content-width: 75rem;
@@ -1248,10 +1249,7 @@ html.rp-theme-fade *::after {
 }
 
 /* Crisp content: no frosted glass, no soft-focus text in light mode. */
-:root:not(.dark) [class*='backdrop-blur'] {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
+
 :root:not(.dark) body {
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
@@ -1327,7 +1325,11 @@ textarea::placeholder {
   isolation: isolate;
 }
 
-/* Start screen: in the server HTML, revealed only if loading takes over 300ms. */
+/* Start screen: in the server HTML. Hidden unless the guard script in
+   boot-screen.tsx sets data-phase='shown' (first open of a session, load
+   slower than 300ms). It fades out over 250ms (data-phase='leaving'), at most
+   800ms after it started, then is removed. Hidden and click-through in every
+   other phase, and without JavaScript. */
 .rp-boot {
   position: fixed;
   inset: 0;
@@ -1339,7 +1341,20 @@ textarea::placeholder {
   color: var(--foreground);
   opacity: 0;
   visibility: hidden;
-  animation: rp-boot-reveal 0s linear 300ms forwards;
+  pointer-events: none;
+}
+.rp-boot[data-phase='shown'] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.rp-boot[data-phase='leaving'] {
+  opacity: 0;
+  visibility: visible;
+  transition: opacity 250ms var(--ease-out);
+}
+.rp-boot[data-phase='gone'] {
+  display: none;
 }
 .rp-boot[data-state='error'] {
   inset: 5rem 1rem auto auto;
@@ -1350,7 +1365,7 @@ textarea::placeholder {
   box-shadow: 0 12px 35px color-mix(in srgb, var(--tone-shadow) 30%, transparent);
   opacity: 1;
   visibility: visible;
-  animation: none;
+  pointer-events: auto;
 }
 .rp-boot-body {
   display: grid;
@@ -1362,9 +1377,6 @@ textarea::placeholder {
 .rp-boot-error {
   width: min(24rem, 100%);
 }
-.rp-boot-logo {
-  animation: rp-boot-pulse 1.8s ease-in-out infinite;
-}
 .rp-boot-title {
   font-weight: 600;
 }
@@ -1375,18 +1387,6 @@ textarea::placeholder {
   background: var(--primary);
   color: var(--primary-foreground);
   font-weight: 600;
-}
-@keyframes rp-boot-reveal {
-  to {
-    opacity: 1;
-    visibility: visible;
-  }
-}
-@keyframes rp-boot-pulse {
-  50% {
-    opacity: 0.6;
-    transform: scale(0.97);
-  }
 }
 .rp-route-progress {
   position: fixed;
@@ -1413,8 +1413,9 @@ textarea::placeholder {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .rp-boot-logo {
-    animation: none;
+  /* The guard script hides it at once; this covers a fade already running. */
+  .rp-boot[data-phase='leaving'] {
+    transition: none;
   }
   .rp-route-progress {
     animation: none;
@@ -1615,4 +1616,317 @@ a.rp-hover-card:focus-visible {
     translate: none;
     scale: none;
   }
+}
+
+/* =====================================================================
+   Glassmorphism redesign (phase 1: backdrop, tokens, shell, home).
+   One fixed photo sits behind every page; panels are frosted glass over it.
+
+   Contrast: every opacity here is the lowest that keeps WCAG AA with the
+   worst-case photo pixel (white in the dark theme, black in the light one),
+   computed in src/test/glass-redesign.test.ts:
+   - overlay stops: body text (--foreground / --photo-text) placed directly
+     on the background passes at 65-67% (dark) and 58% (light);
+   - panels: body, muted and link text pass at 36% navy (dark) and 67% ivory
+     (light; the link blue is the binding colour there).
+   Muted text therefore belongs inside a glass panel, not on the background.
+   ===================================================================== */
+:root {
+  /* Fallback if the photo is missing: navy to purple to orange. */
+  --backdrop-fallback-a: #0b1220;
+  --backdrop-fallback-b: #3b2a5c;
+  --backdrop-fallback-c: #c2571a;
+  --backdrop-a: rgb(239 236 228 / 0.58);
+  --backdrop-b: rgb(243 238 228 / 0.58);
+  --backdrop-c: rgb(246 234 216 / 0.58);
+  /* Warm sunset glows. They sit under the overlay, so they never brighten
+     the worst case above. */
+  --backdrop-glow: rgb(249 115 22 / 0.15);
+
+  --glass-panel: rgb(248 246 239 / 0.67);
+  --glass-panel-strong: rgb(248 246 239 / 0.77);
+  --glass-accent-base: rgb(248 246 239 / 0.67);
+  --glass-accent-tint: rgb(249 115 22 / 0.08);
+  --glass-accent-line: rgb(178 58 31 / 0.35);
+  --glass-accent-glow: rgb(249 115 22 / 0.14);
+  --glass-accent-text: var(--orange-on-dark);
+  /* Solid surface for browsers without backdrop-filter. */
+  --glass-fallback: rgb(248 246 239 / 0.96);
+  --glass-line: rgb(17 23 25 / 0.12);
+  --glass-divider: rgb(17 23 25 / 0.1);
+  --glass-highlight: rgb(255 255 255 / 0.55);
+  --glass-shadow: 0 8px 32px rgb(17 23 25 / 0.14);
+  --glass-hover: rgb(17 23 25 / 0.06);
+
+  /* Primary action: orange gradient with dark text (about 5:1 and up). */
+  --accent-from: #fb923c;
+  --accent-to: #ea580c;
+  --accent-ink: #1a0d05;
+  --accent-glow: 0 0 24px rgb(255 122 24 / 0.45);
+  /* Light frosted secondary button: dark text on near-white. */
+  --frost-button: rgb(255 255 255 / 0.8);
+  --frost-button-ink: #111719;
+
+  /* "you" in the hero headline. Light theme keeps the text colour: no orange
+     passes 3:1 for large text over the light overlay's worst case. */
+  --hero-you-from: var(--photo-text);
+  --hero-you-to: var(--photo-text);
+  --route-glow: #38bdf8;
+}
+.dark {
+  --backdrop-a: rgb(11 18 32 / 0.65);
+  --backdrop-b: rgb(15 27 51 / 0.67);
+  --backdrop-c: rgb(26 18 8 / 0.65);
+
+  --glass-panel: rgb(15 27 51 / 0.36);
+  --glass-panel-strong: rgb(15 27 51 / 0.46);
+  --glass-accent-base: rgb(15 27 51 / 0.4);
+  --glass-accent-tint: rgb(249 115 22 / 0.1);
+  /* orange-300: --orange-on-dark (#ff8766) is 3.95:1 on the accent glass. */
+  --glass-accent-text: #fdba74;
+  --glass-accent-line: rgb(251 146 60 / 0.35);
+  --glass-accent-glow: rgb(249 115 22 / 0.22);
+  --glass-fallback: rgb(15 23 42 / 0.92);
+  --glass-line: rgb(255 255 255 / 0.15);
+  --glass-divider: rgb(255 255 255 / 0.1);
+  --glass-highlight: rgb(255 255 255 / 0.18);
+  --glass-shadow: 0 8px 32px rgb(0 0 0 / 0.35);
+  --glass-hover: rgb(255 255 255 / 0.1);
+
+  /* Large text, 3:1 over the dark overlay's worst case. */
+  --hero-you-from: #fcd34d;
+  --hero-you-to: #fdba74;
+}
+
+/* The fixed background behind every page: photo, warm glows, then the
+   overlay. -z-10 in the root stacking context, so it paints above the body
+   colour (the canvas) and below all content. */
+.rp-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--backdrop-fallback-a);
+  background-image:
+    url('/img/hero-road.png'),
+    linear-gradient(135deg, var(--backdrop-fallback-a), var(--backdrop-fallback-b) 55%, var(--backdrop-fallback-c));
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.rp-backdrop::before,
+.rp-backdrop::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+}
+.rp-backdrop::before {
+  background:
+    radial-gradient(circle at 88% 12%, var(--backdrop-glow), transparent 42%),
+    radial-gradient(circle at 8% 92%, var(--backdrop-glow), transparent 38%);
+}
+.rp-backdrop::after {
+  background: linear-gradient(135deg, var(--backdrop-a), var(--backdrop-b) 50%, var(--backdrop-c));
+}
+
+@layer components {
+  .glass,
+  .glass-strong,
+  .glass-accent,
+  .glass-pill {
+    border: 1px solid var(--glass-line);
+    background-color: var(--glass-fallback);
+    box-shadow:
+      var(--glass-shadow),
+      inset 0 1px 0 var(--glass-highlight);
+    transition:
+      background-color 300ms var(--ease-out),
+      border-color 300ms var(--ease-out),
+      box-shadow 300ms var(--ease-out),
+      translate 300ms var(--ease-out);
+  }
+  .glass-accent {
+    border-color: var(--glass-accent-line);
+    box-shadow:
+      var(--glass-shadow),
+      inset 0 1px 0 var(--glass-highlight),
+      0 0 24px var(--glass-accent-glow);
+  }
+  .glass-pill {
+    border-radius: 9999px;
+  }
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass,
+    .glass-pill {
+      background-color: var(--glass-panel);
+      -webkit-backdrop-filter: blur(24px) saturate(150%);
+      backdrop-filter: blur(24px) saturate(150%);
+    }
+    .glass-strong {
+      background-color: var(--glass-panel-strong);
+      -webkit-backdrop-filter: blur(40px) saturate(150%);
+      backdrop-filter: blur(40px) saturate(150%);
+    }
+    .glass-accent {
+      background:
+        linear-gradient(var(--glass-accent-tint), var(--glass-accent-tint)),
+        var(--glass-accent-base);
+      -webkit-backdrop-filter: blur(24px) saturate(150%);
+      backdrop-filter: blur(24px) saturate(150%);
+    }
+    /* Phones: lighter blur for performance. */
+    @media (width < 64rem) {
+      .glass,
+      .glass-pill,
+      .glass-strong,
+      .glass-accent {
+        -webkit-backdrop-filter: blur(16px) saturate(150%);
+        backdrop-filter: blur(16px) saturate(150%);
+      }
+    }
+  }
+  /* Interactive glass: a slight lift and a brighter edge on hover. */
+  a.glass:hover,
+  a.glass-pill:hover,
+  button.glass-pill:hover,
+  .glass-lift:hover {
+    border-color: color-mix(in srgb, var(--glass-line) 40%, var(--shell-text));
+    translate: 0 -1px;
+  }
+
+  .glass-btn-accent {
+    border: 0;
+    background-color: var(--accent-to);
+    background-image: linear-gradient(180deg, var(--accent-from), var(--accent-to));
+    color: var(--accent-ink);
+    box-shadow: var(--accent-glow);
+    transition:
+      box-shadow 300ms var(--ease-out),
+      translate 300ms var(--ease-out),
+      filter 300ms var(--ease-out);
+  }
+  .glass-btn-accent:hover {
+    filter: brightness(1.06);
+    translate: 0 -1px;
+  }
+  .glass-btn-frost {
+    border: 1px solid rgb(255 255 255 / 0.6);
+    background-color: var(--frost-button);
+    color: var(--frost-button-ink);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    transition:
+      background-color 300ms var(--ease-out),
+      translate 300ms var(--ease-out);
+  }
+  .glass-btn-frost:hover {
+    background-color: rgb(255 255 255 / 0.9);
+    translate: 0 -1px;
+  }
+}
+
+/* Shell: the active rail item is orange-tinted glass with a glowing edge. */
+.rp-rail-active {
+  background: var(--glass-accent-tint);
+  box-shadow: inset 0 0 0 1px var(--glass-accent-line);
+}
+.rp-rail-active-bar {
+  background: var(--accent-from);
+  box-shadow: 0 0 10px 1px var(--accent-from);
+}
+/* Desktop top bar: clear over the hero, frosted once the page scrolls under it. */
+.rp-topbar {
+  border-color: transparent;
+  transition:
+    background-color 300ms var(--ease-out),
+    border-color 300ms var(--ease-out);
+}
+.rp-topbar[data-scrolled='true'] {
+  border-color: var(--glass-line);
+  background-color: var(--glass-fallback);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .rp-topbar[data-scrolled='true'] {
+    background-color: var(--glass-panel-strong);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    backdrop-filter: blur(24px) saturate(150%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass,
+  .glass-strong,
+  .glass-accent,
+  .glass-pill,
+  .glass-btn-accent,
+  .glass-btn-frost,
+  .rp-topbar {
+    transition: none;
+  }
+  a.glass:hover,
+  a.glass-pill:hover,
+  button.glass-pill:hover,
+  .glass-lift:hover,
+  .glass-btn-accent:hover,
+  .glass-btn-frost:hover {
+    translate: none;
+  }
+}
+
+/* Toasts (sonner): its own CSS fills a toast from --normal-bg, so point that at
+   the glass tokens: the solid fallback by default, glass-strong where
+   backdrop-filter works (the toast also carries .glass-strong for the blur).
+   Three parts in the selector beat sonner's two-part theme rule. */
+.toaster[data-sonner-toaster][data-sonner-theme] {
+  --normal-bg: var(--glass-fallback);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .toaster[data-sonner-toaster][data-sonner-theme] {
+    --normal-bg: var(--glass-panel-strong);
+  }
+}
+
+/* Keyboard focus ring for the glass overlay containers (menus, sub menus,
+   popovers, select lists, dialogs, sheets). They take focus when they open.
+   Radix sets `outline: none` as an inline style on menu and select content,
+   which only !important can beat, and the components also carry
+   outline-hidden / outline-none. So the ring is 2px solid --ring, drawn
+   INSIDE the edge (offset -2px) so it sits on the glass panel itself: 3:1 or
+   better against the strong panel in both themes (tested in
+   glass-redesign.test.ts). :focus-visible only, so a mouse click shows none. */
+[data-slot='dropdown-menu-content'][data-open-source='keyboard']:focus-visible,
+[data-slot='dropdown-menu-sub-content']:focus-visible,
+[data-slot='popover-content']:focus-visible,
+[data-slot='select-content']:focus-visible,
+[data-slot='dialog-content']:focus-visible,
+[data-slot='sheet-content']:focus-visible {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: -2px !important;
+}
+/* A menu opened with the keyboard focuses its first item, not the container,
+   so that is where its ring goes: the same 2px --ring, inside the item. Not
+   for pointer opens, where Edge still reports :focus-visible on every item the
+   mouse passes over (Radix focuses it). */
+[data-slot='dropdown-menu-content'][data-open-source='keyboard']
+  :is(
+    [data-slot='dropdown-menu-item'],
+    [data-slot='dropdown-menu-checkbox-item'],
+    [data-slot='dropdown-menu-radio-item'],
+    [data-slot='dropdown-menu-sub-trigger']
+  ):focus-visible {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: -2px !important;
+}
+/* Light theme: the global :focus-visible rule also adds a 5px orange shadow,
+   which replaces the container's glass shadow. Keep the glass shadow. */
+:root:not(.dark) [data-slot='dropdown-menu-content']:focus-visible,
+:root:not(.dark) [data-slot='dropdown-menu-sub-content']:focus-visible,
+:root:not(.dark) [data-slot='popover-content']:focus-visible,
+:root:not(.dark) [data-slot='select-content']:focus-visible,
+:root:not(.dark) [data-slot='dialog-content']:focus-visible,
+:root:not(.dark) [data-slot='sheet-content']:focus-visible {
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 var(--glass-highlight);
 }

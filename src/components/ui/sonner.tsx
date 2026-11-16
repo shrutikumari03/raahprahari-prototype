@@ -20,6 +20,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       mobileOffset={72}
       duration={4000}
       className="toaster group"
+      // Each toast is a glass-strong surface (blur, edge). Sonner's own CSS
+      // sets the fill from --normal-bg, which styles.css points at the glass
+      // tokens (solid fallback without backdrop-filter support).
+      toastOptions={{ classNames: { toast: 'glass-strong' } }}
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,
@@ -29,10 +33,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          '--normal-bg': 'var(--popover)',
           '--normal-text': 'var(--popover-foreground)',
-          '--normal-border': 'var(--border)',
-          '--border-radius': 'var(--radius)',
+          '--normal-border': 'var(--glass-line)',
+          '--border-radius': '1rem',
         } as React.CSSProperties
       }
       {...props}

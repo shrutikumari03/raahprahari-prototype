@@ -19,12 +19,31 @@ function DropdownMenuPortal({
   )
 }
 
+/**
+ * How the menu that is about to open was triggered. Radix stops a pointer
+ * press from focusing the trigger and then focuses the menu itself from
+ * <body>, and Edge and Chrome report :focus-visible for that, so a mouse click
+ * would draw the keyboard focus ring (see styles.css). The content records this
+ * as data-open-source, and the ring rules only apply to keyboard opens.
+ */
+let lastOpenSource: 'pointer' | 'keyboard' = 'keyboard'
+
 function DropdownMenuTrigger({
+  onPointerDown,
+  onKeyDown,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
   return (
     <DropdownMenuPrimitive.Trigger
       data-slot="dropdown-menu-trigger"
+      onPointerDown={(event) => {
+        lastOpenSource = 'pointer'
+        onPointerDown?.(event)
+      }}
+      onKeyDown={(event) => {
+        lastOpenSource = 'keyboard'
+        onKeyDown?.(event)
+      }}
       {...props}
     />
   )
@@ -33,15 +52,29 @@ function DropdownMenuTrigger({
 function DropdownMenuContent({
   className,
   sideOffset = 4,
+  ref,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+  // This wrapper stays mounted while the menu is closed; Radix mounts the menu
+  // element on every open. A ref callback runs when that element mounts, before
+  // Radix moves focus into it, so the source is recorded per open, before
+  // :focus-visible is evaluated. The caller's own ref is passed on.
+  const setRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) node.dataset.openSource = lastOpenSource
+      if (typeof ref === 'function') ref(node)
+      else if (ref) (ref as React.RefObject<HTMLDivElement | null>).current = node
+    },
+    [ref],
+  )
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
+        ref={setRef}
         sideOffset={sideOffset}
         className={cn(
-          'z-(--z-popover) max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+          'z-(--z-popover) max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-2xl glass-strong p-1 text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
           className,
         )}
         {...props}
@@ -169,7 +202,7 @@ function DropdownMenuSeparator({
   return (
     <DropdownMenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
-      className={cn('-mx-1 my-1 h-px bg-border', className)}
+      className={cn('-mx-1 my-1 h-px bg-(--glass-divider)', className)}
       {...props}
     />
   )
@@ -230,7 +263,7 @@ function DropdownMenuSubContent({
       <DropdownMenuPrimitive.SubContent
         data-slot="dropdown-menu-sub-content"
         className={cn(
-          'z-(--z-popover) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+          'z-(--z-popover) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-2xl glass-strong p-1 text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
           className,
         )}
         {...props}

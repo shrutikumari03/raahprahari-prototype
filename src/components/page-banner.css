@@ -1,15 +1,30 @@
+/* No fill of its own: the shell's main supplies the page colour for now, and
+   the app backdrop shows through once the pages are redesigned. */
 .rp-info-page {
   min-height: calc(100svh - var(--rp-top-h));
   min-width: 0;
   overflow-x: clip;
   color: var(--foreground);
-  background: var(--background);
 }
 
-.dark .rp-info-page {
-  background:
-    radial-gradient(ellipse at 82% 55%, color-mix(in srgb, var(--tone-0a2f3e) 28%, transparent), transparent 42%),
-    var(--background);
+/* Error pages: the backdrop photo behind a centred glass card. The shell's
+   main is still solid, so the photo is drawn here with the same tokens as
+   .rp-backdrop (overlay over the photo over the fallback gradient). */
+.rp-error-page {
+  display: grid;
+  place-items: center;
+  min-height: calc(100svh - var(--rp-top-h));
+  padding: 1.5rem;
+  background-color: var(--backdrop-fallback-a);
+  background-image:
+    linear-gradient(135deg, var(--backdrop-a), var(--backdrop-b) 50%, var(--backdrop-c)),
+    radial-gradient(circle at 88% 12%, var(--backdrop-glow), transparent 42%),
+    radial-gradient(circle at 8% 92%, var(--backdrop-glow), transparent 38%),
+    url('/img/hero-road.png'),
+    linear-gradient(135deg, var(--backdrop-fallback-a), var(--backdrop-fallback-b) 55%, var(--backdrop-fallback-c));
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 /* Same edges as the header's .rp-container (1.25rem / 2rem / 3rem gutters, 90rem cap). */
@@ -34,7 +49,8 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border-bottom: 1px solid color-mix(in srgb, var(--tone-91aebd) 20%, transparent);
+  /* The glass panel floats over the photo with room around it. */
+  padding-block: 1.25rem;
   background:
     linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 58%, var(--photo-scrim-c)),
     url("/img/banner-strip.png") center 53% / cover;
@@ -45,15 +61,17 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-block: 1.75rem;
+  padding: 1.75rem clamp(1.25rem, 3vw, 2rem);
 }
 
+/* Text on the glass panel is --foreground only: the photo scrim fades to 40%
+   (dark) and 10% (light) on the far side, where muted text would not keep AA. */
 .rp-info-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
   margin: 0 0 0.65rem;
-  color: var(--tone-d7ecff);
+  color: var(--foreground);
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -62,13 +80,13 @@
 .rp-info-eyebrow span {
   width: 1.75rem;
   height: 2px;
-  background: var(--tone-eb5b38);
+  background: var(--brand-orange);
 }
 
 .rp-info-banner h1 {
   max-width: 44rem;
   margin: 0;
-  color: var(--tone-f0eee8);
+  color: var(--foreground);
   font-family: var(--font-heading);
   font-size: clamp(2rem, 4vw, 2.85rem);
   font-weight: 700;
@@ -78,7 +96,7 @@
 .rp-info-banner-description {
   max-width: 48rem;
   margin: 0.75rem 0 0;
-  color: var(--tone-d1dce2);
+  color: var(--foreground);
   font-size: 0.95rem;
   line-height: 1.55;
 }
@@ -89,10 +107,14 @@
 
 .rp-info-card {
   min-width: 0;
-  border: 1px solid var(--border);
   border-radius: 1rem;
-  background: var(--card);
   padding: clamp(1rem, 3vw, 1.4rem);
+}
+/* A card that carries .glass takes its fill, edge and shadow from the glass
+   utility; the pages that have not been redesigned yet keep the solid card. */
+.rp-info-card:not(.glass) {
+  border: 1px solid var(--border);
+  background: var(--card);
 }
 
 .rp-info-card h2 {
@@ -237,12 +259,9 @@
 
 .rp-info-eyebrow {
   width: fit-content;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--tone-07151f) 55%, transparent);
-  padding: 0.3rem 0.8rem 0.3rem 0.55rem;
 }
 
-.rp-info-card {
+.rp-info-card:not(.glass) {
   box-shadow:
     0 1px 2px color-mix(in srgb, var(--tone-shadow) 12%, transparent),
     0 10px 28px -14px color-mix(in srgb, var(--tone-shadow) 35%, transparent);

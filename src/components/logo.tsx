@@ -39,7 +39,9 @@ function ThemedImages({ imgClassName }: { imgClassName: string }) {
 }
 
 type LogoProps = {
-  variant?: 'header' | 'mark' | 'full'
+  /** `crest`: a small window onto the top of the same files (mountains and road),
+      for the shell where the full lockup's text would be too small to read. */
+  variant?: 'header' | 'mark' | 'full' | 'crest'
   className?: string
   /** Height utility for the header variant. 36px in the header and the menu. */
   heightClassName?: string
@@ -61,6 +63,21 @@ export function Logo({ variant = 'header', className, heightClassName = 'h-9', d
     )
   }
 
+  if (variant === 'crest') {
+    // The asset is not redrawn or edited: a 48x28 box shows the top half of the
+    // image at 56px tall (the peaks and road), above its wordmark and tagline.
+    return (
+      <span
+        role={decorative ? undefined : 'img'}
+        aria-label={decorative ? undefined : LOGO_ALT}
+        aria-hidden={decorative ? true : undefined}
+        data-logo-variant="crest"
+        className={cn('relative inline-block h-7 w-12 shrink-0 overflow-hidden', className)}
+      >
+        <ThemedImages imgClassName="absolute top-0 left-1/2 h-14 w-auto max-w-none -translate-x-1/2" />
+      </span>
+    )
+  }
   const imgClassName = variant === 'mark' ? 'h-10 w-auto' : 'h-auto w-full'
   return (
     <span

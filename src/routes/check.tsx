@@ -250,7 +250,7 @@ function CheckPage() {
                 <SegmentList segments={filteredSegments} grouped={!journey} selectedId={search.seg} onSelect={selectSeg} />
               )}
             </div>
-            <div ref={detailRef} className="scroll-mt-24 xl:sticky xl:top-4 xl:self-start">
+            <div ref={detailRef} className="scroll-mt-24 xl:sticky xl:top-[calc(var(--shell-bar-height)+1rem)] xl:self-start">
               <SegmentDetail segmentId={search.seg} onClose={search.seg ? () => selectSeg(undefined) : undefined} />
             </div>
           </div>

@@ -24,32 +24,38 @@ const STATE_DISPLAY: Record<
     icon: CircleCheck,
     label: "status.state.configured",
     help: "status.stateHelp.configured",
-    className: "border-status-clear text-status-clear",
+    className: "border-status-clear [&>svg]:text-status-clear",
   },
   simulated: {
     icon: FlaskConical,
     label: "status.state.simulated",
     help: "status.stateHelp.simulated",
-    className: "border-status-caution text-status-caution",
+    className: "border-status-caution [&>svg]:text-status-caution",
   },
   unavailable: {
     icon: CircleSlash,
     label: "status.state.unavailable",
     help: "status.stateHelp.unavailable",
-    className: "border-status-dnt text-status-dnt",
+    className: "border-status-dnt [&>svg]:text-status-dnt",
   },
   checking: {
     icon: LoaderCircle,
     label: "status.state.checking",
     help: null,
-    className: "border-status-unknown text-status-unknown",
+    className: "border-status-unknown [&>svg]:text-status-unknown",
   },
 };
 
+/**
+ * The channel line is --foreground text with a status-coloured edge. The
+ * sentence itself names the state; the colour only repeats it. (Status
+ * colours as text colour do not keep AA on glass: do-not-travel red reaches
+ * 3.3:1 on the dark glass.)
+ */
 const TONE_CLASS: Record<ChannelTone, string> = {
-  ok: "text-status-clear",
-  warn: "text-status-caution",
-  bad: "text-status-dnt",
+  ok: "border-l-4 border-status-clear pl-2 text-foreground",
+  warn: "border-l-4 border-status-caution pl-2 text-foreground",
+  bad: "border-l-4 border-status-dnt pl-2 text-foreground",
   neutral: "text-muted-foreground",
 };
 
@@ -67,7 +73,7 @@ function StateBadge({ state }: { state: IntegrationState }) {
       data-testid="integration-state"
       data-state={state}
       className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 rounded-md border bg-background/70 px-2 py-0.5 text-xs font-semibold",
+        "glass-pill inline-flex shrink-0 items-center gap-1.5 border px-2 py-0.5 text-xs font-semibold text-foreground shadow-none",
         className,
       )}
     >
@@ -89,14 +95,14 @@ function IntegrationRow({ item }: { item: IntegrationStatus }) {
   return (
     <li
       data-testid={`integration-${item.id}`}
-      className="rp-info-card list-none"
+      className="rp-info-card glass list-none"
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h2>{t(item.name)}</h2>
         <StateBadge state={item.state} />
       </div>
       <p>{t(item.reason)}</p>
-      <div className="mt-3 border-t border-border pt-3 text-sm">
+      <div className="mt-3 border-t border-(--glass-divider) pt-3 text-sm">
         <p className="m-0! text-xs font-semibold text-muted-foreground">
           {t("status.channelLabel")}
         </p>
@@ -140,7 +146,7 @@ export function SystemStatusView({ items }: { items: IntegrationStatus[] }) {
           return (
             <div
               key={state}
-              className="flex min-w-0 flex-col items-start gap-1.5 rounded-lg border border-border bg-card/60 p-3"
+              className="glass flex min-w-0 flex-col items-start gap-1.5 rounded-2xl p-3"
             >
               <StateBadge state={state} />
               {help ? (

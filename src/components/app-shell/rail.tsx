@@ -1,6 +1,12 @@
 import type { MouseEvent, ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronsLeft, ChevronsRight, Settings, UserRound } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronsLeft,
+  ChevronsRight,
+  Settings,
+  UserRound,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -48,19 +54,19 @@ function RailItem({
         if (item.requiresSignIn && onGuard(item.to)) event.preventDefault();
       }}
       className={cn(
-        "rp-shell-transition relative flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium",
+        "rp-shell-transition relative flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium",
         collapsed && "justify-center px-0",
         active
-          ? "bg-shell-surface text-shell-text"
-          : "text-shell-muted hover:bg-shell-surface hover:text-shell-text",
+          ? "rp-rail-active text-shell-text"
+          : "text-shell-muted hover:bg-(--glass-hover) hover:text-shell-text",
       )}
     >
-      {/* 2px edge bar marks the active item. */}
+      {/* Glowing orange edge marks the active item (with the tinted fill). */}
       {active ? (
         <span
           aria-hidden
           data-testid="rail-active-bar"
-          className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-shell-active-bar"
+          className="rp-rail-active-bar absolute inset-y-2 left-0 w-0.5 rounded-full"
         />
       ) : null}
       <Icon aria-hidden className="size-5 shrink-0" />
@@ -109,19 +115,25 @@ export function Rail({
     <button
       type="button"
       aria-label={t("shell.accountMenu")}
+      // Profile row: a glass pill with the avatar, name and a chevron.
       className={cn(
-        "rp-shell-transition flex min-h-11 w-full items-center gap-3 rounded-md px-2 text-left text-sm text-shell-text hover:bg-shell-surface",
+        "glass-pill flex min-h-11 w-full items-center gap-3 px-1.5 text-left text-sm text-shell-text",
         collapsed && "justify-center px-0",
       )}
     >
       <span
         aria-hidden
-        className="grid size-8 shrink-0 place-items-center rounded-full bg-shell-raised font-semibold"
+        className="grid size-8 shrink-0 place-items-center rounded-full bg-(--glass-hover) font-semibold"
       >
         {initial}
       </span>
       {collapsed ? null : (
-        <span className="min-w-0 truncate">{name || t("nav.account")}</span>
+        <>
+          <span className="min-w-0 flex-1 truncate">
+            {name || t("nav.account")}
+          </span>
+          <ChevronDown aria-hidden className="mr-1.5 size-4 shrink-0 text-shell-muted" />
+        </>
       )}
     </button>
   );
@@ -131,14 +143,22 @@ export function Rail({
       aria-label={t("nav.primary")}
       data-testid="shell-rail"
       data-collapsed={collapsed}
+      // A floating glass panel: inset 16px from the viewport edges inside a
+      // sticky full-height column (the column is 2rem wider than the panel).
       className={cn(
-        "rp-shell rp-shell-transition sticky top-0 hidden h-svh shrink-0 flex-col border-r border-shell-divider bg-shell-bg text-shell-text lg:flex",
-        collapsed ? "w-(--shell-rail-collapsed)" : "w-(--shell-rail-expanded)",
+        "rp-shell rp-shell-transition sticky top-0 hidden h-svh shrink-0 p-4 text-shell-text lg:flex",
+        collapsed
+          ? "w-[calc(var(--shell-rail-collapsed)+2rem)]"
+          : "w-[calc(var(--shell-rail-expanded)+2rem)]",
       )}
     >
       <div
+        data-testid="shell-rail-panel"
+        className="glass-strong flex min-h-0 w-full flex-col overflow-hidden rounded-3xl"
+      >
+      <div
         className={cn(
-          "flex h-14 items-center border-b border-shell-divider px-3",
+          "flex h-14 items-center border-b border-(--glass-divider) px-3",
           collapsed && "justify-center px-0",
         )}
       >
@@ -158,7 +178,7 @@ export function Rail({
         ))}
       </ul>
 
-      <div className="flex flex-col gap-2 border-t border-shell-divider p-2">
+      <div className="flex flex-col gap-2 border-t border-(--glass-divider) p-2">
         <Button
           type="button"
           variant="ghost"
@@ -196,7 +216,7 @@ export function Rail({
               aria-label={collapsed ? t("nav.login") : undefined}
               onClick={onOpenLogin}
               className={cn(
-                "min-h-11 w-full gap-2 border-shell-divider text-shell-text",
+                "min-h-11 w-full gap-2 rounded-xl border-(--glass-line) bg-transparent text-shell-text hover:bg-(--glass-hover) dark:bg-transparent dark:hover:bg-(--glass-hover)",
                 collapsed && "w-11 px-0",
               )}
             >
@@ -219,7 +239,7 @@ export function Rail({
                     className={cn(
                       "rp-shell-transition min-h-11 min-w-11 rounded-md px-2 text-sm font-medium",
                       lang === language
-                        ? "bg-shell-surface text-shell-text"
+                        ? "bg-(--glass-hover) text-shell-text"
                         : "text-shell-muted hover:text-shell-text",
                     )}
                   >
@@ -246,6 +266,7 @@ export function Rail({
             </div>
           </div>
         )}
+      </div>
       </div>
     </nav>
   );

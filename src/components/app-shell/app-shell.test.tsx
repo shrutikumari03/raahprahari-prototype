@@ -117,6 +117,17 @@ describe("active item", () => {
     ).toBeInTheDocument();
   });
 
+  it("marks the current bottom tab with a bar and weight as well as aria-current", () => {
+    route.pathname = "/map";
+    mount();
+    const bars = within(tabs()).getAllByTestId("tab-active-bar");
+    expect(bars).toHaveLength(1);
+    const link = bars[0].closest("a")!;
+    expect(link).toHaveAttribute("aria-current", "page");
+    expect(link).toHaveTextContent("Map");
+    expect(link).toHaveClass("font-semibold", "text-shell-text");
+  });
+
   it("marks the current bottom tab, including the centre report action", () => {
     route.pathname = "/report/review";
     mount();

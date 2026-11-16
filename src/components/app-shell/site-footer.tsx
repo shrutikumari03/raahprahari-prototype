@@ -20,7 +20,9 @@ export function SiteFooter() {
   const signedIn = useAccountSession().status === "authenticated";
   const items = FOOTER_LINKS.filter(([, to]) => to !== "/reports" || signedIn);
   return (
-    <footer data-reveal className="border-t border-border bg-card/40">
+    // A glass strip along the bottom: frosted over the backdrop photo, with the
+    // glass edge on top only (it runs edge to edge, so no side borders).
+    <footer data-reveal className="glass rounded-t-3xl border-x-0 border-b-0">
       <div className="rp-container flex flex-col gap-6 py-10 md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm space-y-3">
           <Logo />

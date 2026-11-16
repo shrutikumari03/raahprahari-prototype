@@ -6,6 +6,7 @@ import {
 } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ChevronDown, Search, TriangleAlert, UserRound } from "lucide-react";
+import { useScrolled } from "@/components/motion";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,7 +32,7 @@ function ReportButton({ className }: { className?: string }) {
     <Button
       asChild
       variant="report"
-      className={cn("min-h-11 gap-2 rounded-md px-4 font-semibold", className)}
+      className={cn("min-h-11 gap-2 rounded-xl px-4 font-semibold", className)}
     >
       <Link to="/report" search={{ segment: undefined }}>
         <TriangleAlert aria-hidden />
@@ -54,6 +55,8 @@ export function DesktopTopBar({
   const { t } = usePrefs();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  // Clear over the page at the top; frosted glass once content scrolls under it.
+  const scrolled = useScrolled(4);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -74,20 +77,24 @@ export function DesktopTopBar({
   return (
     <header
       data-testid="shell-topbar"
-      className="rp-shell flex h-14 shrink-0 items-center gap-3 border-b border-shell-divider bg-shell-bg px-4 text-shell-text max-lg:hidden"
+      // Sticky from 1024px so page content scrolls under the glass. Its
+      // height is --shell-bar-height; sticky page panels sit below it.
+      data-scrolled={scrolled}
+      className="rp-shell rp-topbar sticky top-0 z-(--z-header) flex h-14 shrink-0 items-center gap-3 border-b px-4 text-shell-text max-lg:hidden"
     >
       {showSearch ? (
         <form
           role="search"
           onSubmit={submit}
-          className="relative w-full max-w-md"
+          className="relative w-full max-w-xl"
         >
           <label htmlFor="shell-search" className="sr-only">
             {t("shell.search")}
           </label>
           <Search
             aria-hidden
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-shell-muted"
+            // The glass input (backdrop-filter) paints its own layer, so the icon sits above it.
+            className="pointer-events-none absolute top-1/2 left-3 z-(--z-content) size-4 -translate-y-1/2 text-shell-muted"
           />
           <input
             id="shell-search"
@@ -97,7 +104,7 @@ export function DesktopTopBar({
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t("shell.search")}
             aria-keyshortcuts="Control+K Meta+K"
-            className="h-11 w-full rounded-md border border-shell-divider bg-shell-surface pr-3 pl-9 text-sm text-shell-text placeholder:text-shell-muted"
+            className="glass h-11 w-full rounded-2xl pr-3 pl-9 text-sm text-shell-text placeholder:text-shell-muted"
           />
         </form>
       ) : null}
@@ -133,7 +140,9 @@ export function MobileTopBar({
   return (
     <header
       data-testid="shell-mobilebar"
-      className="rp-shell flex h-14 shrink-0 items-center gap-1 border-b border-shell-divider bg-shell-bg px-3 text-shell-text lg:hidden"
+      // Clear over the backdrop photo: the logo, wordmark and controls sit on
+      // it directly (they use --shell-text, which passes on the overlay).
+      className="rp-shell flex h-14 shrink-0 items-center gap-1 px-3 text-shell-text lg:hidden"
     >
       {/* At 360px the controls on the right need about 200px, so the logo is
           the part that gives way: the wordmark is smaller below 640px, hidden
@@ -181,7 +190,7 @@ export function MobileTopBar({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="rp-shell border-shell-divider bg-shell-surface text-shell-text"
+          className="rp-shell text-shell-text"
         >
           <DropdownMenuRadioGroup
             value={lang}
@@ -255,7 +264,7 @@ export function BottomTabs({
     <nav
       aria-label={t("nav.primary")}
       data-testid="shell-tabs"
-      className="rp-shell fixed inset-x-0 bottom-0 z-(--z-bottom-nav) border-t border-shell-divider bg-shell-bg pb-[env(safe-area-inset-bottom)] text-shell-text lg:hidden"
+      className="rp-shell glass-strong fixed inset-x-0 bottom-0 z-(--z-bottom-nav) rounded-t-3xl border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)] text-shell-text lg:hidden"
     >
       <ul className="m-0 flex h-16 list-none items-end justify-around p-0 px-1">
         {TAB_NAV.map((item) => {
@@ -286,11 +295,21 @@ export function BottomTabs({
                   if (item.requiresSignIn && onGuard(item.to))
                     event.preventDefault();
                 }}
+                // Every label uses --shell-text: on glass over any page content
+                // the muted grey would drop below AA. The current tab is shown
+                // by a 2px bar and semibold text, not by colour alone.
                 className={cn(
-                  "rp-shell-transition flex min-h-14 min-w-11 flex-col items-center justify-center gap-0.5 text-xs font-medium",
-                  isActive ? "text-shell-text" : "text-shell-muted",
+                  "rp-shell-transition relative flex min-h-14 min-w-11 flex-col items-center justify-center gap-0.5 text-xs text-shell-text",
+                  isActive ? "font-semibold" : "font-medium",
                 )}
               >
+                {isActive ? (
+                  <span
+                    aria-hidden
+                    data-testid="tab-active-bar"
+                    className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-shell-active-bar"
+                  />
+                ) : null}
                 <Icon aria-hidden className="size-5" />
                 <span>{label}</span>
               </Link>

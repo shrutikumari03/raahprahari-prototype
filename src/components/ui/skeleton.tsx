@@ -6,7 +6,7 @@ function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="skeleton"
       aria-hidden
-      className={cn('rp-shimmer rounded-md bg-accent', className)}
+      className={cn('rp-shimmer rounded-md bg-(--glass-divider)', className)}
       {...props}
     />
   )
@@ -18,7 +18,7 @@ function SkeletonCard({ className }: { className?: string }) {
     <div
       data-slot="skeleton-card"
       aria-hidden
-      className={cn('grid gap-3 rounded-xl border border-border bg-card p-4', className)}
+      className={cn('glass grid gap-3 rounded-2xl p-4', className)}
     >
       <div className="flex items-start justify-between gap-3">
         <Skeleton className="h-4 w-1/2" />

@@ -222,7 +222,7 @@ export function ReviewQueueView({
                       "min-w-8 rounded-full px-2.5 py-0.5 text-center font-mono text-sm",
                       active
                         ? "bg-brand-orange text-report-foreground"
-                        : "bg-muted text-foreground",
+                        : "glass-pill text-foreground",
                     )}
                   >
                     {counts[name]}

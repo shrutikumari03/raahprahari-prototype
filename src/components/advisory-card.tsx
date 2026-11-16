@@ -58,7 +58,7 @@ export function AdvisoryCard({
       <article
         data-level={level}
         className={cn(
-          "rp-card rp-enter rp-status-card rounded-xl border border-border bg-card",
+          "rp-card rp-enter rp-status-card glass rounded-xl",
           className,
         )}
       >
@@ -164,7 +164,7 @@ export function AdvisoryCard({
     <article
       data-level={advisory.level}
       className={cn(
-        "rp-card rp-enter rp-status-card rounded-xl border border-border bg-card",
+        "rp-card rp-enter rp-status-card glass rounded-xl",
         className,
       )}
     >
@@ -196,9 +196,7 @@ export function AdvisoryCard({
           </p>
         )}
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <FreshnessChip
-            observationTimestamp={advisory.latestObservationAt}
-          />
+          <FreshnessChip observationTimestamp={advisory.latestObservationAt} />
           <CacheTimeLabel timestamp={cacheTimestamp} />
           {advisory.restriction && (
             <OfficialBadge label={t("map.restriction")} />
@@ -206,7 +204,10 @@ export function AdvisoryCard({
           <span className="text-xs text-muted-foreground">
             {sources.length ? sources.join(" · ") : t("source.unknown")}
           </span>
-          <ArrowRight aria-hidden className="rp-arrow ml-auto size-4 text-link" />
+          <ArrowRight
+            aria-hidden
+            className="rp-arrow ml-auto size-4 text-link"
+          />
         </div>
       </Link>
     </article>

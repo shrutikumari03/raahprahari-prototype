@@ -358,7 +358,7 @@ function SegmentOverview({ segment }: { segment: Segment }) {
                 </Button>
                 <Button
                   asChild
-                  className="bg-brand-orange text-[#111719] hover:bg-brand-orange/90"
+                  className="bg-brand-orange text-report-foreground hover:bg-brand-orange/90"
                 >
                   <Link to="/report" search={{ segment: segment.id }}>
                     <TriangleAlert aria-hidden />
@@ -750,7 +750,7 @@ function HazardDetail({
             </Button>
             <Button
               asChild
-              className="bg-brand-orange text-[#111719] hover:bg-brand-orange/90"
+              className="bg-brand-orange text-report-foreground hover:bg-brand-orange/90"
             >
               <Link to="/report" search={{ segment: segment.id }}>
                 <TriangleAlert aria-hidden /> Report an update

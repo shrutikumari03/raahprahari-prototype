@@ -1130,7 +1130,7 @@ export function ReportStepPage({
                       >
                         <span
                           aria-hidden
-                          className="flex size-11 items-center justify-center rounded-full bg-muted text-foreground"
+                          className="glass-pill flex size-11 items-center justify-center rounded-full text-foreground"
                         >
                           <ImagePlus className="size-5" />
                         </span>

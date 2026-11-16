@@ -28,7 +28,7 @@ const ERROR_KEYS: Record<AiErrorKind, TranslationKey> = {
 };
 
 const selectClass =
-  "h-11 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+  "glass h-11 min-w-0 flex-1 rounded-md border border-input px-3 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 function SuggestionPanel({
   suggestions,

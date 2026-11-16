@@ -171,7 +171,7 @@ function MapPage() {
         <div className="rp-map-main">
           {view === "map" && <h1 className="sr-only">Live road map</h1>}
           {mapFailed && (
-            <p className="rp-map-fallback-notice" role="status">
+            <p className="rp-map-fallback-notice glass-strong" role="status">
               The map tiles could not be loaded. Showing the road list instead.
             </p>
           )}
@@ -236,7 +236,7 @@ function MapPage() {
                       >
                         <button
                           type="button"
-                          className="rp-map-list-select"
+                          className="rp-map-list-select glass"
                           aria-pressed={segment.id === selectedSegmentId}
                           onClick={() => selectSegment(segment.id)}
                         >

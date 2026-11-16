@@ -646,7 +646,7 @@ function MapReportRow({
       : "Community condition report";
 
   return (
-    <li className="rp-map-report-row">
+    <li className="rp-map-report-row glass">
       <div className="rp-map-report-icon">
         {level === "unknown" ? (
           <CircleQuestionMark aria-hidden />

@@ -1,5 +1,4 @@
-/* No fill of its own: the shell's main supplies the page colour for now, and
-   the app backdrop shows through once the pages are redesigned. */
+/* No fill of its own: the fixed app backdrop shows through the page. */
 .rp-info-page {
   min-height: calc(100svh - var(--rp-top-h));
   min-width: 0;
@@ -7,34 +6,12 @@
   color: var(--foreground);
 }
 
-/* Error pages: the backdrop photo behind a centred glass card. The shell's
-   main is still solid, so the photo is drawn here with the same tokens as
-   .rp-backdrop (overlay over the photo over the fallback gradient). */
+/* Error pages: centre a glass card over the shared app backdrop. */
 .rp-error-page {
   display: grid;
   place-items: center;
   min-height: calc(100svh - var(--rp-top-h));
   padding: 1.5rem;
-  background-color: var(--backdrop-fallback-a);
-  background-image:
-    linear-gradient(
-      135deg,
-      var(--backdrop-a),
-      var(--backdrop-b) 50%,
-      var(--backdrop-c)
-    ),
-    radial-gradient(circle at 88% 12%, var(--backdrop-glow), transparent 42%),
-    radial-gradient(circle at 8% 92%, var(--backdrop-glow), transparent 38%),
-    url("/img/hero-road.png"),
-    linear-gradient(
-      135deg,
-      var(--backdrop-fallback-a),
-      var(--backdrop-fallback-b) 55%,
-      var(--backdrop-fallback-c)
-    );
-  background-position: center;
-  background-size: cover;
-  background-attachment: fixed;
 }
 
 /* Same edges as the header's .rp-container (1.25rem / 2rem / 3rem gutters, 90rem cap). */

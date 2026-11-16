@@ -69,27 +69,6 @@ export function AppShell({
 
   const hideSearch = shellSearchHidden(pathname);
   const isMap = pathname === "/map";
-  const isHome = pathname === "/";
-  const isGlassPage =
-    isMap ||
-    pathname === "/traveller" ||
-    pathname === "/advisories" ||
-    pathname.startsWith("/advisories/") ||
-    pathname === "/reports" ||
-    pathname.startsWith("/reports/") ||
-    pathname === "/report" ||
-    pathname.startsWith("/report/") ||
-    pathname === "/check" ||
-    pathname === "/help" ||
-    pathname.startsWith("/help/") ||
-    pathname === "/about" ||
-    pathname === "/contact" ||
-    pathname === "/profile" ||
-    pathname === "/contributions" ||
-    pathname === "/review" ||
-    pathname.startsWith("/review/") ||
-    pathname === "/official" ||
-    pathname.startsWith("/auth/");
 
   const openPalette = useCallback(() => {
     if (document.activeElement instanceof HTMLElement)
@@ -158,10 +137,6 @@ export function AppShell({
           aria-busy="true"
           className={cn(
             "min-w-0 flex-1 text-foreground",
-            // Glass redesign, phase by phase: Home shows the backdrop photo;
-            // pages not yet redesigned keep their solid background, so their
-            // muted text never sits on the photo.
-            !isHome && !isGlassPage && "bg-background",
             isMap && "dark",
             isMap && "rp-shell-map flex min-h-0 flex-col",
           )}

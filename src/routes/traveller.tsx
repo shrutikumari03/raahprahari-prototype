@@ -329,6 +329,7 @@ function TravellerPage() {
         <Search aria-hidden className="traveller-query-icon" />
         <input
           ref={inputRef}
+          className="glass"
           id="traveller-query"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
@@ -469,7 +470,7 @@ function TravellerPage() {
               key={key}
               aria-pressed={filter === key}
               className={cn(
-                "traveller-filter-chip glass",
+                "traveller-filter-chip glass-pill",
                 filter === key && "is-active",
               )}
               onClick={() => setFilter(key)}

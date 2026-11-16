@@ -97,11 +97,19 @@
   align-self: stretch;
   overflow: hidden;
   background-image:
-    linear-gradient(90deg, color-mix(in srgb, var(--tone-05141d) 52%, transparent), color-mix(in srgb, var(--tone-05141d) 14%, transparent)),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--tone-05141d) 52%, transparent),
+      color-mix(in srgb, var(--tone-05141d) 14%, transparent)
+    ),
     url("/img/map-terrain.png");
   background-position: center;
   background-size: cover;
-  mask-image: radial-gradient(ellipse at center, var(--tone-mask-opaque) 28%, transparent 78%);
+  mask-image: radial-gradient(
+    ellipse at center,
+    var(--tone-mask-opaque) 28%,
+    transparent 78%
+  );
 }
 
 .home-route::after {
@@ -135,7 +143,8 @@
   height: 2px;
   border-radius: 999px;
   background: var(--tone-36adff);
-  box-shadow: 0 0 4px 1px color-mix(in srgb, var(--tone-1796ff) 45%, transparent);
+  box-shadow: 0 0 4px 1px
+    color-mix(in srgb, var(--tone-1796ff) 45%, transparent);
   transform-origin: left center;
 }
 
@@ -173,7 +182,9 @@
   flex: none;
   color: var(--tone-31a8ff);
   fill: color-mix(in srgb, var(--tone-0b6db4) 45%, transparent);
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--tone-239eff) 50%, transparent));
+  filter: drop-shadow(
+    0 0 2px color-mix(in srgb, var(--tone-239eff) 50%, transparent)
+  );
 }
 
 .home-route-pin-one {
@@ -261,7 +272,8 @@
   position: relative;
   min-height: 3.45rem;
   padding: 0.6rem 0 0.55rem 2.2rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--tone-9eb4be) 18%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--tone-9eb4be) 18%, transparent);
   font-size: 0.75rem;
   line-height: 1.4;
 }
@@ -519,7 +531,7 @@
     padding: 0.65rem 1.25rem 2.75rem;
     grid-template-columns: 1fr;
     gap: 0;
-    background: color-mix(in srgb, var(--tone-020c12) 60%, transparent);
+    background: transparent;
   }
 
   .home-features li,
@@ -529,7 +541,8 @@
   }
 
   .home-features li + li {
-    border-top: 1px solid color-mix(in srgb, var(--tone-e6e4dc) 24%, transparent);
+    border-top: 1px solid
+      color-mix(in srgb, var(--tone-e6e4dc) 24%, transparent);
     border-left: 0;
   }
 
@@ -744,39 +757,39 @@
    the page width beside the rail (as for every home layout step); height is
    still the viewport's. */
 @media (max-height: 900px) {
-@container home (min-width: 1024px) {
-  /* The feature strip is absolutely placed at the bottom, so this padding is
+  @container home (min-width: 1024px) {
+    /* The feature strip is absolutely placed at the bottom, so this padding is
      the room kept for it: its offset (1.25rem) + its height (~7.6rem) + a
      1.5rem gap, so the action buttons never crowd the cards. */
-  .home-content {
-    padding-top: 1.25rem;
-    padding-bottom: 10.35rem;
-    row-gap: 1rem;
-  }
+    .home-content {
+      padding-top: 1.25rem;
+      padding-bottom: 10.35rem;
+      row-gap: 1rem;
+    }
 
-  .home-copy h1 {
-    font-size: clamp(2.6rem, 6.6svh, 4.3rem);
-  }
+    .home-copy h1 {
+      font-size: clamp(2.6rem, 6.6svh, 4.3rem);
+    }
 
-  .home-copy > p {
-    margin-top: 0.75rem;
-  }
+    .home-copy > p {
+      margin-top: 0.75rem;
+    }
 
-  .home-actions {
-    margin-top: 0.75rem;
-  }
+    .home-actions {
+      margin-top: 0.75rem;
+    }
 
-  .home-features {
-    bottom: 1.25rem;
-  }
+    .home-features {
+      bottom: 1.25rem;
+    }
 
-  /* The feature strip now uses the bottom edge, so the label moves to the
+    /* The feature strip now uses the bottom edge, so the label moves to the
      free top-right corner of the hero. */
-  .home-prototype-label {
-    top: 1rem;
-    bottom: auto;
+    .home-prototype-label {
+      top: 1rem;
+      bottom: auto;
+    }
   }
-}
 }
 
 /* Compact action pair: 40px tall on desktop pointers, side by side when the
@@ -924,7 +937,11 @@
 }
 
 .home-you {
-  background-image: linear-gradient(90deg, var(--hero-you-from), var(--hero-you-to));
+  background-image: linear-gradient(
+    90deg,
+    var(--hero-you-from),
+    var(--hero-you-to)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -948,13 +965,18 @@
   height: 3px;
   margin-top: 1.1rem;
   border-radius: 999px;
-  background-image: linear-gradient(90deg, var(--accent-from), var(--accent-to));
+  background-image: linear-gradient(
+    90deg,
+    var(--accent-from),
+    var(--accent-to)
+  );
   box-shadow: 0 0 12px color-mix(in srgb, var(--accent-from) 60%, transparent);
 }
 
 .home-eyebrow span {
   background: var(--accent-from);
-  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--accent-from) 70%, transparent);
+  box-shadow: 0 0 10px 2px
+    color-mix(in srgb, var(--accent-from) 70%, transparent);
 }
 
 .home-search-label {
@@ -1101,7 +1123,10 @@
    widest track (as in the mockup); the route illustration gives way. */
 @container home (min-width: 769px) {
   .home-content {
-    grid-template-columns: minmax(22rem, 1.35fr) minmax(0, 0.65fr) minmax(16rem, 0.85fr);
+    grid-template-columns: minmax(22rem, 1.35fr) minmax(0, 0.65fr) minmax(
+        16rem,
+        0.85fr
+      );
   }
 
   .home-copy {

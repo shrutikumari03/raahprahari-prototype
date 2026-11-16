@@ -69,7 +69,7 @@ export function SchematicMap({
       className={cn(
         terrain
           ? "relative h-full w-full overflow-hidden bg-transparent"
-          : "relative overflow-hidden rounded-2xl border border-border bg-card rp-grid-bg",
+          : "glass relative overflow-hidden rounded-2xl rp-grid-bg",
         className,
       )}
     >

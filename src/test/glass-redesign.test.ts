@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -10,6 +10,19 @@ import { describe, expect, it } from "vitest";
  * these tests fail if anything is made lighter without re-checking AA.
  */
 const read = (p: string) => readFileSync(join(process.cwd(), "src", p), "utf8");
+const mainAttributes = (source: string) =>
+  source.match(/<main\b([\s\S]*?)>/)?.[1] ?? "";
+const sourceFiles = (directory = ""): string[] =>
+  readdirSync(join(process.cwd(), "src", directory), {
+    withFileTypes: true,
+  }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) return sourceFiles(path);
+    return /\.(ts|tsx|css)$/.test(entry.name) &&
+      !/\.(test|spec)\./.test(entry.name)
+      ? [path]
+      : [];
+  });
 const styles = read("styles.css");
 const plain = styles.replace(/\/\*[\s\S]*?\*\//g, "");
 
@@ -220,18 +233,9 @@ describe("phase 3B advisories and reports glass surfaces", () => {
   const reportSteps = read("features/reports/report-step-page.tsx");
 
   it("shows the fixed backdrop on every advisory and report route", () => {
-    for (const route of [
-      'pathname === "/advisories"',
-      'pathname.startsWith("/advisories/")',
-      'pathname === "/reports"',
-      'pathname.startsWith("/reports/")',
-      'pathname === "/report"',
-      'pathname.startsWith("/report/")',
-    ])
-      expect(shell).toContain(route);
-    expect(shell).toMatch(/isMap && "dark"/);
-    expect(shell).not.toMatch(/isGlassPage && "dark"/);
-    expect(shell).toMatch(/!isHome && !isGlassPage && "bg-background"/);
+    expect(mainAttributes(shell)).not.toMatch(
+      /\bbg-(?:background|card|popover|muted|shell-[\w-]+)\b/,
+    );
     expect(advisoryCss).toMatch(/background:\s*transparent;/);
     expect(advisoryCss).not.toMatch(/background:\s*var\(--background\)/);
   });
@@ -291,21 +295,9 @@ describe("phase 3C remaining page glass surfaces", () => {
   const infoCss = read("components/page-banner.css");
 
   it("uses transparent route-scoped mains for every Phase 3C page", () => {
-    for (const route of [
-      'pathname === "/check"',
-      'pathname === "/help"',
-      'pathname.startsWith("/help/")',
-      'pathname === "/about"',
-      'pathname === "/contact"',
-      'pathname === "/profile"',
-      'pathname === "/contributions"',
-      'pathname === "/review"',
-      'pathname.startsWith("/review/")',
-      'pathname === "/official"',
-      'pathname.startsWith("/auth/")',
-    ])
-      expect(shell).toContain(route);
-    expect(shell).toMatch(/!isHome && !isGlassPage && "bg-background"/);
+    expect(mainAttributes(shell)).not.toMatch(
+      /\bbg-(?:background|card|popover|muted|shell-[\w-]+)\b/,
+    );
     expect(helpCss).toMatch(/background:\s*transparent;/);
     expect(helpCss).not.toMatch(/background:\s*var\(--background\)/);
     expect(infoCss).not.toMatch(/\.rp-info-card:not\(\.glass\)/);
@@ -350,6 +342,56 @@ describe("phase 3C remaining page glass surfaces", () => {
   });
 });
 
+describe("phase 3D source audit", () => {
+  it("keeps every page container transparent and the shared main unfilled", () => {
+    const shell = read("components/app-shell/app-shell.tsx");
+    expect(mainAttributes(shell)).not.toMatch(
+      /\bbg-(?:background|card|popover|muted|shell-[\w-]+)\b/,
+    );
+
+    for (const [file, selector] of [
+      ["components/page-banner.css", ".rp-info-page"],
+      ["components/page-banner.css", ".rp-error-page"],
+      ["routes/home.css", ".home-page"],
+      ["routes/map.css", ".rp-map-page"],
+      ["routes/traveller.css", ".traveller-page"],
+      ["routes/advisories.index.css", ".advisories-list-page"],
+      ["routes/help.css", ".help-page"],
+    ]) {
+      const backgrounds = rule(read(file), selector).matchAll(
+        /\bbackground(?:-color)?\s*:\s*([^;]+);/g,
+      );
+      for (const background of backgrounds)
+        expect(background[1].trim(), `${file}: ${selector}`).toBe(
+          "transparent",
+        );
+    }
+
+    expect(read("components/page-banner.css")).not.toMatch(
+      /\.rp-error-page::(?:before|after)|\.rp-error-page[^{}]*url\(/,
+    );
+  });
+
+  it("uses only the six approved glass utilities throughout source", () => {
+    const approved = new Set([
+      "glass",
+      "glass-strong",
+      "glass-accent",
+      "glass-pill",
+      "glass-btn-accent",
+      "glass-btn-frost",
+    ]);
+
+    for (const file of sourceFiles()) {
+      const source = read(file)
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/(^|[^:])\/\/.*$/gm, "$1");
+      for (const match of source.matchAll(/(?<![\w-])(glass-[\w-]+)(?![\w-])/g))
+        expect(approved.has(match[1]), `${file}: ${match[1]}`).toBe(true);
+    }
+  });
+});
+
 describe("contrast: buttons", () => {
   it("orange gradient button: dark text passes on both ends", () => {
     for (const end of ["--accent-from", "--accent-to"])
@@ -382,7 +424,7 @@ describe("backdrop and glass structure", () => {
     expect(backdrop).toMatch(/inset: 0;/);
     expect(backdrop).toMatch(/z-index: -10;/);
     expect(backdrop).toMatch(
-      /url\('\/img\/hero-road\.png'\),\s*linear-gradient\(135deg, var\(--backdrop-fallback-a\)/,
+      /url\(["']\/img\/hero-road\.png["']\),\s*linear-gradient\(\s*135deg,\s*var\(--backdrop-fallback-a\)/,
     );
     expect(backdrop).toMatch(/background-size: cover;/);
     // ::before (glows) paints under ::after (overlay).
@@ -390,15 +432,15 @@ describe("backdrop and glass structure", () => {
       /\.rp-backdrop::before \{\s*background:\s*radial-gradient/,
     );
     expect(plain).toMatch(
-      /\.rp-backdrop::after \{\s*background: linear-gradient\(135deg, var\(--backdrop-a\), var\(--backdrop-b\) 50%, var\(--backdrop-c\)\);/,
+      /\.rp-backdrop::after\s*\{\s*background: linear-gradient\(\s*135deg,\s*var\(--backdrop-a\),\s*var\(--backdrop-b\) 50%,\s*var\(--backdrop-c\)\s*\);/,
     );
   });
 
   it("removes the solid layers that hid it", () => {
     expect(shell).not.toMatch(/bg-shell-bg/);
-    // Pages not yet redesigned keep a solid main; Home does not.
-    expect(shell).toMatch(/!isHome && !isGlassPage && "bg-background"/);
-    expect(shell).toMatch(/pathname === "\/traveller"/);
+    expect(mainAttributes(shell)).not.toMatch(
+      /\bbg-(?:background|card|popover|muted|shell-[\w-]+)\b/,
+    );
     expect(read("routes/traveller.css")).toMatch(/background:\s*transparent;/);
     expect(read("routes/map.css")).toMatch(/background:\s*transparent;/);
     // The light theme no longer strips every backdrop-blur.
@@ -438,7 +480,7 @@ describe("backdrop and glass structure", () => {
   });
 
   it("uses Inter for headings, never Oxanium", () => {
-    expect(light["--font-heading"]).toBe("'Inter', system-ui, sans-serif");
+    expect(light["--font-heading"]).toBe('"Inter", system-ui, sans-serif');
     expect(root).not.toMatch(/Oxanium/);
     expect(root).toMatch(/family=Inter:wght@400;500;600;700/);
   });
@@ -464,7 +506,7 @@ describe("shell and home use the glass", () => {
     expect(bars).toMatch(/data-scrolled=\{scrolled\}/);
     expect(bars).toMatch(/rp-topbar sticky top-0 z-\(--z-header\) flex h-14/);
     expect(plain).toMatch(
-      /\.rp-topbar\[data-scrolled='true'\] \{\s*background-color: var\(--glass-panel-strong\);/,
+      /\.rp-topbar\[data-scrolled="true"\]\s*\{\s*background-color: var\(--glass-panel-strong\);/,
     );
     expect(bars).toMatch(/glass h-11 w-full rounded-2xl/);
     expect(bars).toMatch(/glass-strong fixed inset-x-0 bottom-0/);
@@ -675,7 +717,7 @@ describe("phase 2A: each component", () => {
       /\.toaster\[data-sonner-toaster\]\[data-sonner-theme\] \{\s*--normal-bg: var\(--glass-fallback\);/,
     );
     expect(plain).toMatch(
-      /@supports \(\(backdrop-filter: blur\(1px\)\) or \(-webkit-backdrop-filter: blur\(1px\)\)\) \{\s*\.toaster\[data-sonner-toaster\]\[data-sonner-theme\] \{\s*--normal-bg: var\(--glass-panel-strong\);/,
+      /@supports\s*\(\s*\(backdrop-filter: blur\(1px\)\)\s*or\s*\(-webkit-backdrop-filter: blur\(1px\)\)\s*\)\s*\{\s*\.toaster\[data-sonner-toaster\]\[data-sonner-theme\]\s*\{\s*--normal-bg: var\(--glass-panel-strong\);/,
     );
   });
 });
@@ -876,7 +918,7 @@ describe("phase 2B: structure", () => {
     expect(rule(bannerCss, ".rp-info-banner h1")).toContain(
       "font-family: var(--font-heading);",
     );
-    expect(light["--font-heading"]).toBe("'Inter', system-ui, sans-serif");
+    expect(light["--font-heading"]).toBe('"Inter", system-ui, sans-serif');
     for (const selector of [
       ".rp-info-banner h1",
       ".rp-info-eyebrow",
@@ -906,15 +948,11 @@ describe("phase 2B: structure", () => {
     expect(source).toContain('className="rp-info-page rp-error-page"');
     expect(source).toContain('className="rp-error-page"');
     expect(source).not.toContain("PageBanner");
-    // Same tokens as .rp-backdrop: overlay over glows over the photo over the fallback.
     const css = rule(bannerCss, ".rp-error-page");
     expect(css).toMatch(/place-items: center;/);
-    expect(css).toMatch(
-      /var\(--backdrop-a\),\s*var\(--backdrop-b\) 50%,\s*var\(--backdrop-c\)/,
-    );
-    expect(css).toContain("var(--backdrop-glow)");
-    expect(css).toMatch(/url\(["']\/img\/hero-road\.png["']\)/);
-    expect(css).toContain("var(--backdrop-fallback-a)");
+    expect(css).not.toMatch(/background/);
+    expect(css).not.toMatch(/url\(/);
+    expect(bannerCss).not.toMatch(/\.rp-error-page::(?:before|after)/);
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     // Headings, links and the alert role the tests and screen readers rely on.
     expect(source).toContain("This page could not be found");
@@ -967,7 +1005,7 @@ describe("phase 2B: structure", () => {
   it("light theme: the glass containers keep their glass shadow instead of the global orange glow", () => {
     const focus =
       plain.match(
-        /:root:not\(\.dark\) \[data-slot='dropdown-menu-content'\]:focus-visible,[^{]*\{([^}]*)\}/,
+        /:root:not\(\.dark\) \[data-slot="dropdown-menu-content"\]:focus-visible,[^{]*\{([^}]*)\}/,
       )?.[1] ?? "";
     expect(focus).toMatch(/box-shadow:\s*var\(--glass-shadow\)/);
     expect(focus).not.toMatch(/orange|outline/);
@@ -978,10 +1016,10 @@ describe("phase 2B: structure", () => {
 describe("focus ring: rules", () => {
   /** [selector list, body] of the rule that draws the 2px ring on the containers. */
   const containerRule = plain.match(
-    /(\[data-slot='dropdown-menu-content'\]\[data-open-source='keyboard'\]:focus-visible,[^{]*)\{([^}]*)\}/,
+    /(\[data-slot="dropdown-menu-content"\]\[data-open-source="keyboard"\]:focus-visible,[^{]*)\{([^}]*)\}/,
   );
   const itemRule = plain.match(
-    /(\[data-slot='dropdown-menu-content'\]\[data-open-source='keyboard'\]\s*:is\([^{]*:focus-visible)\s*\{([^}]*)\}/,
+    /(\[data-slot="dropdown-menu-content"\]\[data-open-source="keyboard"\]\s*:is\([^{]*:focus-visible)\s*\{([^}]*)\}/,
   );
 
   it("draws a 2px solid --ring, inside the edge, with !important to beat Radix's inline outline:none", () => {
@@ -997,15 +1035,15 @@ describe("focus ring: rules", () => {
       .split(",")
       .map((s) => s.trim());
     expect(selectors).toEqual([
-      "[data-slot='dropdown-menu-content'][data-open-source='keyboard']:focus-visible",
-      "[data-slot='dropdown-menu-sub-content']:focus-visible",
-      "[data-slot='popover-content']:focus-visible",
-      "[data-slot='select-content']:focus-visible",
-      "[data-slot='dialog-content']:focus-visible",
-      "[data-slot='sheet-content']:focus-visible",
+      '[data-slot="dropdown-menu-content"][data-open-source="keyboard"]:focus-visible',
+      '[data-slot="dropdown-menu-sub-content"]:focus-visible',
+      '[data-slot="popover-content"]:focus-visible',
+      '[data-slot="select-content"]:focus-visible',
+      '[data-slot="dialog-content"]:focus-visible',
+      '[data-slot="sheet-content"]:focus-visible',
     ]);
     expect(itemRule?.[1]).toMatch(
-      /\[data-slot='dropdown-menu-item'\][\s\S]*\[data-slot='dropdown-menu-checkbox-item'\][\s\S]*\[data-slot='dropdown-menu-radio-item'\][\s\S]*\[data-slot='dropdown-menu-sub-trigger'\]\s*\):focus-visible/,
+      /\[data-slot="dropdown-menu-item"\][\s\S]*\[data-slot="dropdown-menu-checkbox-item"\][\s\S]*\[data-slot="dropdown-menu-radio-item"\][\s\S]*\[data-slot="dropdown-menu-sub-trigger"\]\s*\):focus-visible/,
     );
   });
 

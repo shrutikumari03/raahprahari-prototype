@@ -545,12 +545,94 @@ describe("phase 2B: structure", () => {
     expect(comp("app-shell/site-footer.tsx")).toContain('className="glass rounded-t-3xl border-x-0 border-b-0"');
   });
 
-  it("light theme: glass containers get a 2px ring in place of the global orange glow", () => {
-    const focus = plain.match(/:root:not\(\.dark\) \.glass-strong:focus-visible \{([^}]*)\}/)?.[1] ?? "";
-    expect(focus).toMatch(/outline: 2px solid var\(--ring\);/);
+  it("light theme: the glass containers keep their glass shadow instead of the global orange glow", () => {
+    const focus = plain.match(/:root:not\(\.dark\) \[data-slot='dropdown-menu-content'\]:focus-visible,[^{]*\{([^}]*)\}/)?.[1] ?? "";
     expect(focus).toMatch(/box-shadow:\s*var\(--glass-shadow\)/);
-    expect(focus).not.toMatch(/orange/);
+    expect(focus).not.toMatch(/orange|outline/);
   });
+});
+
+/* ── Focus ring on the glass overlay containers ────────────────────────────── */
+describe("focus ring: rules", () => {
+  /** [selector list, body] of the rule that draws the 2px ring on the containers. */
+  const containerRule = plain.match(/(\[data-slot='dropdown-menu-content'\]\[data-open-source='keyboard'\]:focus-visible,[^{]*)\{([^}]*)\}/);
+  const itemRule = plain.match(/(\[data-slot='dropdown-menu-content'\]\[data-open-source='keyboard'\]\s*:is\([^{]*:focus-visible)\s*\{([^}]*)\}/);
+
+  it("draws a 2px solid --ring, inside the edge, with !important to beat Radix's inline outline:none", () => {
+    for (const body of [containerRule?.[2], itemRule?.[2]]) {
+      expect(body).toMatch(/outline: 2px solid var\(--ring\) !important;/);
+      // Inside the edge, so the ring is drawn on the glass panel it is measured against.
+      expect(body).toMatch(/outline-offset: -2px !important;/);
+    }
+  });
+
+  it("applies to :focus-visible only, so a mouse click shows none", () => {
+    const selectors = (containerRule?.[1] ?? "").split(",").map((s) => s.trim());
+    expect(selectors).toEqual([
+      "[data-slot='dropdown-menu-content'][data-open-source='keyboard']:focus-visible",
+      "[data-slot='dropdown-menu-sub-content']:focus-visible",
+      "[data-slot='popover-content']:focus-visible",
+      "[data-slot='select-content']:focus-visible",
+      "[data-slot='dialog-content']:focus-visible",
+      "[data-slot='sheet-content']:focus-visible",
+    ]);
+    expect(itemRule?.[1]).toMatch(/\[data-slot='dropdown-menu-item'\][\s\S]*\[data-slot='dropdown-menu-checkbox-item'\][\s\S]*\[data-slot='dropdown-menu-radio-item'\][\s\S]*\[data-slot='dropdown-menu-sub-trigger'\]\s*\):focus-visible/);
+  });
+
+  it("every selector names a slot that a ui component really renders", () => {
+    const rendered = [
+      ["dropdown-menu-content", "dropdown-menu"], ["dropdown-menu-sub-content", "dropdown-menu"],
+      ["dropdown-menu-item", "dropdown-menu"], ["dropdown-menu-checkbox-item", "dropdown-menu"],
+      ["dropdown-menu-radio-item", "dropdown-menu"], ["dropdown-menu-sub-trigger", "dropdown-menu"],
+      ["popover-content", "popover"], ["select-content", "select"],
+      ["dialog-content", "dialog"], ["sheet-content", "sheet"],
+    ] as const;
+    for (const [slot, file] of rendered) expect(ui(file), slot).toContain(`data-slot="${slot}"`);
+  });
+
+  it("the dropdown records whether it was opened by pointer or keyboard, per open", () => {
+    const source = ui("dropdown-menu");
+    expect(source).toContain("let lastOpenSource: 'pointer' | 'keyboard' = 'keyboard'");
+    expect(source).toMatch(/onPointerDown=\{\(event\) => \{\s*lastOpenSource = 'pointer'\s*onPointerDown\?\.\(event\)/);
+    expect(source).toMatch(/onKeyDown=\{\(event\) => \{\s*lastOpenSource = 'keyboard'\s*onKeyDown\?\.\(event\)/);
+    // Set in a ref callback (it runs on every mount of Radix's menu element,
+    // before focus moves in), passing the caller's own ref on.
+    expect(source).toMatch(/node\.dataset\.openSource = lastOpenSource/);
+    expect(source).toMatch(/if \(typeof ref === 'function'\) ref\(node\)/);
+    expect(source).toContain("ref={setRef}");
+  });
+});
+
+describe("focus ring: contrast", () => {
+  for (const name of ["light", "dark"] as const) {
+    const theme = THEMES[name];
+    const ring = () => hex(theme, "--ring");
+
+    it(`${name}: the ring is at least 3:1 on the strong panel, over the backdrop and the page surfaces`, () => {
+      const unders = [...backdrops(name), hex(theme, "--background"), hex(theme, "--card")];
+      for (const under of unders)
+        expect(contrast(ring(), layer(theme, "--glass-panel-strong", under))).toBeGreaterThanOrEqual(3);
+    });
+
+    it(`${name}: dialogs and sheets stay at 3:1 over any page content (the scrim darkens it first)`, () => {
+      const m = /^rgb\((\d+) (\d+) (\d+) \/ (\d+)%\)$/.exec(resolve(theme, "--scrim"));
+      if (!m) throw new Error("--scrim is not rgb(R G B / N%)");
+      const scrim: RGB = [Number(m[1]), Number(m[2]), Number(m[3])];
+      for (const content of [BLACK, WHITE]) {
+        const behind = over(scrim, Number(m[4]) / 100, content);
+        expect(contrast(ring(), layer(theme, "--glass-panel-strong", behind)), `over ${content}`).toBeGreaterThanOrEqual(3);
+      }
+    });
+
+    it(`${name}: the ring on a focused menu item is at least 3:1 on the item's own highlight`, () => {
+      for (const bg of backdrops(name)) {
+        const panel = layer(theme, "--glass-panel-strong", bg);
+        const highlighted = over(hex(theme, "--accent"), 1, panel);
+        expect(contrast(ring(), highlighted), "on the item").toBeGreaterThanOrEqual(3);
+        expect(contrast(ring(), panel), "on the panel").toBeGreaterThanOrEqual(3);
+      }
+    });
+  }
 });
 
 describe("phase 2B: contrast", () => {

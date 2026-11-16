@@ -210,6 +210,65 @@ describe("map glass contrast", () => {
   });
 });
 
+describe("phase 3B advisories and reports glass surfaces", () => {
+  const shell = read("components/app-shell/app-shell.tsx");
+  const advisoryList = read("routes/advisories.index.tsx");
+  const advisoryDetail = read("routes/advisories.$segmentId.tsx");
+  const advisoryCss = read("routes/advisories.index.css");
+  const reports = read("routes/reports.index.tsx");
+  const reportDetail = read("routes/reports.$id.tsx");
+  const reportSteps = read("features/reports/report-step-page.tsx");
+
+  it("shows the fixed backdrop on every advisory and report route", () => {
+    for (const route of [
+      'pathname === "/advisories"',
+      'pathname.startsWith("/advisories/")',
+      'pathname === "/reports"',
+      'pathname.startsWith("/reports/")',
+      'pathname === "/report"',
+      'pathname.startsWith("/report/")',
+    ])
+      expect(shell).toContain(route);
+    expect(shell).toMatch(/isGlassPage && "dark"/);
+    expect(shell).toMatch(/!isHome && !isGlassPage && "bg-background"/);
+    expect(advisoryCss).toMatch(/background:\s*transparent;/);
+    expect(advisoryCss).not.toMatch(/background:\s*var\(--background\)/);
+  });
+
+  it("uses the requested glass surfaces on advisories, report details, and each wizard step", () => {
+    expect(advisoryList).toMatch(/advisories-filter-pill glass-pill/);
+    expect(advisoryList).toMatch(/className="glass"/);
+    expect(advisoryDetail).toMatch(/className="glass-strong sm:col-span-3"/);
+    expect(advisoryDetail).toMatch(/className="glass-accent rounded-xl/);
+    expect(advisoryDetail).toMatch(/className="glass"/);
+    expect(reports).toMatch(/className="glass rounded-2xl/);
+    expect(reportDetail).toMatch(/className="glass rounded-2xl/);
+    expect(
+      reportSteps.match(/className="glass-strong rounded-2xl/g),
+    ).toHaveLength(4);
+    expect(reportSteps).toMatch(/glass-pill relative flex size-8/);
+    expect(reportSteps).toMatch(/glass-strong w-full max-w-xl/);
+    expect(reportSteps).toMatch(/TriangleAlert[\s\S]{0,100}text-status-dnt/);
+  });
+
+  it("keeps report error copy AA and adds a non-colour error indicator", () => {
+    for (const backdrop of backdrops("dark")) {
+      const surface = layer(dark, "--glass-panel-strong", backdrop);
+      expect(
+        contrast(hex(dark, "--foreground"), surface),
+      ).toBeGreaterThanOrEqual(4.5);
+      expect(
+        contrast(hex(dark, "--status-dnt"), surface),
+      ).toBeGreaterThanOrEqual(3);
+      const alertSurface = over(hex(dark, "--status-dnt"), 0.1, surface);
+      expect(
+        contrast(hex(dark, "--status-dnt"), alertSurface),
+      ).toBeGreaterThanOrEqual(3);
+    }
+    expect(reportSteps).toMatch(/role="alert"[\s\S]*?<TriangleAlert/);
+  });
+});
+
 describe("contrast: buttons", () => {
   it("orange gradient button: dark text passes on both ends", () => {
     for (const end of ["--accent-from", "--accent-to"])

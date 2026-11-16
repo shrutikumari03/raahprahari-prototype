@@ -3,7 +3,11 @@ import { useState } from "react";
 import { AdvisoryCard } from "@/components/advisory-card";
 import { PrototypeRibbon } from "@/components/prototype-ribbon";
 import { Button } from "@/components/ui/button";
-import { ScreenEmpty, ScreenError, ScreenLoading } from "@/components/screen-states";
+import {
+  ScreenEmpty,
+  ScreenError,
+  ScreenLoading,
+} from "@/components/screen-states";
 import { useScreenState } from "@/lib/use-screen-state";
 import { usePrefs } from "@/i18n/preferences";
 import { useAppStore } from "@/lib/app-store";
@@ -48,7 +52,9 @@ function AdvisoriesPage() {
   };
   const visibleSegments =
     sort === "freshness"
-      ? [...filteredSegments].sort((a, b) => sourceTime(b.id) - sourceTime(a.id))
+      ? [...filteredSegments].sort(
+          (a, b) => sourceTime(b.id) - sourceTime(a.id),
+        )
       : filteredSegments;
 
   return (
@@ -65,7 +71,9 @@ function AdvisoriesPage() {
           <p className="mt-2 max-w-3xl text-sm text-[var(--photo-text-muted)]">
             {t("adv.body")}
           </p>
-          <div className="mt-4"><PrototypeRibbon /></div>
+          <div className="mt-4">
+            <PrototypeRibbon />
+          </div>
         </div>
       </header>
       <div className="rp-container space-y-5 py-6">
@@ -83,7 +91,7 @@ function AdvisoriesPage() {
                   variant={filter === value ? "secondary" : "outline"}
                   aria-pressed={filter === value}
                   className={cn(
-                    "advisories-filter-pill min-h-11 shrink-0 rounded-full",
+                    "advisories-filter-pill glass-pill min-h-11 shrink-0",
                     filter === value && "text-link",
                   )}
                   onClick={() => setFilter(value)}
@@ -110,7 +118,7 @@ function AdvisoriesPage() {
             id="adv-sort"
             value={sort}
             onChange={(e) => setSort(e.target.value as "default" | "freshness")}
-            className="min-h-11 rounded-md border border-border bg-background px-3"
+            className="glass min-h-11 rounded-md border border-border px-3"
           >
             <option value="default">{t("adv.sortDefault")}</option>
             <option value="freshness">{t("adv.sortFreshness")}</option>
@@ -121,13 +129,17 @@ function AdvisoriesPage() {
         ) : status === "error" ? (
           <ScreenError onRetry={retry} />
         ) : !segments.length ? (
-          <ScreenEmpty title={t("map.emptyTitle")} message={t("map.emptyBody")} />
+          <ScreenEmpty
+            title={t("map.emptyTitle")}
+            message={t("map.emptyBody")}
+          />
         ) : visibleSegments.length ? (
           <div className="grid min-w-0 grid-cols-1 items-stretch gap-3 md:grid-cols-2 xl:grid-cols-3">
             {visibleSegments.map((segment) => (
               <AdvisoryCard
                 key={segment.id}
                 segment={segment}
+                className="glass"
                 showRestrictionDetail
               />
             ))}

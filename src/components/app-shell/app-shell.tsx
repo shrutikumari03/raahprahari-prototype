@@ -70,7 +70,15 @@ export function AppShell({
   const hideSearch = shellSearchHidden(pathname);
   const isMap = pathname === "/map";
   const isHome = pathname === "/";
-  const isGlassPage = isMap || pathname === "/traveller";
+  const isGlassPage =
+    isMap ||
+    pathname === "/traveller" ||
+    pathname === "/advisories" ||
+    pathname.startsWith("/advisories/") ||
+    pathname === "/reports" ||
+    pathname.startsWith("/reports/") ||
+    pathname === "/report" ||
+    pathname.startsWith("/report/");
 
   const openPalette = useCallback(() => {
     if (document.activeElement instanceof HTMLElement)
@@ -143,6 +151,7 @@ export function AppShell({
             // pages not yet redesigned keep their solid background, so their
             // muted text never sits on the photo.
             !isHome && !isGlassPage && "bg-background",
+            isGlassPage && "dark",
             isMap && "rp-shell-map flex min-h-0 flex-col",
           )}
         >

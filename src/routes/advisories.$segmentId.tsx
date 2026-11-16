@@ -1,5 +1,10 @@
-import { createFileRoute, Link, notFound, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import {
+  createFileRoute,
+  Link,
+  notFound,
+  useNavigate,
+} from "@tanstack/react-router";
+import { useState } from "react";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -18,24 +23,31 @@ import {
   TriangleAlert,
   UsersRound,
   type LucideIcon,
-} from 'lucide-react'
-import { ActionBadge, FreshnessChip } from '@/components/advisory'
-import { AdvisoryCard } from '@/components/advisory-card'
-import { useSlidingHighlight } from '@/components/motion'
-import { Button } from '@/components/ui/button'
-import { LoadingState } from '@/components/ui/feedback'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LeafletMapLegend, LeafletSegmentMap } from '@/features/map/leaflet-segment-map'
-import { SegmentDetail, StatusTimeline } from '@/features/routes/segment-detail'
-import { RouteErrorPage } from '@/components/error-pages'
-import { segmentById } from '@/data/fixtures'
+} from "lucide-react";
+import { ActionBadge, FreshnessChip } from "@/components/advisory";
+import { AdvisoryCard } from "@/components/advisory-card";
+import { useSlidingHighlight } from "@/components/motion";
+import { Button } from "@/components/ui/button";
+import { LoadingState } from "@/components/ui/feedback";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  LeafletMapLegend,
+  LeafletSegmentMap,
+} from "@/features/map/leaflet-segment-map";
+import {
+  SegmentDetail,
+  StatusTimeline,
+} from "@/features/routes/segment-detail";
+import "./advisories.index.css";
+import { RouteErrorPage } from "@/components/error-pages";
+import { segmentById } from "@/data/fixtures";
 // Loaders run outside React, so they resolve ids through the module-level layer.
-import { reportByRef } from '@/lib/data'
-import { getAdvisorySourceTimestamp, type AdvisoryLevel } from '@/lib/advisory'
-import { usePrefs } from '@/i18n/preferences'
-import { useAppStore } from '@/lib/app-store'
-import type { CommunityReport, Segment } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { reportByRef } from "@/lib/data";
+import { getAdvisorySourceTimestamp, type AdvisoryLevel } from "@/lib/advisory";
+import { usePrefs } from "@/i18n/preferences";
+import { useAppStore } from "@/lib/app-store";
+import type { CommunityReport, Segment } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/advisories/$segmentId")({
   loader: ({ params }) => {
@@ -64,7 +76,11 @@ export const Route = createFileRoute("/advisories/$segmentId")({
     ],
   }),
   pendingComponent: () => (
-    <LoadingState label="Loading road information…" variant="cards" className="rp-container py-8" />
+    <LoadingState
+      label="Loading road information…"
+      variant="cards"
+      className="rp-container py-8"
+    />
   ),
   errorComponent: RouteErrorPage,
   notFoundComponent: DetailNotFound,
@@ -113,12 +129,12 @@ export function Banner({
   const { place } = usePrefs();
   return (
     <header
-      className="photo-surface relative isolate overflow-hidden border-b border-border bg-card text-foreground"
+      className="photo-surface relative isolate overflow-hidden border-b border-border text-foreground"
       style={{
         backgroundImage:
           "linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 60%, var(--photo-scrim-c)), url('/img/banner-strip.png')",
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
+        backgroundPosition: "center",
+        backgroundSize: "cover",
       }}
     >
       <div className="rp-container py-4 sm:py-5">
@@ -186,23 +202,26 @@ function SummaryItem({
 }
 
 function SegmentOverview({ segment }: { segment: Segment }) {
-  const { place, stamp } = usePrefs()
-  const { reports, advisories } = useAppStore()
-  const [tab, setTab] = useState('overview')
-  const advisory = advisories.get(segment.id)
-  if (!advisory) throw new Error(`Missing advisory for segment "${segment.id}"`)
+  const { place, stamp } = usePrefs();
+  const { reports, advisories } = useAppStore();
+  const [tab, setTab] = useState("overview");
+  const advisory = advisories.get(segment.id);
+  if (!advisory)
+    throw new Error(`Missing advisory for segment "${segment.id}"`);
 
   const reports_for_segment = reports.filter(
     (report) =>
       report.segmentId === segment.id &&
-      report.status !== 'duplicate' &&
-      report.status !== 'rejected',
-  )
-  const hazards = reports_for_segment.filter((report) => report.kind === 'hazard')
-  const sourceTimestamp = getAdvisorySourceTimestamp(advisory)
+      report.status !== "duplicate" &&
+      report.status !== "rejected",
+  );
+  const hazards = reports_for_segment.filter(
+    (report) => report.kind === "hazard",
+  );
+  const sourceTimestamp = getAdvisorySourceTimestamp(advisory);
 
   return (
-    <div className="pb-8">
+    <div className="advisory-detail-page pb-8">
       <Banner
         segment={segment}
         title={`${segment.code.split(" · ")[0]} — ${place(segment.from)} to ${place(segment.to)}`}
@@ -246,7 +265,7 @@ function SegmentOverview({ segment }: { segment: Segment }) {
                 <SegmentDetail
                   segmentId={segment.id}
                   variant="overview"
-                  className="sm:col-span-3"
+                  className="glass-strong sm:col-span-3"
                 />
 
                 <InfoCard
@@ -254,7 +273,9 @@ function SegmentOverview({ segment }: { segment: Segment }) {
                   icon={Clock3}
                   className="sm:col-span-2"
                 >
-                  <FreshnessChip observationTimestamp={advisory.latestObservationAt} />
+                  <FreshnessChip
+                    observationTimestamp={advisory.latestObservationAt}
+                  />
                   <dl className="mt-3 space-y-2 text-xs">
                     <Fact
                       label="Last updated"
@@ -355,6 +376,7 @@ function SegmentOverview({ segment }: { segment: Segment }) {
                     segment={segment}
                     communityReport={report}
                     variant="community-report"
+                    className="glass"
                   />
                 ))
               ) : (
@@ -367,7 +389,9 @@ function SegmentOverview({ segment }: { segment: Segment }) {
 
             <TabsContent value="conditions" className="space-y-3 pt-4">
               <InfoCard title="Information freshness" icon={Clock3}>
-                <FreshnessChip observationTimestamp={advisory.latestObservationAt} />
+                <FreshnessChip
+                  observationTimestamp={advisory.latestObservationAt}
+                />
                 <p className="mt-3 text-sm text-muted-foreground">
                   Freshness reflects the age of the most recent available source
                   timestamp, not a road-safety assessment.
@@ -404,7 +428,7 @@ function InfoCard({
   return (
     <section
       className={cn(
-        "rounded-xl border border-border bg-card p-3 sm:p-4",
+        "glass rounded-xl border border-border p-3 sm:p-4",
         className,
       )}
     >
@@ -453,7 +477,7 @@ function CountLink({
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-16 items-center gap-3 rounded-lg border border-border bg-background/50 px-3 text-left hover:border-blue-on-dark/60 focus-visible:outline-2 focus-visible:outline-ring"
+      className="glass flex min-h-16 items-center gap-3 rounded-lg border border-border px-3 text-left hover:border-blue-on-dark/60 focus-visible:outline-2 focus-visible:outline-ring"
     >
       <Icon aria-hidden className="size-5 shrink-0 text-orange-on-dark" />
       <span className="text-lg font-semibold tabular-nums">{count}</span>
@@ -473,13 +497,13 @@ function OfficialRestrictionCard({
   segmentId: string;
   className?: string;
 }) {
-  const { advisories } = useAppStore()
-  const advisory = advisories.get(segmentId)
-  if (!advisory) throw new Error(`Missing advisory for segment "${segmentId}"`)
+  const { advisories } = useAppStore();
+  const advisory = advisories.get(segmentId);
+  if (!advisory) throw new Error(`Missing advisory for segment "${segmentId}"`);
   return (
     <section
       className={cn(
-        "rounded-xl border border-border bg-card p-3 sm:p-4",
+        "glass rounded-xl border border-border p-3 sm:p-4",
         className,
       )}
     >
@@ -501,9 +525,7 @@ function OfficialRestrictionCard({
             className="size-4 shrink-0 text-status-unknown"
           />
           No current official information
-          <span className="ml-auto text-xs text-status-unknown">
-            UNKNOWN
-          </span>
+          <span className="ml-auto text-xs text-status-unknown">UNKNOWN</span>
         </p>
       )}
     </section>
@@ -517,21 +539,23 @@ function TerrainPanel({
   segment: Segment;
   reports: CommunityReport[];
 }) {
-  const { t, place } = usePrefs()
-  const { segments } = useAppStore()
-  const navigate = useNavigate()
-  const [view, setView] = useState<'map' | 'list'>('map')
-  const toggleRef = useSlidingHighlight<HTMLDivElement>(view)
-  const [mapUnavailable, setMapUnavailable] = useState(false)
+  const { t, place } = usePrefs();
+  const { segments } = useAppStore();
+  const navigate = useNavigate();
+  const [view, setView] = useState<"map" | "list">("map");
+  const toggleRef = useSlidingHighlight<HTMLDivElement>(view);
+  const [mapUnavailable, setMapUnavailable] = useState(false);
   // This segment plus the rest of its corridor for context (closures are always added by the map).
-  const corridorSegments = segments.filter((s) => s.corridorId === segment.corridorId)
+  const corridorSegments = segments.filter(
+    (s) => s.corridorId === segment.corridorId,
+  );
   return (
     <aside
       className="min-w-0 lg:sticky lg:top-[calc(var(--shell-bar-height)+1rem)] lg:self-start"
       aria-label="Route map and community reports"
     >
       <div className="relative min-h-[360px] overflow-hidden rounded-xl border border-border bg-card sm:min-h-[440px] lg:min-h-[510px]">
-        {view === 'map' ? (
+        {view === "map" ? (
           <LeafletSegmentMap
             segments={corridorSegments}
             highlight={[segment.id]}
@@ -539,11 +563,15 @@ function TerrainPanel({
             selectedSegmentId={segment.id}
             onSelectSegment={(id) => {
               // Selecting another section opens its detail page.
-              if (id !== segment.id) void navigate({ to: '/advisories/$segmentId', params: { segmentId: id } })
+              if (id !== segment.id)
+                void navigate({
+                  to: "/advisories/$segmentId",
+                  params: { segmentId: id },
+                });
             }}
             onUnavailable={() => {
-              setMapUnavailable(true)
-              setView('list')
+              setMapUnavailable(true);
+              setView("list");
             }}
             label={`Interactive map of ${place(segment.from)} – ${place(segment.to)}`}
             // The page-level ribbon from the root layout is always shown here.
@@ -551,10 +579,14 @@ function TerrainPanel({
             className="rp-lmap-fill"
           />
         ) : (
-          <div className="relative z-10 h-full min-h-[360px] overflow-y-auto bg-background/95 p-4 pt-14 sm:min-h-[440px] lg:min-h-[510px]">
+          <div className="glass-strong relative z-10 h-full min-h-[360px] overflow-y-auto p-4 pt-14 sm:min-h-[440px] lg:min-h-[510px]">
             {mapUnavailable && (
-              <p role="status" className="mb-3 rounded-lg border border-status-caution/60 bg-status-caution/10 p-2 text-xs">
-                The map tiles could not be loaded. Showing the community reports list instead.
+              <p
+                role="status"
+                className="mb-3 rounded-lg border border-status-caution/60 bg-status-caution/10 p-2 text-xs"
+              >
+                The map tiles could not be loaded. Showing the community reports
+                list instead.
               </p>
             )}
             <h2 className="mb-3 font-semibold">Community hazard reports</h2>
@@ -565,7 +597,7 @@ function TerrainPanel({
                     <Link
                       to="/advisories/$segmentId"
                       params={{ segmentId: report.ref }}
-                      className="block rounded-lg border border-border bg-card p-3 hover:border-blue-on-dark/60 focus-visible:outline-2 focus-visible:outline-ring"
+                      className="glass block rounded-lg border border-border p-3 hover:border-blue-on-dark/60 focus-visible:outline-2 focus-visible:outline-ring"
                     >
                       <span className="flex items-center gap-2 text-sm font-semibold">
                         <TriangleAlert
@@ -590,17 +622,20 @@ function TerrainPanel({
           </div>
         )}
 
-        <div ref={toggleRef} className="rp-segmented absolute top-3 left-3 z-(--z-map-controls) inline-flex rounded-lg border border-border bg-card/90 p-1">
+        <div
+          ref={toggleRef}
+          className="rp-segmented glass-strong absolute top-3 left-3 z-(--z-map-controls) inline-flex rounded-lg border border-border p-1"
+        >
           <button
             type="button"
-            aria-pressed={view === 'map'}
+            aria-pressed={view === "map"}
             disabled={mapUnavailable}
-            onClick={() => setView('map')}
+            onClick={() => setView("map")}
             className={cn(
-              'inline-flex min-h-9 items-center gap-1.5 rounded-md px-3 text-xs disabled:opacity-50',
-              view === 'map'
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground',
+              "inline-flex min-h-9 items-center gap-1.5 rounded-md px-3 text-xs disabled:opacity-50",
+              view === "map"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             <MapIcon aria-hidden className="size-3.5" /> Map
@@ -636,7 +671,7 @@ function HazardDetail({
   const level: AdvisoryLevel = report.severity === "high" ? "avoid" : "caution";
 
   return (
-    <div className="pb-8">
+    <div className="advisory-detail-page pb-8">
       <Banner
         segment={segment}
         title={`${t(`hazard.${report.hazardType}`)} report`}
@@ -644,7 +679,7 @@ function HazardDetail({
       />
       <div className="rp-container grid gap-5 py-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:py-6">
         <div className="space-y-4">
-          <section className="rounded-xl border border-border bg-card p-4 sm:p-5">
+          <section className="glass-accent rounded-xl border border-border p-4 sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold text-muted-foreground">
@@ -673,7 +708,7 @@ function HazardDetail({
                 icon={RouteIcon}
               />
               <Fact
-                label={t('segment.observationTime')}
+                label={t("segment.observationTime")}
                 value={`${ago(report.observedAt)} · ${stamp(report.observedAt)}`}
                 icon={Clock3}
               />
@@ -730,7 +765,7 @@ function HazardDetail({
 
         <div className="space-y-4 lg:sticky lg:top-[calc(var(--shell-bar-height)+1rem)] lg:self-start">
           <OfficialRestrictionCard segmentId={segment.id} />
-          <section className="rounded-xl border border-border bg-card p-4">
+          <section className="glass rounded-xl border border-border p-4">
             <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
               <MapPin aria-hidden className="size-5 text-blue-on-dark" />{" "}
               Location
@@ -767,7 +802,7 @@ function ReportGallery({ report }: { report: CommunityReport }) {
           {Array.from({ length: imageCount }, (_, index) => (
             <div
               key={index}
-              className="grid min-h-24 place-items-center rounded-lg border border-dashed border-border bg-background/70 p-3 text-center"
+              className="glass grid min-h-24 place-items-center rounded-lg border border-dashed border-border p-3 text-center"
             >
               <div>
                 <ImageOff
@@ -806,15 +841,18 @@ function EmptyPanel({ title, message }: { title: string; message: string }) {
 
 /** Report location: exact report coordinates are not shared, so the whole road section is shown. */
 function ReportLocationMap({ segment }: { segment: Segment }) {
-  const { place } = usePrefs()
-  const [unavailable, setUnavailable] = useState(false)
+  const { place } = usePrefs();
+  const [unavailable, setUnavailable] = useState(false);
   return (
     <div className="mt-3">
       <div className="relative h-56 overflow-hidden rounded-lg border border-border">
         {unavailable ? (
-          <p role="status" className="grid h-full place-items-center p-4 text-center text-xs text-muted-foreground">
-            The map tiles could not be loaded. The report is on {segment.code}, {place(segment.from)} to{' '}
-            {place(segment.to)}.
+          <p
+            role="status"
+            className="grid h-full place-items-center p-4 text-center text-xs text-muted-foreground"
+          >
+            The map tiles could not be loaded. The report is on {segment.code},{" "}
+            {place(segment.from)} to {place(segment.to)}.
           </p>
         ) : (
           <LeafletSegmentMap
@@ -830,9 +868,9 @@ function ReportLocationMap({ segment }: { segment: Segment }) {
         )}
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        Exact report coordinates are not shared. The highlighted line is the whole road section (approximate,
-        synthetic data).
+        Exact report coordinates are not shared. The highlighted line is the
+        whole road section (approximate, synthetic data).
       </p>
     </div>
-  )
+  );
 }

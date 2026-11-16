@@ -66,11 +66,7 @@ import {
   type ReportHazard,
   type ReportLocation,
 } from "@/lib/report-store";
-import {
-  inCoverage,
-  getCurrentPosition,
-  segmentCandidates,
-} from "@/lib/geo";
+import { inCoverage, getCurrentPosition, segmentCandidates } from "@/lib/geo";
 
 export type ReportStep =
   "observation" | "photo" | "location" | "review" | "received";
@@ -274,13 +270,13 @@ export function ReportStepPage({
             if (segment) {
               const from = placeById(segment.from);
               const to = placeById(segment.to);
-              const label = `${segment.code} · ${from?.name ?? ''} – ${to?.name ?? ''}`;
+              const label = `${segment.code} · ${from?.name ?? ""} – ${to?.name ?? ""}`;
               const location = makeLocation(
                 ((from?.lat ?? 0) + (to?.lat ?? 0)) / 2,
                 ((from?.lon ?? 0) + (to?.lon ?? 0)) / 2,
                 label,
                 label,
-                'manual',
+                "manual",
               );
               setDraft((current) =>
                 current.location ? current : { ...current, location },
@@ -721,9 +717,9 @@ export function ReportStepPage({
           : "Review your report";
 
   return (
-    <div className="min-h-full overflow-x-clip">
+    <div className="dark min-h-full overflow-x-clip">
       <section
-        className="photo-surface relative border-b border-border bg-card bg-cover bg-center"
+        className="photo-surface relative border-b border-border bg-cover bg-center"
         style={{
           backgroundImage:
             "linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 60%, var(--photo-scrim-c)), url('/img/banner-strip.png')",
@@ -755,13 +751,15 @@ export function ReportStepPage({
                     className={`relative flex min-w-0 flex-col items-center gap-1 text-center ${
                       index > 0
                         ? `before:absolute before:top-4 before:right-[calc(50%+1.25rem)] before:h-0.5 before:w-[calc(100%-1.75rem)] before:rounded-full ${
-                            currentStep >= number ? "before:bg-brand-orange" : "before:bg-border"
+                            currentStep >= number
+                              ? "before:bg-brand-orange"
+                              : "before:bg-border"
                           }`
                         : ""
                     }`}
                   >
                     <span
-                      className={`relative flex size-8 items-center justify-center rounded-full border-2 text-xs font-semibold ${
+                      className={`glass-pill relative flex size-8 items-center justify-center border-2 text-xs font-semibold ${
                         active
                           ? "border-brand-orange bg-brand-orange text-report-foreground"
                           : complete
@@ -797,7 +795,7 @@ export function ReportStepPage({
           }
         >
           {step === "observation" && (
-            <aside className="relative hidden h-[min(36rem,calc(100svh-8rem))] overflow-hidden rounded-2xl border border-border bg-card lg:sticky lg:top-[calc(var(--shell-bar-height)+1rem)] lg:block lg:self-start">
+            <aside className="glass-strong relative hidden h-[min(36rem,calc(100svh-8rem))] overflow-hidden rounded-2xl border border-border lg:sticky lg:top-[calc(var(--shell-bar-height)+1rem)] lg:block lg:self-start">
               <img
                 src="/img/hero-road.png"
                 alt="Illustrative mountain road through a Himalayan valley."
@@ -822,13 +820,17 @@ export function ReportStepPage({
             {storageError && (
               <p
                 role="alert"
-                className="mb-4 rounded-xl border border-status-dnt/60 bg-status-dnt/10 p-3 text-sm"
+                className="mb-4 flex items-start gap-2 rounded-xl border border-status-dnt/60 bg-status-dnt/10 p-3 text-sm"
               >
-                {storageError}
+                <TriangleAlert
+                  aria-hidden
+                  className="mt-0.5 size-4 shrink-0 text-status-dnt"
+                />
+                <span>{storageError}</span>
               </p>
             )}
             {notice && (
-              <p className="mb-4 rounded-xl border border-border bg-card p-3 text-sm">
+              <p className="glass mb-4 rounded-xl border border-border p-3 text-sm">
                 {notice}
               </p>
             )}
@@ -844,7 +846,7 @@ export function ReportStepPage({
             {step === "observation" && (
               <section
                 aria-labelledby="observation-heading"
-                className="rounded-2xl border border-border bg-card p-4 sm:p-7"
+                className="glass-strong rounded-2xl border border-border p-4 sm:p-7"
               >
                 <h2
                   id="observation-heading"
@@ -874,10 +876,10 @@ export function ReportStepPage({
                             hazardType: "",
                           }));
                         }}
-                        className={`relative flex min-h-24 flex-col items-start justify-between gap-3 rounded-xl border-2 p-3 text-left text-sm transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
+                        className={`glass relative flex min-h-24 flex-col items-start justify-between gap-3 rounded-xl border-2 p-3 text-left text-sm transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
                           draft.hazardType === value
                             ? "border-brand-orange bg-brand-orange/12 font-semibold shadow-[0_0_0_4px_color-mix(in_srgb,var(--brand-orange)_18%,transparent)]"
-                            : "border-border bg-background/40 hover:border-brand-orange/60 hover:bg-accent"
+                            : "border-border hover:border-brand-orange/60 hover:bg-accent"
                         }`}
                       >
                         <span
@@ -904,9 +906,13 @@ export function ReportStepPage({
                     <p
                       id="hazard-error"
                       role="alert"
-                      className="mt-2 text-sm text-status-dnt"
+                      className="mt-2 flex items-start gap-2 text-sm text-foreground"
                     >
-                      {errors.hazardType}
+                      <TriangleAlert
+                        aria-hidden
+                        className="mt-0.5 size-4 shrink-0 text-status-dnt"
+                      />
+                      <span>{errors.hazardType}</span>
                     </p>
                   )}
                 </fieldset>
@@ -941,16 +947,20 @@ export function ReportStepPage({
                       updateDraft({ description: event.target.value })
                     }
                     placeholder="Add details that may help someone understand your observation."
-                    className="rounded-xl bg-background/50"
+                    className="rounded-xl"
                   />
                   <div className="mt-1 flex justify-between gap-3">
                     {errors.description && (
                       <p
                         id="description-error"
                         role="alert"
-                        className="text-sm text-status-dnt"
+                        className="flex items-start gap-2 text-sm text-foreground"
                       >
-                        {errors.description}
+                        <TriangleAlert
+                          aria-hidden
+                          className="mt-0.5 size-4 shrink-0 text-status-dnt"
+                        />
+                        <span>{errors.description}</span>
                       </p>
                     )}
                     <span id="description-count" className="ml-auto sr-only">
@@ -963,7 +973,10 @@ export function ReportStepPage({
                     onApply={(patch) => {
                       updateDraft(patch);
                       if (patch.hazardType)
-                        setErrors((current) => ({ ...current, hazardType: "" }));
+                        setErrors((current) => ({
+                          ...current,
+                          hazardType: "",
+                        }));
                     }}
                   />
                 </div>
@@ -991,9 +1004,13 @@ export function ReportStepPage({
                     <p
                       id="observed-at-error"
                       role="alert"
-                      className="mt-1.5 text-sm text-status-dnt"
+                      className="mt-1.5 flex items-start gap-2 text-sm text-foreground"
                     >
-                      {errors.observedAt}
+                      <TriangleAlert
+                        aria-hidden
+                        className="mt-0.5 size-4 shrink-0 text-status-dnt"
+                      />
+                      <span>{errors.observedAt}</span>
                     </p>
                   )}
                 </div>
@@ -1079,7 +1096,7 @@ export function ReportStepPage({
             {step === "photo" && (
               <section
                 aria-labelledby="photo-heading"
-                className="rounded-2xl border border-border bg-card p-4 sm:p-7"
+                className="glass-strong rounded-2xl border border-border p-4 sm:p-7"
               >
                 <div className="grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(15rem,0.7fr)]">
                   <div>
@@ -1109,7 +1126,7 @@ export function ReportStepPage({
                       <button
                         type="button"
                         onClick={() => libraryInput.current?.click()}
-                        className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-background/40 px-3 text-center text-sm font-semibold transition-colors motion-reduce:transition-none hover:border-brand-orange hover:bg-brand-orange/10"
+                        className="glass flex min-h-32 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border px-3 text-center text-sm font-semibold transition-colors motion-reduce:transition-none hover:border-brand-orange hover:bg-brand-orange/10"
                       >
                         <span
                           aria-hidden
@@ -1157,14 +1174,25 @@ export function ReportStepPage({
                       <p
                         id="photo-error"
                         role="alert"
-                        className="mt-2 text-sm text-status-dnt"
+                        className="mt-2 flex items-start gap-2 text-sm text-foreground"
                       >
-                        {photoError}
+                        <TriangleAlert
+                          aria-hidden
+                          className="mt-0.5 size-4 shrink-0 text-status-dnt"
+                        />
+                        <span>{photoError}</span>
                       </p>
                     )}
                     {photoLoadError && (
-                      <p role="alert" className="mt-2 text-sm text-status-dnt">
-                        {photoLoadError}
+                      <p
+                        role="alert"
+                        className="mt-2 flex items-start gap-2 text-sm text-foreground"
+                      >
+                        <TriangleAlert
+                          aria-hidden
+                          className="mt-0.5 size-4 shrink-0 text-status-dnt"
+                        />
+                        <span>{photoLoadError}</span>
                       </p>
                     )}
 
@@ -1199,7 +1227,7 @@ export function ReportStepPage({
                     </div>
                   </div>
 
-                  <aside className="rounded-xl border border-border bg-background/40 p-3">
+                  <aside className="glass rounded-xl border border-border p-3">
                     <h3 className="flex items-center gap-2 text-sm font-semibold">
                       <ImagePlus aria-hidden className="size-4" /> Photo
                       information
@@ -1266,7 +1294,7 @@ export function ReportStepPage({
             {step === "location" && (
               <section
                 aria-labelledby="location-heading"
-                className="rounded-2xl border border-border bg-card p-4 sm:p-7"
+                className="glass-strong rounded-2xl border border-border p-4 sm:p-7"
               >
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div>
@@ -1349,7 +1377,7 @@ export function ReportStepPage({
                     <ul
                       role="listbox"
                       aria-label="Matching places and roads"
-                      className="absolute z-(--z-content) mt-1 max-h-60 w-full overflow-auto rounded-xl border border-border bg-popover p-1 shadow-lg"
+                      className="glass-strong absolute z-(--z-content) mt-1 max-h-60 w-full overflow-auto rounded-xl border border-border p-1"
                     >
                       {matchingOptions.map((option) => (
                         <li
@@ -1475,12 +1503,12 @@ export function ReportStepPage({
                             />
                           )}
                         {!draft.location?.lat && (
-                          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/90 px-3 py-1 text-xs">
+                          <span className="glass-pill absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 text-xs">
                             Choose a place or adjust the pin
                           </span>
                         )}
                       </button>
-                      <span className="pointer-events-none absolute bottom-2 left-2 rounded-md bg-background/90 px-2 py-1 text-xs">
+                      <span className="glass-pill pointer-events-none absolute bottom-2 left-2 px-2 py-1 text-xs">
                         Terrain preview · synthetic map
                       </span>
                     </div>
@@ -1500,7 +1528,7 @@ export function ReportStepPage({
                       )}
                     </div>
                   </div>
-                  <aside className="rounded-xl border border-border bg-background/40 p-4">
+                  <aside className="glass rounded-xl border border-border p-4">
                     <h3 className="flex items-center gap-2 font-semibold">
                       <MapPin
                         aria-hidden
@@ -1514,7 +1542,8 @@ export function ReportStepPage({
                           Road / segment
                         </dt>
                         <dd className="mt-1 font-medium">
-                          {draft.location?.roadSegment || t("loc.segmentNotChosen")}
+                          {draft.location?.roadSegment ||
+                            t("loc.segmentNotChosen")}
                         </dd>
                       </div>
                       <div>
@@ -1667,9 +1696,13 @@ export function ReportStepPage({
                   <p
                     id="location-validation-error"
                     role="alert"
-                    className="mt-3 text-sm text-status-dnt"
+                    className="mt-3 flex items-start gap-2 text-sm text-foreground"
                   >
-                    {errors.location}
+                    <TriangleAlert
+                      aria-hidden
+                      className="mt-0.5 size-4 shrink-0 text-status-dnt"
+                    />
+                    <span>{errors.location}</span>
                   </p>
                 )}
                 <p className="mt-5 rounded-xl border border-status-caution/50 bg-status-caution/10 p-3 text-sm">
@@ -1688,7 +1721,7 @@ export function ReportStepPage({
             {step === "review" && (
               <section
                 aria-labelledby="review-heading"
-                className="rounded-2xl border border-border bg-card p-4 sm:p-7"
+                className="glass-strong rounded-2xl border border-border p-4 sm:p-7"
               >
                 <h2
                   id="review-heading"
@@ -1788,9 +1821,18 @@ export function ReportStepPage({
                   road closure.
                 </p>
                 {Object.keys(errors).length > 0 && (
-                  <p role="alert" className="mt-3 text-sm text-status-dnt">
-                    Review the observation and location details before
-                    submitting.
+                  <p
+                    role="alert"
+                    className="mt-3 flex items-start gap-2 text-sm text-foreground"
+                  >
+                    <TriangleAlert
+                      aria-hidden
+                      className="mt-0.5 size-4 shrink-0 text-status-dnt"
+                    />
+                    <span>
+                      Review the observation and location details before
+                      submitting.
+                    </span>
                   </p>
                 )}
                 <div className="mt-6 flex flex-col-reverse justify-between gap-3 border-t border-border pt-5 sm:flex-row">
@@ -1902,7 +1944,7 @@ function ReviewSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-border p-4">
+    <section className="glass rounded-xl border border-border p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-semibold">{title}</h3>
         <Button type="button" variant="ghost" className="h-11" onClick={edit}>
@@ -1930,7 +1972,7 @@ function ReceivedReport({
 
   return (
     <div
-      className="photo-surface relative flex min-h-[70svh] items-center justify-center overflow-hidden bg-cover bg-center px-4 py-10"
+      className="dark photo-surface relative flex min-h-[70svh] items-center justify-center overflow-hidden bg-cover bg-center px-4 py-10"
       style={{
         backgroundImage:
           "linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 60%, var(--photo-scrim-c)), url('/img/hero-mountain.png')",
@@ -1938,7 +1980,7 @@ function ReceivedReport({
     >
       <section
         aria-labelledby="report-saved-heading"
-        className="w-full max-w-xl rounded-2xl border border-border bg-background/95 p-5 shadow-xl backdrop-blur sm:p-8"
+        className="glass-strong w-full max-w-xl rounded-2xl border border-border p-5 sm:p-8"
       >
         <div className="mt-5 flex size-14 items-center justify-center rounded-full border border-brand-orange text-brand-orange">
           <Check aria-hidden className="size-7" />
@@ -1959,7 +2001,7 @@ function ReceivedReport({
           {t("sync.notOfficialClosure")}
         </p>
         {report ? (
-          <div className="mt-5 rounded-xl border border-border p-4">
+          <div className="glass mt-5 rounded-xl border border-border p-4">
             <p className="break-all font-mono text-sm">{report.draft.id}</p>
             <div className="mt-3 grid gap-2 text-sm">
               <p>
@@ -2006,8 +2048,15 @@ function ReceivedReport({
             ) : null}
           </div>
         ) : storageError ? (
-          <p role="alert" className="mt-4 text-sm text-status-dnt">
-            {storageError}
+          <p
+            role="alert"
+            className="mt-4 flex items-start gap-2 text-sm text-foreground"
+          >
+            <TriangleAlert
+              aria-hidden
+              className="mt-0.5 size-4 shrink-0 text-status-dnt"
+            />
+            <span>{storageError}</span>
           </p>
         ) : (
           <p className="mt-4 text-sm text-muted-foreground">
@@ -2097,8 +2146,15 @@ function RetryAttachmentButton({
         {busy ? t("sync.uploading") : t("sync.retryUpload")}
       </Button>
       {error ? (
-        <p role="alert" className="text-xs text-status-dnt">
-          {t("sync.uploadFailedMessage")}
+        <p
+          role="alert"
+          className="flex items-start gap-2 text-xs text-foreground"
+        >
+          <TriangleAlert
+            aria-hidden
+            className="mt-0.5 size-3.5 shrink-0 text-status-dnt"
+          />
+          <span>{t("sync.uploadFailedMessage")}</span>
         </p>
       ) : null}
     </div>

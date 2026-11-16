@@ -1233,13 +1233,6 @@
     var(--tone-19475e)
   );
   border-radius: 0.9rem;
-  background:
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--result-accent) 13%, transparent),
-      transparent 38%
-    ),
-    linear-gradient(100deg, var(--tone-081e29), var(--tone-061821));
   padding: 0.95rem 1rem 0.95rem 1.25rem;
 }
 

@@ -345,6 +345,7 @@ describe("phase 3C remaining page glass surfaces", () => {
 describe("phase 3D source audit", () => {
   it("keeps every page container transparent and the shared main unfilled", () => {
     const shell = read("components/app-shell/app-shell.tsx");
+    const travellerCss = read("routes/traveller.css");
     expect(mainAttributes(shell)).not.toMatch(
       /\bbg-(?:background|card|popover|muted|shell-[\w-]+)\b/,
     );
@@ -366,6 +367,11 @@ describe("phase 3D source audit", () => {
           "transparent",
         );
     }
+
+    for (const resultRow of travellerCss.matchAll(
+      /\.traveller-result-row\s*\{([^}]*)\}/g,
+    ))
+      expect(resultRow[1]).not.toMatch(/\bbackground(?:-color)?\s*:/);
 
     expect(read("components/page-banner.css")).not.toMatch(
       /\.rp-error-page::(?:before|after)|\.rp-error-page[^{}]*url\(/,

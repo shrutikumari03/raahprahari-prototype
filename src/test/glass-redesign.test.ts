@@ -150,6 +150,21 @@ describe("contrast: text inside glass panels", () => {
   }
 });
 
+describe("map glass contrast", () => {
+  const mapRoute = read("routes/map.tsx");
+  const mapCss = read("routes/map.css");
+
+  it("uses the dark glass treatment for map panels in both themes and keeps links AA over bright tiles", () => {
+    expect(mapRoute).toMatch(/className="rp-map-page dark"/);
+    expect(mapCss).toMatch(/--glass-panel:\s*var\(--glass-fallback\);/);
+    expect(mapCss).toMatch(/--glass-panel-strong:\s*var\(--glass-fallback\);/);
+
+    const surface = layer(dark, "--glass-fallback", WHITE);
+    for (const text of ["--link", "--shell-link", "--foreground", "--muted-foreground"])
+      expect(contrast(hex(dark, text), surface), text).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
 describe("contrast: buttons", () => {
   it("orange gradient button: dark text passes on both ends", () => {
     for (const end of ["--accent-from", "--accent-to"])
@@ -184,7 +199,10 @@ describe("backdrop and glass structure", () => {
   it("removes the solid layers that hid it", () => {
     expect(shell).not.toMatch(/bg-shell-bg/);
     // Pages not yet redesigned keep a solid main; Home does not.
-    expect(shell).toMatch(/!isHome && "bg-background"/);
+    expect(shell).toMatch(/!isHome && !isGlassPage && "bg-background"/);
+    expect(shell).toMatch(/pathname === "\/traveller"/);
+    expect(read("routes/traveller.css")).toMatch(/background:\s*transparent;/);
+    expect(read("routes/map.css")).toMatch(/background:\s*transparent;/);
     // The light theme no longer strips every backdrop-blur.
     expect(plain).not.toMatch(/\[class\*='backdrop-blur'\][^{]*\{[^}]*backdrop-filter:\s*none/);
   });

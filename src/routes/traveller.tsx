@@ -331,8 +331,8 @@ function TravellerPage() {
 
   if (!hasSearch && searchStatus !== 'failure') {
     return (
-      <div className="traveller-page traveller-landing">
-        <section className="traveller-search-panel" aria-labelledby="traveller-title">
+      <div className="traveller-page traveller-landing dark">
+        <section className="traveller-search-panel glass" aria-labelledby="traveller-title">
           <div className="traveller-panel-content">
             <p className="traveller-eyebrow">Road advisories · Uttarakhand</p>
             <h1 id="traveller-title">Where are you travelling?</h1>
@@ -363,7 +363,7 @@ function TravellerPage() {
   const routeTo = journey && to ? place(to) : routeSummary ? place(routeSummary.segments.at(-1)?.to ?? '') : undefined
 
   return (
-    <div className="traveller-page traveller-results-page">
+    <div className="traveller-page traveller-results-page dark">
       <section className="traveller-results-banner photo-surface">
         <div className="traveller-results-heading">
           <div>
@@ -384,7 +384,7 @@ function TravellerPage() {
               type="button"
               key={key}
               aria-pressed={filter === key}
-              className={cn('traveller-filter-chip', filter === key && 'is-active')}
+              className={cn('traveller-filter-chip glass', filter === key && 'is-active')}
               onClick={() => setFilter(key)}
             >
               {key === 'roads' && <MapIcon aria-hidden />}
@@ -400,7 +400,7 @@ function TravellerPage() {
         <section className="traveller-result-list" aria-label="Search results">
           {searchStatus === 'loading' || pending ? (
             <>
-            <div className="traveller-state-card rp-fade-rise" role="status">
+            <div className="traveller-state-card glass rp-fade-rise" role="status">
               <span className="traveller-loading-mark" aria-hidden />
               <div>
                 <h2>Searching road information…</h2>
@@ -410,7 +410,7 @@ function TravellerPage() {
             <SkeletonList count={2} />
             </>
           ) : searchStatus === 'failure' || results.error ? (
-            <div className="traveller-state-card rp-fade-rise" role="alert">
+            <div className="traveller-state-card glass rp-fade-rise" role="alert">
               <TriangleAlert aria-hidden />
               <div>
                 <h2>Search could not be completed.</h2>
@@ -437,7 +437,7 @@ function TravellerPage() {
               />
             ))
           ) : results.matches.length ? (
-            <div className="traveller-empty-state rp-fade-rise">
+            <div className="traveller-empty-state glass rp-fade-rise">
               <MapPin aria-hidden />
               <div>
                 <h2>No {filter === 'roads' ? 'road' : 'hazard'} matches for this search.</h2>
@@ -453,7 +453,7 @@ function TravellerPage() {
               </Button>
             </div>
           ) : (
-            <div className="traveller-empty-state rp-fade-rise">
+            <div className="traveller-empty-state glass rp-fade-rise">
               <MapPin aria-hidden />
               <div>
                 <h2>No matching reports found.</h2>
@@ -518,7 +518,7 @@ export function ResultRow({
   return (
     <article
       id={`traveller-result-${segment.id}`}
-      className={cn('rp-card rp-enter traveller-result-row', `status-${action}`, advisory.stale && 'is-stale', selected && 'is-selected')}
+      className={cn('rp-card glass rp-enter traveller-result-row', `status-${action}`, advisory.stale && 'is-stale', selected && 'is-selected')}
     >
       <div className="traveller-result-badge">
         <ActionBadge level={action} />
@@ -608,7 +608,7 @@ function RecentSearches({
       <ul>
         {recent.map(({ query }) => (
           <li key={query}>
-            <button type="button" onClick={() => onChoose(query)}>
+            <button type="button" className="glass-pill" onClick={() => onChoose(query)}>
               <RotateCcw aria-hidden />
               {query}
             </button>
@@ -625,7 +625,7 @@ function RecentSearches({
         {!recent.length && showExample && (
           <li className="traveller-example-search">
             <span>Illustrative example</span>
-            <button type="button" onClick={() => onChoose(example)}>
+            <button type="button" className="glass-pill" onClick={() => onChoose(example)}>
               <RotateCcw aria-hidden />
               {example}
             </button>
@@ -685,7 +685,7 @@ function TravellerMap({
                 The map tiles could not be loaded. Showing road sections instead.
               </p>
             )}
-            <div className="traveller-map-list">
+            <div className="traveller-map-list glass-strong">
               <h2>Road sections</h2>
               {results.length ? results.slice(0, 6).map(({ segment }) => (
                 <div className="traveller-map-list-row" key={segment.id}>
@@ -708,7 +708,7 @@ function TravellerMap({
             </div>
           </>
         )}
-        <div className="traveller-map-toggle" role="group" aria-label="Map view">
+        <div className="traveller-map-toggle glass-strong" role="group" aria-label="Map view">
           <button
             type="button"
             aria-pressed={mode === 'map'}
@@ -724,7 +724,7 @@ function TravellerMap({
       </div>
 
       {selected && selectedAdvisory ? (
-        <div className="traveller-selected" aria-live="polite">
+        <div className="traveller-selected glass" aria-live="polite">
           <span className="sr-only">Selected road section:</span>
           <strong>
             {place(selected.from)} – {place(selected.to)} ({selected.code})
@@ -738,9 +738,9 @@ function TravellerMap({
         <p className="traveller-selected-hint">Select a road section on the map or in the list.</p>
       )}
 
-      {mode === 'map' && <LeafletMapLegend className="traveller-map-legend" />}
+      {mode === 'map' && <LeafletMapLegend className="traveller-map-legend glass-strong" />}
 
-      <div className="traveller-route-summary">
+      <div className="traveller-route-summary glass-strong">
         <div className="traveller-summary-icon"><ArrowRight aria-hidden /></div>
         <div>
           <strong>{routeFrom && routeTo ? `${routeFrom} → ${routeTo}` : 'Route summary'}</strong>

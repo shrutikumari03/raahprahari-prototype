@@ -1,16 +1,12 @@
 .traveller-page {
-  --traveller-panel: var(--tone-061822);
-  --traveller-panel-raised: var(--tone-0a202b);
-  --traveller-border: var(--tone-194459);
-  --traveller-muted: var(--tone-a7bac5);
+  --glass-panel: var(--glass-fallback);
+  --glass-panel-strong: var(--glass-fallback);
   min-height: calc(100svh - var(--rp-top-h));
   width: 100%;
   max-width: 100%;
   min-width: 0;
   overflow-x: clip;
-  background:
-    radial-gradient(ellipse at 82% 55%, color-mix(in srgb, var(--tone-0a2f3e) 35%, transparent), transparent 42%),
-    var(--tone-04131b);
+  background: transparent;
   color: var(--text-on-charcoal);
 }
 
@@ -36,9 +32,6 @@
   align-items: center;
   justify-content: center;
   padding: clamp(1.5rem, 2.5vw, 2.75rem);
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--tone-051822) 98%, transparent), color-mix(in srgb, var(--tone-041119) 98%, transparent)),
-    url('/img/map-terrain.png') center / cover;
   border-right: 1px solid color-mix(in srgb, var(--tone-2a5367) 62%, transparent);
 }
 
@@ -266,9 +259,6 @@
   min-height: 2.4rem;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid var(--tone-294c5b);
-  border-radius: 0.45rem;
-  background: color-mix(in srgb, var(--tone-0d2734) 75%, transparent);
   padding: 0.4rem 0.65rem;
   color: var(--tone-dce5e8);
   font: inherit;
@@ -344,7 +334,6 @@
   padding: 0.7rem 0.9rem;
   border: 1px solid var(--tone-1592e9);
   border-radius: 1rem;
-  background: color-mix(in srgb, var(--tone-086caa) 18%, transparent);
 }
 
 .traveller-selected-hint {
@@ -375,9 +364,7 @@
   left: 0.65rem;
   display: flex;
   gap: 0.15rem;
-  border: 1px solid var(--tone-29566d);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--tone-03141d) 92%, transparent);
   padding: 0.2rem;
 }
 
@@ -411,7 +398,6 @@
   inset: 4rem 1rem 1rem;
   overflow: auto;
   border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--tone-03121b) 88%, transparent);
   padding: 1rem;
 }
 
@@ -462,9 +448,7 @@
   align-items: center;
   gap: 0.8rem;
   margin-top: 0.6rem;
-  border: 1px solid var(--tone-21495c);
   border-radius: 0.55rem;
-  background: var(--tone-071b25);
   padding: 0.65rem 0.85rem;
 }
 
@@ -618,9 +602,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  border: 1px solid var(--tone-254b5f);
   border-radius: 0.45rem;
-  background: color-mix(in srgb, var(--tone-041822) 78%, transparent);
   padding: 0.35rem 0.85rem;
   color: var(--tone-c1d1d8);
   font: inherit;
@@ -679,9 +661,7 @@
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
-  border: 1px solid var(--tone-19475e);
   border-radius: 0.55rem;
-  background: linear-gradient(100deg, var(--tone-081e29), var(--tone-061821));
   padding: 0.7rem 0.85rem;
 }
 
@@ -862,9 +842,7 @@
   min-height: 6rem;
   align-items: center;
   gap: 1rem;
-  border: 1px solid var(--tone-19475e);
   border-radius: 1rem;
-  background: var(--tone-071b25);
   padding: 1rem 1.2rem;
 }
 
@@ -938,7 +916,7 @@
   justify-content: space-between;
   gap: 1rem;
   border-top: 1px solid color-mix(in srgb, var(--tone-264c5e) 70%, transparent);
-  background: var(--tone-031119);
+  background: transparent;
   padding: 0.5rem max(1.5rem, calc((100% - 88rem) / 2));
   color: var(--tone-a9bbc4);
   font-size: 0.75rem;

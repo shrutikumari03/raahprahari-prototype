@@ -3,6 +3,8 @@
    <main> is a flex column of bounded height, so the page grows to fit (no
    viewport-height calc() tied to a header, and the sync banner can come and go). */
 .rp-map-page {
+  --glass-panel: var(--glass-fallback);
+  --glass-panel-strong: var(--glass-fallback);
   position: relative;
   display: grid;
   flex: 1 1 0;
@@ -11,7 +13,7 @@
   grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
   color: var(--tone-e6e4dc);
-  background: var(--tone-06141d);
+  background: transparent;
 }
 /* Page tools (search + map/list view). Not navigation. */
 .rp-map-toolbar {
@@ -21,8 +23,6 @@
   align-items: center;
   gap: 12px;
   padding: 10px 24px;
-  border-bottom: 1px solid color-mix(in srgb, var(--tone-7ea0b2) 18%, transparent);
-  background: color-mix(in srgb, var(--tone-03111a) 97%, transparent);
 }
 
 .rp-map-search {
@@ -32,10 +32,8 @@
   align-items: center;
   gap: 12px;
   padding: 0 4px 0 12px;
-  border: 1px solid var(--tone-244253);
   border-radius: 10px;
   color: var(--tone-b7c8d2);
-  background: var(--tone-0c202c);
 }
 
 .rp-map-search:focus-within {
@@ -80,9 +78,7 @@
   display: inline-flex;
   gap: 2px;
   padding: 3px;
-  border: 1px solid var(--tone-203c4a);
   border-radius: 11px;
-  background: var(--tone-081b25);
 }
 
 .rp-map-toggle button {
@@ -205,10 +201,8 @@
   gap: 12px;
   overflow: auto;
   padding: 14px 16px 10px;
-  border: 1px solid var(--tone-244554);
   border-radius: 1rem;
   color: var(--tone-e6e4dc);
-  background: color-mix(in srgb, var(--tone-051721) 97%, transparent);
   box-shadow: 0 14px 34px color-mix(in srgb, var(--tone-shadow) 35%, transparent);
   scrollbar-color: var(--tone-426170) transparent;
   scrollbar-width: thin;
@@ -625,9 +619,7 @@
 .rp-map-list-card {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--tone-294451);
   border-radius: 1rem;
-  background: var(--tone-0a1e29);
 }
 
 .rp-map-list-card.is-selected {
@@ -851,9 +843,6 @@
    --level-accent comes from data-level on the panel (styles.css). */
 .rp-map-detail-panel[data-level] {
   border-top: 4px solid var(--level-accent);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--level-accent) 16%, transparent), transparent 10rem),
-    color-mix(in srgb, var(--tone-051721) 97%, transparent);
 }
 
 .rp-map-segment-title-row h2 {

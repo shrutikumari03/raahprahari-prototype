@@ -74,9 +74,9 @@ function MapPage() {
   }
 
   return (
-    <div className="rp-map-page">
-      <div className="rp-map-toolbar" role="search" aria-label="Search road segments">
-        <label className="rp-map-search">
+    <div className="rp-map-page dark">
+      <div className="rp-map-toolbar glass" role="search" aria-label="Search road segments">
+        <label className="rp-map-search glass">
           <Search aria-hidden className="size-4 shrink-0" />
           <span className="sr-only">Search by road, place, or location</span>
           <input
@@ -106,7 +106,7 @@ function MapPage() {
             </button>
           )}
         </label>
-        <div ref={toggleRef} className="rp-map-toggle rp-segmented" role="group" aria-label="Map or list view">
+        <div ref={toggleRef} className="rp-map-toggle glass-pill rp-segmented" role="group" aria-label="Map or list view">
           {(['map', 'list'] as const).map((nextView) => (
             <button
               key={nextView}
@@ -149,11 +149,11 @@ function MapPage() {
                 label="Interactive map of road segments"
                 className="rp-map-leaflet"
               />
-              <LeafletMapLegend className="rp-map-legend" />
+              <LeafletMapLegend className="rp-map-legend glass-strong" />
               <SegmentDetail
                 segmentId={selectedSegmentId}
                 variant="map"
-                className="rp-map-detail"
+                className="rp-map-detail glass-strong"
                 onClose={() => selectSegment(undefined)}
               />
             </section>
@@ -173,7 +173,7 @@ function MapPage() {
                       <article
                         key={segment.id}
                         className={cn(
-                          'rp-map-list-card',
+                          'rp-map-list-card glass',
                           segment.id === selectedSegmentId && 'is-selected',
                         )}
                       >
@@ -197,7 +197,7 @@ function MapPage() {
               <SegmentDetail
                 segmentId={selectedSegmentId}
                 variant="map"
-                className="rp-map-list-detail"
+                className="rp-map-list-detail glass-strong"
                 onClose={() => selectSegment(undefined)}
               />
             </section>

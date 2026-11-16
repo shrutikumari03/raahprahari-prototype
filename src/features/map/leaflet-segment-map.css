@@ -119,10 +119,8 @@
   width: 44px;
   height: 44px;
   place-items: center;
-  border: 1px solid var(--tone-2c5568);
   border-radius: 8px;
   color: var(--tone-e6e4dc);
-  background: color-mix(in srgb, var(--tone-07151f) 92%, transparent);
   cursor: pointer;
 }
 
@@ -141,7 +139,6 @@
   padding: 6px 10px;
   border-radius: 8px;
   color: var(--tone-e6e4dc);
-  background: color-mix(in srgb, var(--tone-07151f) 92%, transparent);
   font-size: 12px;
 }
 
@@ -163,7 +160,6 @@
   padding: 2px 8px;
   border-radius: 999px;
   color: var(--tone-e6e4dc);
-  background: color-mix(in srgb, var(--tone-07151f) 88%, transparent);
   font-size: 12px;
 }
 
@@ -177,7 +173,7 @@
 .rp-lmap .leaflet-control-attribution a { color: var(--tone-0b5cad); }
 
 /* Legend */
-.rp-lmap-legend {
+.rp-lmap-legend:not(.glass-strong) {
   padding: 10px 12px;
   border: 1px solid color-mix(in srgb, var(--tone-7ea0b2) 30%, transparent);
   border-radius: 10px;

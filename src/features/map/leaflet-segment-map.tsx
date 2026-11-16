@@ -340,17 +340,18 @@ export function LeafletSegmentMap({
         markers and Enter to select a road section.
       </p>
       <div className="rp-lmap-tools" role="group" aria-label="Map controls">
-        <button type="button" onClick={() => zoomBy(1)} aria-label="Zoom in" disabled={!ready}>
+        <button type="button" className="glass-strong" onClick={() => zoomBy(1)} aria-label="Zoom in" disabled={!ready}>
           <Plus aria-hidden />
         </button>
-        <button type="button" onClick={() => zoomBy(-1)} aria-label="Zoom out" disabled={!ready}>
+        <button type="button" className="glass-strong" onClick={() => zoomBy(-1)} aria-label="Zoom out" disabled={!ready}>
           <Minus aria-hidden />
         </button>
-        <button type="button" onClick={() => frame(fitIds)} aria-label="Reset map view" disabled={!ready}>
+        <button type="button" className="glass-strong" onClick={() => frame(fitIds)} aria-label="Reset map view" disabled={!ready}>
           <Crosshair aria-hidden />
         </button>
         <button
           type="button"
+          className="glass-strong"
           onClick={() => void locate()}
           aria-label={locating ? 'Locating…' : 'Show my location'}
           disabled={!ready || locating}
@@ -362,13 +363,13 @@ export function LeafletSegmentMap({
         {zoomStatus}
       </p>
       {locateStatus && (
-        <p className="rp-lmap-status" role="status">
+        <p className="rp-lmap-status glass-strong" role="status">
           {locateStatus}
         </p>
       )}
       <div className="rp-lmap-labels">
         {showRibbon && <PrototypeRibbon />}
-        <span className="rp-lmap-note">{SEGMENT_GEOMETRY_NOTE}</span>
+        <span className="rp-lmap-note glass-strong">{SEGMENT_GEOMETRY_NOTE}</span>
       </div>
     </div>
   )

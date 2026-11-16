@@ -104,10 +104,10 @@
 .rp-map-toggle button::after {
   position: absolute;
   inset: -4px 0;
-  content: '';
+  content: "";
 }
 
-.rp-map-toggle button[aria-pressed='true'] {
+.rp-map-toggle button[aria-pressed="true"] {
   color: var(--tone-ffffff);
   background: var(--tone-0069a6);
 }
@@ -203,7 +203,8 @@
   padding: 14px 16px 10px;
   border-radius: 1rem;
   color: var(--tone-e6e4dc);
-  box-shadow: 0 14px 34px color-mix(in srgb, var(--tone-shadow) 35%, transparent);
+  box-shadow: 0 14px 34px
+    color-mix(in srgb, var(--tone-shadow) 35%, transparent);
   scrollbar-color: var(--tone-426170) transparent;
   scrollbar-width: thin;
 }
@@ -644,7 +645,7 @@
   cursor: pointer;
 }
 
-.rp-map-list-select[aria-pressed='true'] {
+.rp-map-list-select[aria-pressed="true"] {
   color: var(--tone-73caff);
 }
 
@@ -784,7 +785,6 @@
     min-width: 44px;
     padding-inline: 5px;
   }
-
 }
 
 /* Short landscape phones (e.g. 740 x 360): after the shell's top bar, tabs and
@@ -853,10 +853,15 @@
 }
 
 .rp-map-condition {
-  border: 1px solid color-mix(in srgb, var(--level-accent, var(--tone-244554)) 45%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--level-accent, var(--tone-244554)) 45%, transparent);
   border-left: 4px solid var(--level-accent, var(--tone-244554));
   border-radius: 12px;
-  background: color-mix(in srgb, var(--level-accent, transparent) 10%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--level-accent, transparent) 10%,
+    transparent
+  );
   padding: 12px 14px;
 }
 
@@ -887,7 +892,7 @@
   border-left: 4px solid var(--level-accent, var(--status-unknown));
 }
 
-.rp-map-list-card > article.rp-status-card[data-level='unknown'] {
+.rp-map-list-card > article.rp-status-card[data-level="unknown"] {
   border-left-style: dashed;
 }
 

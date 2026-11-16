@@ -32,7 +32,8 @@
   align-items: center;
   justify-content: center;
   padding: clamp(1.5rem, 2.5vw, 2.75rem);
-  border-right: 1px solid color-mix(in srgb, var(--tone-2a5367) 62%, transparent);
+  border-right: 1px solid
+    color-mix(in srgb, var(--tone-2a5367) 62%, transparent);
 }
 
 .traveller-panel-content {
@@ -55,7 +56,7 @@
   width: 1.6rem;
   height: 2px;
   background: var(--tone-e45b31);
-  content: '';
+  content: "";
 }
 
 .traveller-search-panel h1 {
@@ -302,7 +303,9 @@
   border: 1px solid var(--tone-21495c);
   border-radius: 1rem;
   background: var(--tone-0b2531);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone-shadow) 45%, transparent), 0 12px 35px color-mix(in srgb, var(--tone-shadow) 23%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--tone-shadow) 45%, transparent),
+    0 12px 35px color-mix(in srgb, var(--tone-shadow) 23%, transparent);
 }
 
 /* Interactive Leaflet map inside the panel. */
@@ -383,7 +386,7 @@
   cursor: pointer;
 }
 
-.traveller-map-toggle button[aria-pressed='true'] {
+.traveller-map-toggle button[aria-pressed="true"] {
   background: var(--tone-087ccb);
   color: var(--tone-ffffff);
 }
@@ -432,7 +435,7 @@
   cursor: pointer;
 }
 
-.traveller-map-list-row > button[aria-pressed='true'] {
+.traveller-map-list-row > button[aria-pressed="true"] {
   color: var(--tone-9ed5ff);
   font-weight: 600;
 }
@@ -501,8 +504,13 @@
   overflow: hidden;
   border-bottom: 1px solid var(--tone-1b4559);
   background:
-    linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 50%, var(--photo-scrim-c)),
-    url('/img/banner-strip.png') center 53% / cover;
+    linear-gradient(
+      90deg,
+      var(--photo-scrim-a),
+      var(--photo-scrim-b) 50%,
+      var(--photo-scrim-c)
+    ),
+    url("/img/banner-strip.png") center 53% / cover;
   padding: 1.1rem max(1.5rem, calc((100% - 88rem) / 2)) 0.9rem;
 }
 
@@ -670,16 +678,28 @@
   inset: 0 auto 0 0;
   width: 3px;
   background: var(--result-accent);
-  content: '';
+  content: "";
 }
 
 /* The edge colour follows the shared status tokens, so a row matches its badge. */
-.traveller-result-row.status-caution { --result-accent: var(--status-caution); }
-.traveller-result-row.status-avoid { --result-accent: var(--status-avoid); }
-.traveller-result-row.status-do_not_travel { --result-accent: var(--status-dnt); }
-.traveller-result-row.status-unknown { --result-accent: var(--status-unknown); }
-.traveller-result-row.status-clear { --result-accent: var(--status-clear); }
-.traveller-result-row.is-stale { --result-accent: var(--tone-97a5ae); }
+.traveller-result-row.status-caution {
+  --result-accent: var(--status-caution);
+}
+.traveller-result-row.status-avoid {
+  --result-accent: var(--status-avoid);
+}
+.traveller-result-row.status-do_not_travel {
+  --result-accent: var(--status-dnt);
+}
+.traveller-result-row.status-unknown {
+  --result-accent: var(--status-unknown);
+}
+.traveller-result-row.status-clear {
+  --result-accent: var(--status-clear);
+}
+.traveller-result-row.is-stale {
+  --result-accent: var(--tone-97a5ae);
+}
 
 .traveller-result-badge {
   display: flex;
@@ -897,7 +917,9 @@
 }
 
 @keyframes traveller-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .traveller-results-layout .traveller-map-panel {
@@ -1194,7 +1216,6 @@
   .traveller-result-metadata {
     font-size: 0.75rem;
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1208,10 +1229,18 @@
    colours still come from --result-accent, so every row matches its badge. */
 .traveller-result-row {
   gap: 1rem;
-  border-color: color-mix(in srgb, var(--result-accent) 30%, var(--tone-19475e));
+  border-color: color-mix(
+    in srgb,
+    var(--result-accent) 30%,
+    var(--tone-19475e)
+  );
   border-radius: 0.9rem;
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--result-accent) 13%, transparent), transparent 38%),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--result-accent) 13%, transparent),
+      transparent 38%
+    ),
     linear-gradient(100deg, var(--tone-081e29), var(--tone-061821));
   padding: 0.95rem 1rem 0.95rem 1.25rem;
 }
@@ -1221,7 +1250,11 @@
 }
 
 .traveller-result-row.status-unknown::before {
-  background: repeating-linear-gradient(180deg, var(--result-accent) 0 8px, transparent 8px 13px);
+  background: repeating-linear-gradient(
+    180deg,
+    var(--result-accent) 0 8px,
+    transparent 8px 13px
+  );
 }
 
 .traveller-result-badge {

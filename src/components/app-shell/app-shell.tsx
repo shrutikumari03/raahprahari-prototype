@@ -69,7 +69,6 @@ export function AppShell({
 
   const hideSearch = shellSearchHidden(pathname);
   const isMap = pathname === "/map";
-  const isHome = pathname === "/";
 
   const openPalette = useCallback(() => {
     if (document.activeElement instanceof HTMLElement)
@@ -138,10 +137,7 @@ export function AppShell({
           aria-busy="true"
           className={cn(
             "min-w-0 flex-1 text-foreground",
-            // Glass redesign, phase by phase: Home shows the backdrop photo;
-            // pages not yet redesigned keep their solid background, so their
-            // muted text never sits on the photo.
-            !isHome && "bg-background",
+            isMap && "dark",
             isMap && "rp-shell-map flex min-h-0 flex-col",
           )}
         >

@@ -1,12 +1,35 @@
-import { Link } from '@tanstack/react-router'
-import { ArrowRight, Camera, CircleQuestionMark, Clock3, Copy, GitCompare, MapPin, Route as RouteIcon, ShieldCheck, TriangleAlert, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ActionBadge, AdvisoryBadge, CacheTimeLabel, FreshnessChip, OfficialBadge, RoadCode } from '@/components/advisory'
-import { getFreshnessState, type AdvisoryLevel, type SegmentAdvisory } from '@/lib/advisory'
-import { useAppStore } from '@/lib/app-store'
-import { usePrefs } from '@/i18n/preferences'
-import type { CommunityReport, Segment } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { Link } from "@tanstack/react-router";
+import {
+  ArrowRight,
+  Camera,
+  CircleQuestionMark,
+  Clock3,
+  Copy,
+  GitCompare,
+  MapPin,
+  Route as RouteIcon,
+  ShieldCheck,
+  TriangleAlert,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  ActionBadge,
+  AdvisoryBadge,
+  CacheTimeLabel,
+  FreshnessChip,
+  OfficialBadge,
+  RoadCode,
+} from "@/components/advisory";
+import {
+  getFreshnessState,
+  type AdvisoryLevel,
+  type SegmentAdvisory,
+} from "@/lib/advisory";
+import { useAppStore } from "@/lib/app-store";
+import { usePrefs } from "@/i18n/preferences";
+import type { CommunityReport, Segment } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 function Block({
   title,
@@ -29,7 +52,7 @@ export function ReportCard({ report }: { report: CommunityReport }) {
   const { t, ago, stamp } = usePrefs();
   const isHazard = report.kind === "hazard";
   return (
-    <li className="rounded-xl border border-border bg-raised/60 p-3.5">
+    <li className="glass rounded-xl p-3.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-2 font-semibold">
           {isHazard ? (
@@ -101,10 +124,13 @@ export function SegmentDetail({
   className?: string;
   variant?: "default" | "map" | "overview";
 }) {
-  const { t, ago, stamp, place } = usePrefs()
-  const { segments, corridors, advisories, advisoryCacheTimestamp } = useAppStore()
-  const seg = segment ?? (segmentId ? segments.find((s) => s.id === segmentId) : undefined)
-  const adv = seg ? advisories.get(seg.id) : undefined
+  const { t, ago, stamp, place } = usePrefs();
+  const { segments, corridors, advisories, advisoryCacheTimestamp } =
+    useAppStore();
+  const seg =
+    segment ??
+    (segmentId ? segments.find((s) => s.id === segmentId) : undefined);
+  const adv = seg ? advisories.get(seg.id) : undefined;
 
   if (!seg || !adv) {
     return (
@@ -120,13 +146,15 @@ export function SegmentDetail({
     );
   }
 
-  const corridor = corridors.find((c) => c.id === seg.corridorId)
-  const hazards = adv.evidence.filter((r) => r.kind === 'hazard')
-  const latestHazard = hazards[0]
-  const unverified = adv.evidence.some((r) => r.kind === 'hazard' && r.status !== 'verified')
-  const sources = new Set(adv.evidence.map((r) => r.source))
-  const r = adv.restriction
-  const cacheTimestamp = advisoryCacheTimestamp
+  const corridor = corridors.find((c) => c.id === seg.corridorId);
+  const hazards = adv.evidence.filter((r) => r.kind === "hazard");
+  const latestHazard = hazards[0];
+  const unverified = adv.evidence.some(
+    (r) => r.kind === "hazard" && r.status !== "verified",
+  );
+  const sources = new Set(adv.evidence.map((r) => r.source));
+  const r = adv.restriction;
+  const cacheTimestamp = advisoryCacheTimestamp;
 
   if (variant === "map") {
     return (
@@ -147,7 +175,7 @@ export function SegmentDetail({
   return (
     <section
       aria-labelledby="seg-title"
-      className={cn("rounded-2xl border border-border bg-card p-5", className)}
+      className={cn("glass-strong rounded-2xl p-5", className)}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -329,17 +357,12 @@ function OverviewSegmentDetail({
   segment,
   className,
 }: {
-  segment: Segment
-  className?: string
+  segment: Segment;
+  className?: string;
 }) {
   const { place, duration } = usePrefs();
   return (
-    <section
-      className={cn(
-        "rounded-xl border border-border bg-card p-3 sm:p-4",
-        className,
-      )}
-    >
+    <section className={cn("glass rounded-xl p-3 sm:p-4", className)}>
       <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
         <RouteIcon aria-hidden className="size-5 shrink-0 text-blue-on-dark" />
         Route details
@@ -397,7 +420,7 @@ export function StatusTimeline({
   report: CommunityReport;
   level: AdvisoryLevel;
 }) {
-  const { t, ago, stamp } = usePrefs()
+  const { t, ago, stamp } = usePrefs();
   const communityLevel: AdvisoryLevel =
     level === "clear" || level === "do_not_travel" ? "unknown" : level;
   const statusLabel =
@@ -409,12 +432,12 @@ export function StatusTimeline({
           ? "Conflicting information noted"
           : "Community review status updated";
   return (
-    <section className="rounded-xl border border-border bg-card p-4">
+    <section className="glass rounded-xl p-4">
       <h2 className="mb-4 text-sm font-semibold">Status history</h2>
       <ol className="space-y-4 border-l border-border pl-4">
         <li className="relative">
           <span className="absolute top-1 -left-[1.32rem] size-2.5 rounded-full bg-blue-on-dark" />
-          <p className="text-sm font-medium">{t('segment.timelineReported')}</p>
+          <p className="text-sm font-medium">{t("segment.timelineReported")}</p>
           <p className="text-xs text-muted-foreground">
             {ago(report.receivedAt)} · {stamp(report.receivedAt)}
           </p>
@@ -428,7 +451,7 @@ export function StatusTimeline({
         </li>
         <li className="relative">
           <span className="absolute top-1 -left-[1.32rem] size-2.5 rounded-full border-2 border-status-unknown bg-background" />
-          <p className="text-sm font-medium">{t('segment.aiIndication')}</p>
+          <p className="text-sm font-medium">{t("segment.aiIndication")}</p>
           <ActionBadge level={communityLevel} className="mt-2" />
         </li>
       </ol>
@@ -443,16 +466,18 @@ export function MapSegmentDetail({
   onClose,
   className,
 }: {
-  segment: Segment
-  advisory: SegmentAdvisory
-  corridorName?: string
-  onClose?: () => void
-  className?: string
+  segment: Segment;
+  advisory: SegmentAdvisory;
+  corridorName?: string;
+  onClose?: () => void;
+  className?: string;
 }) {
-  const { t, ago, stamp, place } = usePrefs()
-  const { advisoryCacheTimestamp: cacheTimestamp } = useAppStore()
-  const sourceTimestamp = advisory.latestObservationAt
-  const condition = advisory.evidence.find((report) => report.kind === 'hazard') ?? advisory.evidence[0]
+  const { t, ago, stamp, place } = usePrefs();
+  const { advisoryCacheTimestamp: cacheTimestamp } = useAppStore();
+  const sourceTimestamp = advisory.latestObservationAt;
+  const condition =
+    advisory.evidence.find((report) => report.kind === "hazard") ??
+    advisory.evidence[0];
   const source = advisory.evidence.length
     ? t("source.community")
     : advisory.restriction
@@ -521,10 +546,14 @@ export function MapSegmentDetail({
 
       <dl className="rp-map-observation-grid">
         <div>
-          <dt>{t('segment.observationTime')}</dt>
+          <dt>{t("segment.observationTime")}</dt>
           <dd>
-            {advisory.latestObservationAt ? ago(advisory.latestObservationAt) : t('common.unknown')}
-            {advisory.latestObservationAt && <small>{stamp(advisory.latestObservationAt)}</small>}
+            {advisory.latestObservationAt
+              ? ago(advisory.latestObservationAt)
+              : t("common.unknown")}
+            {advisory.latestObservationAt && (
+              <small>{stamp(advisory.latestObservationAt)}</small>
+            )}
           </dd>
         </div>
         <div>
@@ -537,9 +566,9 @@ export function MapSegmentDetail({
           </dd>
         </div>
         <div>
-          <dt>{t('segment.sourceTime')}</dt>
+          <dt>{t("segment.sourceTime")}</dt>
           <dd>
-            {sourceTimestamp ? ago(sourceTimestamp) : t('common.unknown')}
+            {sourceTimestamp ? ago(sourceTimestamp) : t("common.unknown")}
             {sourceTimestamp && <small>{stamp(sourceTimestamp)}</small>}
           </dd>
         </div>
@@ -568,7 +597,7 @@ export function MapSegmentDetail({
         params={{ segmentId: segment.id }}
         className="rp-map-details-link"
       >
-        {t('common.viewDetails')} <ArrowRight aria-hidden />
+        {t("common.viewDetails")} <ArrowRight aria-hidden />
       </Link>
 
       <div className="rp-map-reports">
@@ -617,7 +646,7 @@ function MapReportRow({
       : "Community condition report";
 
   return (
-    <li className="rp-map-report-row">
+    <li className="rp-map-report-row glass">
       <div className="rp-map-report-icon">
         {level === "unknown" ? (
           <CircleQuestionMark aria-hidden />

@@ -113,7 +113,7 @@ export function ReviewDetailView({ report }: { report: CommunityReport }) {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <section
           aria-labelledby="review-report-title"
-          className="rp-info-card min-w-0"
+          className="rp-info-card glass min-w-0"
         >
           <div className="flex flex-wrap items-start justify-between gap-2">
             <h2 id="review-report-title" className="m-0!">
@@ -159,7 +159,7 @@ export function ReviewDetailView({ report }: { report: CommunityReport }) {
         <div className="grid min-w-0 content-start gap-4">
           <section
             aria-labelledby="review-assignment-title"
-            className="rp-info-card"
+            className="rp-info-card glass"
           >
             <h2 id="review-assignment-title">
               {t("review.detail.assignment")}
@@ -206,7 +206,7 @@ export function ReviewDetailView({ report }: { report: CommunityReport }) {
 
           <section
             aria-labelledby="review-decision-title"
-            className="rp-info-card"
+            className="rp-info-card glass"
           >
             <h2 id="review-decision-title">
               {t("review.detail.decisionTitle")}
@@ -227,7 +227,7 @@ export function ReviewDetailView({ report }: { report: CommunityReport }) {
           {segment && (
             <section
               aria-labelledby="review-road-title"
-              className="rp-info-card"
+              className="rp-info-card glass"
             >
               <h2 id="review-road-title">{t("review.detail.road")}</h2>
               <RoadCode className="mt-2 block">
@@ -249,7 +249,10 @@ export function ReviewDetailView({ report }: { report: CommunityReport }) {
         </div>
       </div>
 
-      <section aria-labelledby="review-related-title" className="rp-info-card">
+      <section
+        aria-labelledby="review-related-title"
+        className="rp-info-card glass"
+      >
         <h2 id="review-related-title">{t("review.detail.related")}</h2>
         {related.linked.length || related.sameSegment.length ? (
           <>

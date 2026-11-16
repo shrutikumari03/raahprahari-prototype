@@ -1,6 +1,6 @@
-@import 'tailwindcss' source('../');
+@import "tailwindcss" source("../");
 
-@import 'tw-animate-css';
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -17,11 +17,11 @@ code {
 
 :root {
   --font-body:
-    'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI',
+    "Inter", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI",
     Roboto, sans-serif;
   /* Glass redesign: one clean sans for headings and body (Oxanium dropped). */
-  --font-heading: 'Inter', system-ui, sans-serif;
-  --font-mono-rp: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  --font-heading: "Inter", system-ui, sans-serif;
+  --font-mono-rp: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --space-unit: 0.25rem;
   --content-width: 75rem;
   --reading-width: 42rem;
@@ -338,7 +338,7 @@ code {
     letter-spacing: -0.01em;
   }
   :lang(hi) .font-display {
-    font-family: 'Noto Sans Devanagari', var(--font-heading);
+    font-family: "Noto Sans Devanagari", var(--font-heading);
     letter-spacing: 0;
   }
   a.rp-link {
@@ -382,8 +382,16 @@ code {
 /* Subtle technical grid used behind cards: static, no animation */
 .rp-grid-bg {
   background-image:
-    linear-gradient(to right, color-mix(in oklab, var(--border) 35%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--border) 35%, transparent) 1px, transparent 1px);
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--border) 35%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--border) 35%, transparent) 1px,
+      transparent 1px
+    );
   background-size: 48px 48px;
 }
 
@@ -532,24 +540,27 @@ code {
 
 /* Buttons, pills, tabs, icon buttons, links styled as buttons. */
 .rp-interactive {
-  transition-property: color, background-color, border-color, box-shadow, translate, scale, opacity;
+  transition-property:
+    color, background-color, border-color, box-shadow, translate, scale, opacity;
   transition-duration: var(--motion-base);
   transition-timing-function: var(--ease-out);
 }
-.rp-interactive:not(:disabled):not([aria-disabled='true']):active {
+.rp-interactive:not(:disabled):not([aria-disabled="true"]):active {
   scale: var(--scale-press);
   transition-duration: var(--motion-fast);
 }
 .rp-interactive:disabled,
-.rp-interactive[aria-disabled='true'] {
+.rp-interactive[aria-disabled="true"] {
   cursor: not-allowed;
 }
 @media (hover: hover) and (pointer: fine) {
-  .rp-interactive:not(:disabled):not([aria-disabled='true']):not([data-loading='true']):not([data-variant='link']):not(:focus-visible):hover {
+  .rp-interactive:not(:disabled):not([aria-disabled="true"]):not(
+      [data-loading="true"]
+    ):not([data-variant="link"]):not(:focus-visible):hover {
     translate: 0 var(--lift-hover);
     box-shadow: var(--shadow-2);
   }
-  .rp-interactive[data-size^='icon']:not(:disabled):hover > svg {
+  .rp-interactive[data-size^="icon"]:not(:disabled):hover > svg {
     scale: var(--scale-hover);
   }
 }
@@ -559,8 +570,11 @@ code {
 
 /* Press-only feedback (nav items, toggles, chips). No hover lift. */
 .rp-press {
-  transition: scale var(--motion-fast) var(--ease-out), color var(--motion-base) var(--ease-out),
-    background-color var(--motion-base) var(--ease-out), border-color var(--motion-base) var(--ease-out);
+  transition:
+    scale var(--motion-fast) var(--ease-out),
+    color var(--motion-base) var(--ease-out),
+    background-color var(--motion-base) var(--ease-out),
+    border-color var(--motion-base) var(--ease-out);
 }
 .rp-press:not(:disabled):active {
   scale: var(--scale-press);
@@ -576,11 +590,15 @@ code {
   overflow: hidden;
 }
 .rp-ripple::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(circle, rgb(255 255 255 / 70%) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgb(255 255 255 / 70%) 0%,
+    transparent 70%
+  );
   opacity: 0;
   scale: 0.3;
   pointer-events: none;
@@ -595,7 +613,7 @@ a:active > .rp-ripple::after {
   position: relative;
 }
 .rp-underline::after {
-  content: '';
+  content: "";
   position: absolute;
   inset-inline: 0.625rem;
   bottom: 0;
@@ -605,7 +623,7 @@ a:active > .rp-ripple::after {
   scale: 0 1;
   transition: scale var(--motion-base) var(--ease-out);
 }
-.rp-underline[aria-current='page']::after,
+.rp-underline[aria-current="page"]::after,
 .rp-underline:focus-visible::after {
   scale: 1 1;
 }
@@ -660,37 +678,61 @@ a:active > .rp-ripple::after {
 .rp-pop {
   animation: rp-pop var(--motion-slow) var(--ease-spring) backwards;
 }
-.rp-enter:nth-child(2) { animation-delay: calc(var(--stagger-step) * 1); }
-.rp-enter:nth-child(3) { animation-delay: calc(var(--stagger-step) * 2); }
-.rp-enter:nth-child(4) { animation-delay: calc(var(--stagger-step) * 3); }
-.rp-enter:nth-child(5) { animation-delay: calc(var(--stagger-step) * 4); }
-.rp-enter:nth-child(6) { animation-delay: calc(var(--stagger-step) * 5); }
-.rp-enter:nth-child(7) { animation-delay: calc(var(--stagger-step) * 6); }
-.rp-enter:nth-child(8) { animation-delay: calc(var(--stagger-step) * 7); }
-.rp-enter:nth-child(n + 9) { animation: none; }
+.rp-enter:nth-child(2) {
+  animation-delay: calc(var(--stagger-step) * 1);
+}
+.rp-enter:nth-child(3) {
+  animation-delay: calc(var(--stagger-step) * 2);
+}
+.rp-enter:nth-child(4) {
+  animation-delay: calc(var(--stagger-step) * 3);
+}
+.rp-enter:nth-child(5) {
+  animation-delay: calc(var(--stagger-step) * 4);
+}
+.rp-enter:nth-child(6) {
+  animation-delay: calc(var(--stagger-step) * 5);
+}
+.rp-enter:nth-child(7) {
+  animation-delay: calc(var(--stagger-step) * 6);
+}
+.rp-enter:nth-child(8) {
+  animation-delay: calc(var(--stagger-step) * 7);
+}
+.rp-enter:nth-child(n + 9) {
+  animation: none;
+}
 
 .rp-page-enter {
   animation: rp-rise var(--motion-base) var(--ease-out) backwards;
 }
 
 /* Sections reveal once when scrolled into view (see RevealObserver). */
-[data-reveal-state='hidden'] {
+[data-reveal-state="hidden"] {
   opacity: 0;
   translate: 0 12px;
 }
-[data-reveal-state='visible'] {
+[data-reveal-state="visible"] {
   opacity: 1;
   translate: 0 0;
-  transition: opacity var(--motion-slow) var(--ease-out), translate var(--motion-slow) var(--ease-out);
+  transition:
+    opacity var(--motion-slow) var(--ease-out),
+    translate var(--motion-slow) var(--ease-out);
 }
 
 /* Home hero: text staggers in, background zooms at most 3% once. */
 .rp-hero-stagger > * {
   animation: rp-rise var(--motion-slow) var(--ease-out) backwards;
 }
-.rp-hero-stagger > :nth-child(2) { animation-delay: calc(var(--stagger-step) * 2); }
-.rp-hero-stagger > :nth-child(3) { animation-delay: calc(var(--stagger-step) * 4); }
-.rp-hero-stagger > :nth-child(n + 4) { animation-delay: calc(var(--stagger-step) * 6); }
+.rp-hero-stagger > :nth-child(2) {
+  animation-delay: calc(var(--stagger-step) * 2);
+}
+.rp-hero-stagger > :nth-child(3) {
+  animation-delay: calc(var(--stagger-step) * 4);
+}
+.rp-hero-stagger > :nth-child(n + 4) {
+  animation-delay: calc(var(--stagger-step) * 6);
+}
 .rp-hero-zoom {
   transform-origin: 58% 50%;
   animation: rp-hero-zoom var(--motion-hero) var(--ease-out) forwards;
@@ -701,7 +743,7 @@ a:active > .rp-ripple::after {
   position: relative;
 }
 .rp-attn::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: -2px;
   border-radius: inherit;
@@ -719,7 +761,7 @@ a:active > .rp-ripple::after {
 
 /* Sliding highlight behind a two-option toggle (see useSlidingHighlight). */
 .rp-segmented::before {
-  content: '';
+  content: "";
   position: absolute;
   z-index: -1;
   top: var(--rp-seg-y, 0);
@@ -730,10 +772,12 @@ a:active > .rp-ripple::after {
   border-radius: 0.375rem;
   background: var(--rp-seg-bg, var(--primary));
   opacity: var(--rp-seg-on, 0);
-  transition: translate var(--motion-base) var(--ease-out), width var(--motion-base) var(--ease-out),
+  transition:
+    translate var(--motion-base) var(--ease-out),
+    width var(--motion-base) var(--ease-out),
     opacity var(--motion-fast) var(--ease-out);
 }
-.rp-segmented[data-measured='true'] > button[aria-pressed='true'] {
+.rp-segmented[data-measured="true"] > button[aria-pressed="true"] {
   background: transparent !important;
 }
 .rp-segmented > button {
@@ -744,10 +788,12 @@ a:active > .rp-ripple::after {
 
 /* Form fields: border colour and glow animate on focus. */
 .rp-field {
-  transition: border-color var(--motion-base) var(--ease-out), box-shadow var(--motion-base) var(--ease-out),
+  transition:
+    border-color var(--motion-base) var(--ease-out),
+    box-shadow var(--motion-base) var(--ease-out),
     background-color var(--motion-base) var(--ease-out);
 }
-.rp-field:focus-visible:not([aria-invalid='true']) {
+.rp-field:focus-visible:not([aria-invalid="true"]) {
   box-shadow: var(--glow-focus);
 }
 
@@ -757,10 +803,15 @@ a:active > .rp-ripple::after {
   overflow: hidden;
 }
 .rp-shimmer::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--foreground) 12%, transparent), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--foreground) 12%, transparent),
+    transparent
+  );
   animation: rp-shimmer var(--motion-shimmer) var(--ease-standard) infinite;
 }
 
@@ -770,10 +821,12 @@ a:active > .rp-ripple::after {
   visibility: hidden;
   pointer-events: none;
   translate: 0 8px;
-  transition: opacity var(--motion-base) var(--ease-out), translate var(--motion-base) var(--ease-out),
+  transition:
+    opacity var(--motion-base) var(--ease-out),
+    translate var(--motion-base) var(--ease-out),
     visibility 0s linear var(--motion-base);
 }
-.rp-fab[data-visible='true'] {
+.rp-fab[data-visible="true"] {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -785,7 +838,7 @@ a:active > .rp-ripple::after {
 .rp-icon-swap {
   animation: rp-icon-in var(--motion-base) var(--ease-spring) backwards;
 }
-[data-leaving='true'] {
+[data-leaving="true"] {
   animation: rp-leave var(--motion-base) var(--ease-in) forwards;
   pointer-events: none;
 }
@@ -793,8 +846,11 @@ html.rp-theme-fade,
 html.rp-theme-fade *,
 html.rp-theme-fade *::before,
 html.rp-theme-fade *::after {
-  transition: background-color var(--motion-base) var(--ease-standard), color var(--motion-base) var(--ease-standard),
-    border-color var(--motion-base) var(--ease-standard), fill var(--motion-base) var(--ease-standard),
+  transition:
+    background-color var(--motion-base) var(--ease-standard),
+    color var(--motion-base) var(--ease-standard),
+    border-color var(--motion-base) var(--ease-standard),
+    fill var(--motion-base) var(--ease-standard),
     stroke var(--motion-base) var(--ease-standard) !important;
 }
 
@@ -827,7 +883,7 @@ html.rp-theme-fade *::after {
     scale: 1 1 !important;
     opacity: 0;
   }
-  .rp-underline[aria-current='page']::after {
+  .rp-underline[aria-current="page"]::after {
     opacity: 1;
   }
   [data-reveal-state] {
@@ -1039,7 +1095,8 @@ html.rp-theme-fade *::after {
   --photo-scrim-c: rgb(3 15 22 / 40%);
   --photo-scrim-flat: rgb(3 15 22 / 55%);
   --photo-text: #f6f4ec;
-  --photo-text-shadow-soft: 0 1px 5px color-mix(in srgb, var(--tone-shadow) 40%, transparent);
+  --photo-text-shadow-soft: 0 1px 5px
+    color-mix(in srgb, var(--tone-shadow) 40%, transparent);
   --photo-text-shadow-tone: 0 1px 5px var(--tone-07151f);
   --photo-text-muted: #d8e0e4;
   --photo-card-bg: rgb(5 20 29 / 88%);
@@ -1263,14 +1320,14 @@ textarea::placeholder {
 }
 
 /* Visible hover, press, focus and selected states in light mode. */
-:root:not(.dark) a:not([class*='bg-']):hover,
-:root:not(.dark) button:not([class*='bg-']):not(:disabled):hover {
+:root:not(.dark) a:not([class*="bg-"]):hover,
+:root:not(.dark) button:not([class*="bg-"]):not(:disabled):hover {
   background-color: var(--rp-hover-bg);
 }
-:root:not(.dark) [role='tab'][aria-selected='true'],
-:root:not(.dark) [role='tab'][data-state='active'],
-:root:not(.dark) button[aria-pressed='true'],
-:root:not(.dark) a[aria-current='page'].rp-press {
+:root:not(.dark) [role="tab"][aria-selected="true"],
+:root:not(.dark) [role="tab"][data-state="active"],
+:root:not(.dark) button[aria-pressed="true"],
+:root:not(.dark) a[aria-current="page"].rp-press {
   box-shadow: inset 0 0 0 2px var(--rp-selected-ring);
   font-weight: 600;
 }
@@ -1284,7 +1341,8 @@ textarea::placeholder {
 :root:not(.dark) :focus-visible {
   outline: 3px solid var(--ring);
   outline-offset: 2px;
-  box-shadow: 0 0 0 5px color-mix(in oklab, var(--brand-orange) 55%, transparent);
+  box-shadow: 0 0 0 5px
+    color-mix(in oklab, var(--brand-orange) 55%, transparent);
 }
 
 /* Header and navigation chrome (light theme). Orange is the one accent and
@@ -1293,11 +1351,11 @@ textarea::placeholder {
 :root:not(.dark) .rp-underline::after {
   background: var(--orange-on-light);
 }
-:root:not(.dark) .rp-lang .rp-lang-btn[aria-pressed='true'] {
+:root:not(.dark) .rp-lang .rp-lang-btn[aria-pressed="true"] {
   box-shadow: inset 0 0 0 2px var(--foreground);
 }
 /* The bottom nav shows the current page with its orange top marker instead. */
-:root:not(.dark) .rp-bottom-nav a[aria-current='page'].rp-press {
+:root:not(.dark) .rp-bottom-nav a[aria-current="page"].rp-press {
   box-shadow: none;
 }
 
@@ -1343,26 +1401,27 @@ textarea::placeholder {
   visibility: hidden;
   pointer-events: none;
 }
-.rp-boot[data-phase='shown'] {
+.rp-boot[data-phase="shown"] {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
-.rp-boot[data-phase='leaving'] {
+.rp-boot[data-phase="leaving"] {
   opacity: 0;
   visibility: visible;
   transition: opacity 250ms var(--ease-out);
 }
-.rp-boot[data-phase='gone'] {
+.rp-boot[data-phase="gone"] {
   display: none;
 }
-.rp-boot[data-state='error'] {
+.rp-boot[data-state="error"] {
   inset: 5rem 1rem auto auto;
   width: min(24rem, calc(100% - 2rem));
   border: 1px solid var(--border);
   border-radius: 1rem;
   background: var(--card);
-  box-shadow: 0 12px 35px color-mix(in srgb, var(--tone-shadow) 30%, transparent);
+  box-shadow: 0 12px 35px
+    color-mix(in srgb, var(--tone-shadow) 30%, transparent);
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -1414,7 +1473,7 @@ textarea::placeholder {
 }
 @media (prefers-reduced-motion: reduce) {
   /* The guard script hides it at once; this covers a fade already running. */
-  .rp-boot[data-phase='leaving'] {
+  .rp-boot[data-phase="leaving"] {
     transition: none;
   }
   .rp-route-progress {
@@ -1486,19 +1545,29 @@ textarea::placeholder {
 }
 /* Light-mode hover rule elsewhere adds a background to bare links; shell
    items manage their own hover with tokens. */
-:root:not(.dark) .rp-shell a:not([class*='bg-']):hover,
-:root:not(.dark) .rp-shell button:not([class*='bg-']):not(:disabled):hover {
+:root:not(.dark) .rp-shell a:not([class*="bg-"]):hover,
+:root:not(.dark) .rp-shell button:not([class*="bg-"]):not(:disabled):hover {
   background-color: var(--shell-raised);
 }
 
 /* ── Unslop: shared status accents ───────────────────────────────────────────
    Any element with data-level gets --level-accent from the status tokens, so
    card edges always match the badge. Unknown is grey and dashed, never green. */
-[data-level='clear'] { --level-accent: var(--status-clear); }
-[data-level='caution'] { --level-accent: var(--status-caution); }
-[data-level='avoid'] { --level-accent: var(--status-avoid); }
-[data-level='do_not_travel'] { --level-accent: var(--status-dnt); }
-[data-level='unknown'] { --level-accent: var(--status-unknown); }
+[data-level="clear"] {
+  --level-accent: var(--status-clear);
+}
+[data-level="caution"] {
+  --level-accent: var(--status-caution);
+}
+[data-level="avoid"] {
+  --level-accent: var(--status-avoid);
+}
+[data-level="do_not_travel"] {
+  --level-accent: var(--status-dnt);
+}
+[data-level="unknown"] {
+  --level-accent: var(--status-unknown);
+}
 
 .rp-status-card {
   position: relative;
@@ -1506,10 +1575,14 @@ textarea::placeholder {
   border-left-width: 4px;
   border-left-color: var(--level-accent, var(--status-unknown));
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--level-accent, transparent) 9%, transparent), transparent 45%),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--level-accent, transparent) 9%, transparent),
+      transparent 45%
+    ),
     var(--card);
 }
-.rp-status-card[data-level='unknown'] {
+.rp-status-card[data-level="unknown"] {
   border-left-style: dashed;
 }
 
@@ -1542,7 +1615,8 @@ textarea::placeholder {
 .rp-card,
 .rp-hover-card {
   --card-accent: var(--link);
-  transition-property: translate, scale, border-color, box-shadow, background-color;
+  transition-property:
+    translate, scale, border-color, box-shadow, background-color;
   transition-duration: 220ms;
   transition-timing-function: var(--ease-out);
 }
@@ -1709,8 +1783,13 @@ a.rp-hover-card:focus-visible {
   pointer-events: none;
   background-color: var(--backdrop-fallback-a);
   background-image:
-    url('/img/hero-road.png'),
-    linear-gradient(135deg, var(--backdrop-fallback-a), var(--backdrop-fallback-b) 55%, var(--backdrop-fallback-c));
+    url("/img/hero-road.png"),
+    linear-gradient(
+      135deg,
+      var(--backdrop-fallback-a),
+      var(--backdrop-fallback-b) 55%,
+      var(--backdrop-fallback-c)
+    );
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -1719,7 +1798,7 @@ a.rp-hover-card:focus-visible {
 .rp-backdrop::after {
   position: absolute;
   inset: 0;
-  content: '';
+  content: "";
 }
 .rp-backdrop::before {
   background:
@@ -1727,7 +1806,12 @@ a.rp-hover-card:focus-visible {
     radial-gradient(circle at 8% 92%, var(--backdrop-glow), transparent 38%);
 }
 .rp-backdrop::after {
-  background: linear-gradient(135deg, var(--backdrop-a), var(--backdrop-b) 50%, var(--backdrop-c));
+  background: linear-gradient(
+    135deg,
+    var(--backdrop-a),
+    var(--backdrop-b) 50%,
+    var(--backdrop-c)
+  );
 }
 
 @layer components {
@@ -1756,7 +1840,9 @@ a.rp-hover-card:focus-visible {
   .glass-pill {
     border-radius: 9999px;
   }
-  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  @supports (
+    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+  ) {
     .glass,
     .glass-pill {
       background-color: var(--glass-panel);
@@ -1790,7 +1876,11 @@ a.rp-hover-card:focus-visible {
   a.glass:hover,
   a.glass-pill:hover,
   button.glass-pill:hover,
-  .glass-lift:hover {
+  a.glass-strong:hover,
+  a.glass-accent:hover,
+  button.glass:hover,
+  button.glass-strong:hover,
+  button.glass-accent:hover {
     border-color: color-mix(in srgb, var(--glass-line) 40%, var(--shell-text));
     translate: 0 -1px;
   }
@@ -1798,7 +1888,11 @@ a.rp-hover-card:focus-visible {
   .glass-btn-accent {
     border: 0;
     background-color: var(--accent-to);
-    background-image: linear-gradient(180deg, var(--accent-from), var(--accent-to));
+    background-image: linear-gradient(
+      180deg,
+      var(--accent-from),
+      var(--accent-to)
+    );
     color: var(--accent-ink);
     box-shadow: var(--accent-glow);
     transition:
@@ -1842,12 +1936,14 @@ a.rp-hover-card:focus-visible {
     background-color 300ms var(--ease-out),
     border-color 300ms var(--ease-out);
 }
-.rp-topbar[data-scrolled='true'] {
+.rp-topbar[data-scrolled="true"] {
   border-color: var(--glass-line);
   background-color: var(--glass-fallback);
 }
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .rp-topbar[data-scrolled='true'] {
+@supports (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .rp-topbar[data-scrolled="true"] {
     background-color: var(--glass-panel-strong);
     -webkit-backdrop-filter: blur(24px) saturate(150%);
     backdrop-filter: blur(24px) saturate(150%);
@@ -1867,7 +1963,6 @@ a.rp-hover-card:focus-visible {
   a.glass:hover,
   a.glass-pill:hover,
   button.glass-pill:hover,
-  .glass-lift:hover,
   .glass-btn-accent:hover,
   .glass-btn-frost:hover {
     translate: none;
@@ -1881,7 +1976,9 @@ a.rp-hover-card:focus-visible {
 .toaster[data-sonner-toaster][data-sonner-theme] {
   --normal-bg: var(--glass-fallback);
 }
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+@supports (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
   .toaster[data-sonner-toaster][data-sonner-theme] {
     --normal-bg: var(--glass-panel-strong);
   }
@@ -1895,12 +1992,12 @@ a.rp-hover-card:focus-visible {
    INSIDE the edge (offset -2px) so it sits on the glass panel itself: 3:1 or
    better against the strong panel in both themes (tested in
    glass-redesign.test.ts). :focus-visible only, so a mouse click shows none. */
-[data-slot='dropdown-menu-content'][data-open-source='keyboard']:focus-visible,
-[data-slot='dropdown-menu-sub-content']:focus-visible,
-[data-slot='popover-content']:focus-visible,
-[data-slot='select-content']:focus-visible,
-[data-slot='dialog-content']:focus-visible,
-[data-slot='sheet-content']:focus-visible {
+[data-slot="dropdown-menu-content"][data-open-source="keyboard"]:focus-visible,
+[data-slot="dropdown-menu-sub-content"]:focus-visible,
+[data-slot="popover-content"]:focus-visible,
+[data-slot="select-content"]:focus-visible,
+[data-slot="dialog-content"]:focus-visible,
+[data-slot="sheet-content"]:focus-visible {
   outline: 2px solid var(--ring) !important;
   outline-offset: -2px !important;
 }
@@ -1908,24 +2005,24 @@ a.rp-hover-card:focus-visible {
    so that is where its ring goes: the same 2px --ring, inside the item. Not
    for pointer opens, where Edge still reports :focus-visible on every item the
    mouse passes over (Radix focuses it). */
-[data-slot='dropdown-menu-content'][data-open-source='keyboard']
+[data-slot="dropdown-menu-content"][data-open-source="keyboard"]
   :is(
-    [data-slot='dropdown-menu-item'],
-    [data-slot='dropdown-menu-checkbox-item'],
-    [data-slot='dropdown-menu-radio-item'],
-    [data-slot='dropdown-menu-sub-trigger']
+    [data-slot="dropdown-menu-item"],
+    [data-slot="dropdown-menu-checkbox-item"],
+    [data-slot="dropdown-menu-radio-item"],
+    [data-slot="dropdown-menu-sub-trigger"]
   ):focus-visible {
   outline: 2px solid var(--ring) !important;
   outline-offset: -2px !important;
 }
 /* Light theme: the global :focus-visible rule also adds a 5px orange shadow,
    which replaces the container's glass shadow. Keep the glass shadow. */
-:root:not(.dark) [data-slot='dropdown-menu-content']:focus-visible,
-:root:not(.dark) [data-slot='dropdown-menu-sub-content']:focus-visible,
-:root:not(.dark) [data-slot='popover-content']:focus-visible,
-:root:not(.dark) [data-slot='select-content']:focus-visible,
-:root:not(.dark) [data-slot='dialog-content']:focus-visible,
-:root:not(.dark) [data-slot='sheet-content']:focus-visible {
+:root:not(.dark) [data-slot="dropdown-menu-content"]:focus-visible,
+:root:not(.dark) [data-slot="dropdown-menu-sub-content"]:focus-visible,
+:root:not(.dark) [data-slot="popover-content"]:focus-visible,
+:root:not(.dark) [data-slot="select-content"]:focus-visible,
+:root:not(.dark) [data-slot="dialog-content"]:focus-visible,
+:root:not(.dark) [data-slot="sheet-content"]:focus-visible {
   box-shadow:
     var(--glass-shadow),
     inset 0 1px 0 var(--glass-highlight);

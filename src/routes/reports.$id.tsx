@@ -87,7 +87,7 @@ export function ReportDetailView({ id }: { id: string }) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <section className="rounded-2xl border border-border bg-card p-5">
+        <section className="glass rounded-2xl border border-border p-5">
           <h2 className="mb-3 text-lg font-semibold">Observation</h2>
           <p className="mb-3 whitespace-pre-wrap text-sm text-muted-foreground">
             {draft.payload.description}
@@ -105,7 +105,7 @@ export function ReportDetailView({ id }: { id: string }) {
             </div>
           </dl>
           {draft.payload.photo ? (
-            <div className="mt-4 rounded-xl border border-border bg-muted/40 p-3">
+            <div className="glass mt-4 rounded-xl border border-border p-3">
               <p className="text-sm font-medium">Photo evidence</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {draft.payload.photo.name}
@@ -114,7 +114,7 @@ export function ReportDetailView({ id }: { id: string }) {
           ) : null}
         </section>
 
-        <aside className="rounded-2xl border border-border bg-card p-5">
+        <aside className="glass rounded-2xl border border-border p-5">
           <h2 className="mb-4 text-lg font-semibold">Delivery status</h2>
           <DeliveryStepper
             draft={draft}
@@ -124,7 +124,7 @@ export function ReportDetailView({ id }: { id: string }) {
         </aside>
       </div>
 
-      <section className="mt-8 rounded-2xl border border-border bg-card p-5">
+      <section className="glass mt-8 rounded-2xl border border-border p-5">
         <h2 className="mb-4 text-lg font-semibold">Receipt history</h2>
         {receiptEvents.length === 0 ? (
           <p className="text-sm text-muted-foreground">
@@ -135,7 +135,7 @@ export function ReportDetailView({ id }: { id: string }) {
             {receiptEvents.map((event) => (
               <li
                 key={event.id ?? `${event.type}-${event.at}`}
-                className="rounded-xl border border-border p-3 text-sm"
+                className="glass rounded-xl border border-border p-3 text-sm"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-medium capitalize">

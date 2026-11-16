@@ -3,19 +3,19 @@
   min-width: 0;
   overflow-x: clip;
   color: var(--foreground);
-  background: var(--background);
-}
-
-.dark .advisories-list-page {
-  background:
-    radial-gradient(ellipse at 82% 55%, color-mix(in srgb, var(--tone-0a2f3e) 28%, transparent), transparent 42%),
-    var(--background);
+  background: transparent;
 }
 
 .advisories-list-banner {
-  border-bottom: 1px solid color-mix(in srgb, var(--tone-91aebd) 20%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--tone-91aebd) 20%, transparent);
   background:
-    linear-gradient(90deg, var(--photo-scrim-a), var(--photo-scrim-b) 58%, var(--photo-scrim-c)),
+    linear-gradient(
+      90deg,
+      var(--photo-scrim-a),
+      var(--photo-scrim-b) 58%,
+      var(--photo-scrim-c)
+    ),
     url("/img/banner-strip.png") center 53% / cover;
 }
 
@@ -35,6 +35,19 @@
   color: var(--foreground);
   background: color-mix(in srgb, var(--link) 18%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--link) 30%, transparent);
+}
+
+.advisories-filter-pill.glass-pill:not([aria-pressed="true"]) {
+  background-color: var(--glass-panel);
+}
+
+.advisories-list-page #adv-sort {
+  background-color: var(--glass-panel);
+}
+
+.advisories-list-page .rp-status-card.glass,
+.advisory-detail-page .rp-status-card.glass {
+  background-color: var(--glass-panel);
 }
 
 @media (min-width: 768px) {

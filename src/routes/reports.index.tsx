@@ -11,17 +11,23 @@ export const Route = createFileRoute("/reports/")({
 
 function ReportsIndexPage() {
   const scope = getActiveAccountScope();
-  const [items, setItems] = useState<Awaited<ReturnType<typeof listReportsForScope>>>([]);
+  const [items, setItems] = useState<
+    Awaited<ReturnType<typeof listReportsForScope>>
+  >([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
-    const subscription = (awaited: Promise<Awaited<ReturnType<typeof listReportsForScope>>>) => {
-      void awaited.then((data) => {
-        if (active) setItems(data);
-      }).catch(() => {
-        if (active) setError("Unable to load your reports right now.");
-      });
+    const subscription = (
+      awaited: Promise<Awaited<ReturnType<typeof listReportsForScope>>>,
+    ) => {
+      void awaited
+        .then((data) => {
+          if (active) setItems(data);
+        })
+        .catch(() => {
+          if (active) setError("Unable to load your reports right now.");
+        });
     };
     subscription(listReportsForScope(scope));
     return () => {
@@ -33,9 +39,13 @@ function ReportsIndexPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12">
         <h1 className="font-display text-3xl">My Reports</h1>
-        <p className="mt-3 text-muted-foreground">Sign in to see your saved reports here.</p>
+        <p className="mt-3 text-muted-foreground">
+          Sign in to see your saved reports here.
+        </p>
         <Button asChild className="mt-6">
-          <Link to="/report" search={{ segment: undefined }}>Report a hazard</Link>
+          <Link to="/report" search={{ segment: undefined }}>
+            Report a hazard
+          </Link>
         </Button>
       </div>
     );
@@ -58,12 +68,14 @@ function ReportsIndexPage() {
           <h1 className="font-display text-3xl font-semibold">My Reports</h1>
         </div>
         <Button asChild variant="outline">
-          <Link to="/report" search={{ segment: undefined }}>New report</Link>
+          <Link to="/report" search={{ segment: undefined }}>
+            New report
+          </Link>
         </Button>
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card/50 p-8 text-center text-muted-foreground">
+        <div className="glass rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
           You have no saved reports in this account yet.
         </div>
       ) : (
@@ -75,17 +87,22 @@ function ReportsIndexPage() {
                 key={draft.id}
                 to="/reports/$id"
                 params={{ id: draft.id }}
-                className="rp-hover-card block rounded-2xl border border-border bg-card p-4"
+                className="rp-hover-card glass block rounded-2xl border border-border p-4"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-medium text-foreground">{draft.payload.hazardType || "Hazard report"}</span>
-                  <span className="rounded-full border border-border px-2 py-1 text-xs capitalize">{status.replace(/_/g, " ")}</span>
+                  <span className="text-sm font-medium text-foreground">
+                    {draft.payload.hazardType || "Hazard report"}
+                  </span>
+                  <span className="glass-pill border border-border px-2 py-1 text-xs capitalize">
+                    {status.replace(/_/g, " ")}
+                  </span>
                 </div>
                 <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">
                   {draft.payload.description || "No description provided."}
                 </p>
                 <div className="mt-4 text-xs text-muted-foreground">
-                  Observed {draft.observedAtLocal || draft.eventTime || "recently"}
+                  Observed{" "}
+                  {draft.observedAtLocal || draft.eventTime || "recently"}
                 </div>
               </Link>
             );

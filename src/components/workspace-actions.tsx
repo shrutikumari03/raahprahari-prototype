@@ -78,7 +78,7 @@ function AvailabilityBadge({
       data-testid="action-availability"
       data-availability={availability}
       className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 rounded-md border bg-background/70 px-2 py-0.5 text-xs font-semibold whitespace-nowrap",
+        "glass-pill inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-semibold whitespace-nowrap",
         className,
       )}
     >
@@ -119,7 +119,7 @@ function ScreenCard({ screen }: { screen: WorkspaceScreen }) {
     <section
       aria-labelledby={headingId}
       data-testid={`audit-screen-${screen.id}`}
-      className="rp-info-card"
+      className="rp-info-card glass"
     >
       <h3
         id={headingId}
@@ -180,7 +180,7 @@ export function WorkspaceActionsView({
           <div
             key={state}
             data-testid={`audit-count-${state}`}
-            className="flex min-w-0 flex-col items-start gap-1.5 rounded-lg border border-border bg-card/60 p-3"
+            className="glass flex min-w-0 flex-col items-start gap-1.5 rounded-lg p-3"
           >
             <dt>
               <AvailabilityBadge availability={state} />

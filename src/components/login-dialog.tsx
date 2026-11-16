@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { CircleAlert } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -150,7 +151,11 @@ function LoginForm({ onSignedIn }: { onSignedIn: () => void }) {
             )}
           />
           {form.formState.errors.root && (
-            <p role="alert" className="text-sm text-destructive">
+            <p role="alert" className="flex items-start gap-2 text-sm">
+              <CircleAlert
+                aria-hidden
+                className="mt-0.5 size-4 shrink-0 text-destructive"
+              />
               {form.formState.errors.root.message}
             </p>
           )}

@@ -84,7 +84,7 @@ export function ContactPage() {
       />
       <div className="rp-info-container rp-info-content">
         <section
-          className="rp-info-card mx-auto max-w-2xl"
+          className="rp-info-card glass-strong mx-auto max-w-2xl"
           aria-labelledby="contact-form-title"
         >
           <h2 id="contact-form-title">{t("contactPage.formTitle")}</h2>
@@ -104,7 +104,7 @@ export function ContactPage() {
                 required
                 aria-invalid={Boolean(errors.name)}
                 aria-describedby={`contact-name-help${errors.name ? " contact-name-error" : ""}`}
-                className="rp-contact-control"
+                className="rp-contact-control glass"
                 onChange={() => clearFieldError("name")}
                 onBlur={(event) =>
                   validateOnBlur("name", event.currentTarget.value)
@@ -135,7 +135,7 @@ export function ContactPage() {
                 required
                 aria-invalid={Boolean(errors.email)}
                 aria-describedby={`contact-email-help${errors.email ? " contact-email-error" : ""}`}
-                className="rp-contact-control"
+                className="rp-contact-control glass"
                 onChange={() => clearFieldError("email")}
                 onBlur={(event) =>
                   validateOnBlur("email", event.currentTarget.value)
@@ -166,7 +166,7 @@ export function ContactPage() {
                 required
                 aria-invalid={Boolean(errors.message)}
                 aria-describedby={`contact-message-help${errors.message ? " contact-message-error" : ""}`}
-                className="rp-contact-control rp-contact-message"
+                className="rp-contact-control glass rp-contact-message"
                 onChange={() => clearFieldError("message")}
                 onBlur={(event) =>
                   validateOnBlur("message", event.currentTarget.value)

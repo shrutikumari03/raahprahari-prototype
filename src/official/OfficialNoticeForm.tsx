@@ -147,7 +147,10 @@ export function OfficialNoticeForm() {
 
   return (
     <div className="space-y-4">
-      <section aria-labelledby="official-form-title" className="rp-info-card">
+      <section
+        aria-labelledby="official-form-title"
+        className="rp-info-card glass"
+      >
         <h2 id="official-form-title">{t("official.formTitle")}</h2>
         <p>{t("official.requiredNote")}</p>
 
@@ -224,7 +227,7 @@ export function OfficialNoticeForm() {
       {draft && (
         <section
           aria-labelledby="official-ready-title"
-          className="rp-info-card"
+          className="rp-info-card glass"
         >
           <h2
             id="official-ready-title"
@@ -248,7 +251,7 @@ export function OfficialNoticeForm() {
       )}
 
       {published && (
-        <section className="rp-info-card">
+        <section className="rp-info-card glass">
           <p
             ref={publishedRef}
             role="status"

@@ -39,7 +39,7 @@ function HelpTopicPage() {
         </div>
       </header>
       <div className="help-container help-detail-content">
-        <article className="help-detail-card">
+        <article className="help-detail-card glass">
           <p className="help-detail-intro">{t(topic.descriptionKey)}</p>
           <h2>{t(topic.detailTitleKey)}</h2>
           <p>{t(topic.detailBodyKey)}</p>

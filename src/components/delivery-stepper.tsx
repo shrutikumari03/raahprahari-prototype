@@ -133,10 +133,7 @@ export function DeliveryStepper({
 
   return (
     <div className="space-y-4">
-      <ol
-        className="grid gap-3 md:grid-cols-2 xl:grid-cols-5"
-        aria-label="Delivery stages"
-      >
+      <ol className="grid gap-3" aria-label="Delivery stages">
         {finalStages.map((stage, index) => {
           const Icon = stage.icon;
           const isActive = index === activeIndex;
@@ -146,9 +143,7 @@ export function DeliveryStepper({
               <div
                 className={[
                   "flex h-full min-h-32 flex-col gap-2 rounded-xl border p-3",
-                  isActive
-                    ? "border-action-info bg-action-info/5"
-                    : "border-border bg-card/40",
+                  isActive ? "border-action-info bg-action-info/5" : "glass",
                   isFailed ? "border-destructive/60 bg-destructive/5" : "",
                 ].join(" ")}
               >

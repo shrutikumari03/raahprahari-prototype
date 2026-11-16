@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useForm, type Control, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -44,7 +45,11 @@ export const AUTH_ERROR_KEYS: Record<
 function RootError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className="text-sm text-destructive">
+    <p role="alert" className="flex items-start gap-2 text-sm">
+      <CircleAlert
+        aria-hidden
+        className="mt-0.5 size-4 shrink-0 text-destructive"
+      />
       {message}
     </p>
   );

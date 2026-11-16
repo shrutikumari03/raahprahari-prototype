@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { CircleAlert } from "lucide-react";
 import { NewPasswordForm, AUTH_ERROR_KEYS } from "@/components/auth-forms";
 import { usePrefs } from "@/i18n/preferences";
 import type { TranslationKey } from "@/i18n/dictionary";
@@ -22,7 +23,7 @@ function AuthPageShell({
     <div className="rp-container py-12">
       <section
         aria-labelledby="auth-page-title"
-        className="mx-auto max-w-md space-y-4 rounded-xl border border-border bg-card p-6 text-card-foreground"
+        className="glass-strong mx-auto max-w-md space-y-4 rounded-xl p-6 text-card-foreground"
       >
         <h1
           id="auth-page-title"
@@ -82,7 +83,11 @@ export function AuthCallbackPage({
   }
   return (
     <AuthPageShell title="callback.failedTitle">
-      <p role="alert" className="text-sm text-destructive">
+      <p role="alert" className="flex items-start gap-2 text-sm">
+        <CircleAlert
+          aria-hidden
+          className="mt-0.5 size-4 shrink-0 text-destructive"
+        />
         {t(AUTH_ERROR_KEYS[result.kind])}
       </p>
       <HomeLink />
@@ -112,7 +117,10 @@ export function ResetPasswordPage() {
         </>
       ) : (
         <>
-          <p role="alert">{t("reset.noSession")}</p>
+          <p role="alert" className="flex items-start gap-2">
+            <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
+            {t("reset.noSession")}
+          </p>
           <HomeLink />
         </>
       )}

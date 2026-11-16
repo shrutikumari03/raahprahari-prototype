@@ -56,29 +56,49 @@ describe("where glass is used", () => {
       "features/reports/report-step-page.tsx",
     ]) {
       const source = read(file);
-      expect(source, file).toMatch(/(lg|xl):sticky (lg|xl):top-\[calc\(var\(--shell-bar-height\)\+1rem\)\]/);
+      expect(source, file).toMatch(
+        /(lg|xl):sticky (lg|xl):top-\[calc\(var\(--shell-bar-height\)\+1rem\)\]/,
+      );
       expect(source, file).not.toMatch(/(lg|xl):sticky (lg|xl):top-\d/);
     }
   });
 
   it("shell menus, the status popover and dialog inherit glass-strong from the shared overlays", () => {
     // They only add shell text colour and width; the glass comes from ui/*.
-    expect(read("components/app-shell/account-menu.tsx")).toContain('className="rp-shell w-60 text-shell-text"');
-    expect(read("components/app-shell/shell-status.tsx")).toContain('className="rp-shell w-80 text-shell-text"');
-    expect(read("components/app-shell/shell-status.tsx")).toContain('<DialogContent className="rp-shell text-shell-text">');
+    expect(read("components/app-shell/account-menu.tsx")).toContain(
+      'className="rp-shell w-60 text-shell-text"',
+    );
+    expect(read("components/app-shell/shell-status.tsx")).toContain(
+      'className="rp-shell w-80 text-shell-text"',
+    );
+    expect(read("components/app-shell/shell-status.tsx")).toContain(
+      '<DialogContent className="rp-shell text-shell-text">',
+    );
     expect(bars).toContain('className="rp-shell text-shell-text"');
-    expect(read("components/ui/dropdown-menu.tsx").match(/glass-strong/g)).toHaveLength(2);
+    expect(
+      read("components/ui/dropdown-menu.tsx").match(/glass-strong/g),
+    ).toHaveLength(2);
     expect(read("components/ui/popover.tsx")).toContain("glass-strong");
     expect(read("components/ui/dialog.tsx")).toContain("glass-strong");
   });
 
-  it("not on the map or the report wizard (their own surfaces stay as they are)", () => {
+  it("map and report surfaces use the approved glass utilities", () => {
+    expect(read("routes/map.tsx")).toMatch(/rp-map-toolbar glass/);
+    expect(read("routes/map.tsx")).toMatch(/rp-map-detail glass-strong/);
+    expect(read("routes/map.tsx")).toMatch(/rp-map-legend glass-strong/);
+    expect(read("features/map/leaflet-segment-map.tsx")).toMatch(
+      /rp-lmap-status glass-strong/,
+    );
+    expect(read("features/reports/report-step-page.tsx")).toMatch(
+      /glass-strong rounded-2xl/,
+    );
+
     for (const file of [
-      "routes/map.css",
-      "features/map/leaflet-segment-map.css",
+      "routes/map.tsx",
+      "features/map/leaflet-segment-map.tsx",
       "features/reports/report-step-page.tsx",
     ])
-      expect(read(file), file).not.toMatch(/rp-glass|\bglass(-strong|-accent|-pill)?\b/);
+      expect(read(file), file).not.toMatch(/rp-glass-/);
   });
 });
 
@@ -96,6 +116,8 @@ describe("rail logo", () => {
   it("keeps the wordmark beside it and an accessible name on the link", () => {
     expect(shellLogo).toMatch(/aria-label=\{t\("shell\.homeLabel"\)\}/);
     expect(shellLogo).toMatch(/showWordmark \?/);
-    expect(read("components/app-shell/rail.tsx")).toContain("<ShellLogo showWordmark={!collapsed} />");
+    expect(read("components/app-shell/rail.tsx")).toContain(
+      "<ShellLogo showWordmark={!collapsed} />",
+    );
   });
 });

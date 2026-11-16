@@ -11,7 +11,7 @@ export function PageBanner({
 }) {
   return (
     <header className="rp-info-banner photo-surface">
-      <div className="rp-info-container rp-info-banner-content">
+      <div className="rp-info-container rp-info-banner-content glass-strong rounded-3xl">
         <p className="rp-info-eyebrow">
           <span aria-hidden />
           {eyebrow}

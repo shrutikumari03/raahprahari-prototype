@@ -441,3 +441,181 @@ describe("phase 2A: contrast of the new surfaces", () => {
     expect(Math.min(...worst.map((s) => contrast(hex(dark, "--muted-foreground"), s)))).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+/* ── Phase 2B: shared components (advisory, banner, status, banners, palette, errors, footer) ── */
+const comp = (name: string) => read(`components/${name}`);
+const B_FILES = [
+  "advisory.tsx", "page-banner.tsx", "system-status.tsx", "offline-banner.tsx",
+  "feature-search-modal.tsx", "error-pages.tsx", "app-shell/site-footer.tsx",
+] as const;
+const bannerCss = read("components/page-banner.css").replace(/\/\*[\s\S]*?\*\//g, "");
+/** The body of the first CSS rule whose selector is exactly `selector`. */
+const rule = (css: string, selector: string) =>
+  [...css.matchAll(/(^|\n)([^{}@]+)\{([^{}]*)\}/g)].find((m) => m[2].trim() === selector)?.[3] ?? "";
+
+describe("phase 2B: structure", () => {
+  it("only names the six Phase 1 glass utilities, with no hard-coded hex", () => {
+    const allowed = new Set(["glass", "glass-strong", "glass-accent", "glass-pill", "glass-btn-accent", "glass-btn-frost"]);
+    for (const file of B_FILES) {
+      const source = comp(file);
+      for (const m of source.matchAll(/(?<![\w-])(glass[\w-]*)(?![\w-])/g))
+        expect(allowed.has(m[1]), `${file}: ${m[1]}`).toBe(true);
+      expect(source, file).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+      expect(source, file).not.toMatch(/(?<![\w-])bg-(card|popover|background|muted|raised|shell-\w+)(?![\w-])/);
+    }
+  });
+
+  it("severity badges are tinted glass pills; the label and a different icon carry the severity", () => {
+    const source = comp("advisory.tsx");
+    expect(source).toContain("rp-fade-in glass-pill inline-flex items-center gap-1.5 rounded-full border font-semibold text-foreground shadow-none");
+    expect(source).toMatch(/const TINT_15 =\s*"bg-\[linear-gradient\(color-mix\(in_srgb,var\(--tint\)_15%,transparent\),color-mix\(in_srgb,var\(--tint\)_15%,transparent\)\)\]"/);
+    for (const level of ["clear", "caution", "avoid", "dnt", "unknown"])
+      expect(source).toContain(`border-status-${level} [--tint:var(--status-${level})]`);
+    expect(source).toContain("[--tint:var(--status-official)]");
+    // The label text and the icon are always rendered with the badge.
+    expect(source).toMatch(/<Icon[\s\S]*?\/>\s*\{t\(`level\.\$\{level\}`\)\}/);
+    // No solid status fill on a badge (the unknown state must never look green).
+    expect(source).not.toMatch(/bg-status-(clear|caution|avoid|dnt|unknown|official)\/15/);
+  });
+
+  it("the banner is a glass-strong panel over its photo, with the heading in Inter", () => {
+    expect(comp("page-banner.tsx")).toContain('className="rp-info-container rp-info-banner-content glass-strong rounded-3xl"');
+    // The photo and its scrim stay on the banner itself (photo-overlay.test.ts).
+    expect(rule(bannerCss, ".rp-info-banner")).toMatch(/var\(--photo-scrim-a\)/);
+    expect(rule(bannerCss, ".rp-info-banner h1")).toContain("font-family: var(--font-heading);");
+    expect(light["--font-heading"]).toBe("'Inter', system-ui, sans-serif");
+    for (const selector of [".rp-info-banner h1", ".rp-info-eyebrow", ".rp-info-banner-description"])
+      expect(rule(bannerCss, selector), selector).not.toMatch(/--tone-/);
+    expect(rule(bannerCss, ".rp-info-banner h1")).toContain("color: var(--foreground);");
+    expect(rule(bannerCss, ".rp-info-banner-description")).toContain("color: var(--foreground);");
+  });
+
+  it("the info page has no solid fill, and a card with .glass takes the glass instead of the solid card", () => {
+    expect(rule(bannerCss, ".rp-info-page")).not.toMatch(/background/);
+    expect(bannerCss).not.toMatch(/\.dark \.rp-info-page/);
+    expect(rule(bannerCss, ".rp-info-card")).not.toMatch(/background|border:/);
+    expect(rule(bannerCss, ".rp-info-card:not(.glass)")).toMatch(/background: var\(--card\)/);
+  });
+
+  it("error pages are a centred glass-strong card on the backdrop", () => {
+    const source = comp("error-pages.tsx");
+    expect(source.match(/glass-strong w-full max-w-(lg|md)[^"]*rounded-3xl/g)).toHaveLength(2);
+    expect(source).toContain('className="rp-info-page rp-error-page"');
+    expect(source).toContain('className="rp-error-page"');
+    expect(source).not.toContain("PageBanner");
+    // Same tokens as .rp-backdrop: overlay over glows over the photo over the fallback.
+    const css = rule(bannerCss, ".rp-error-page");
+    expect(css).toMatch(/place-items: center;/);
+    expect(css).toContain("var(--backdrop-a), var(--backdrop-b) 50%, var(--backdrop-c)");
+    expect(css).toContain("var(--backdrop-glow)");
+    expect(css).toContain("url('/img/hero-road.png')");
+    expect(css).toContain("var(--backdrop-fallback-a)");
+    expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+    // Headings, links and the alert role the tests and screen readers rely on.
+    expect(source).toContain("This page could not be found");
+    expect(source).toContain("This page couldn’t load");
+    expect(source).toContain('role="alert"');
+  });
+
+  it("status badges and cards are glass; state text is --foreground with a coloured edge or icon", () => {
+    const source = comp("system-status.tsx");
+    expect(source).toContain("glass-pill inline-flex shrink-0 items-center gap-1.5 border px-2 py-0.5 text-xs font-semibold text-foreground shadow-none");
+    expect(source).toContain('className="rp-info-card glass list-none"');
+    expect(source).toMatch(/glass flex min-w-0 flex-col items-start gap-1\.5 rounded-2xl p-3/);
+    // No status colour as a text colour; the icons (the [&>svg]: variants) may use it.
+    expect(source).not.toMatch(/(?<![\w:-])text-status-(clear|caution|dnt|unknown)(?![\w-])/);
+    expect(source.match(/\[&>svg\]:text-status-/g)).toHaveLength(4);
+    expect(source.match(/border-l-4 border-status-/g)).toHaveLength(3);
+    // The state is still named by its label and its own icon.
+    expect(source).toMatch(/<Icon[\s\S]*?\/>\s*\{t\(label\)\}/);
+  });
+
+  it("the offline panel keeps AA text and glass hover; the palette rows and chips use glass tokens", () => {
+    const offline = comp("offline-banner.tsx");
+    expect(offline).not.toMatch(/(?<![\w-])text-status-dnt(?![\w-])/);
+    expect(offline).toContain("hover:bg-(--glass-panel-strong)");
+    const palette = comp("feature-search-modal.tsx");
+    expect(palette).toContain("border-(--glass-line) bg-(--glass-panel-strong) shadow-[inset_3px_0_0_var(--glass-accent-line)]");
+    expect(palette).toContain("bg-(--glass-divider) text-(--glass-accent-text)");
+    expect(palette).not.toMatch(/border-border|bg-raised/);
+    expect(palette).toContain("z-(--z-content) size-4 -translate-y-1/2 text-muted-foreground");
+  });
+
+  it("the footer is a glass strip with its edge on top only", () => {
+    expect(comp("app-shell/site-footer.tsx")).toContain('className="glass rounded-t-3xl border-x-0 border-b-0"');
+  });
+
+  it("light theme: glass containers get a 2px ring in place of the global orange glow", () => {
+    const focus = plain.match(/:root:not\(\.dark\) \.glass-strong:focus-visible \{([^}]*)\}/)?.[1] ?? "";
+    expect(focus).toMatch(/outline: 2px solid var\(--ring\);/);
+    expect(focus).toMatch(/box-shadow:\s*var\(--glass-shadow\)/);
+    expect(focus).not.toMatch(/orange/);
+  });
+});
+
+describe("phase 2B: contrast", () => {
+  const percentRgb = (value: string): [RGB, number] => {
+    const m = /^rgb\((\d+) (\d+) (\d+) \/ (\d+)%\)$/.exec(value);
+    if (!m) throw new Error(`not rgb(R G B / N%): ${value}`);
+    return [[Number(m[1]), Number(m[2]), Number(m[3])], Number(m[4]) / 100];
+  };
+  /** The photo scrim stops: the first declaration is the light theme, the second the dark one. */
+  const scrim = (name: "light" | "dark") =>
+    ["--photo-scrim-a", "--photo-scrim-b", "--photo-scrim-c"].map((token) => {
+      const all = [...plain.matchAll(new RegExp(`${token}:\\s*([^;]+);`, "g"))].map((m) => m[1].trim());
+      expect(all.length, token).toBe(2);
+      return percentRgb(all[name === "light" ? 0 : 1]);
+    });
+  const LEVEL_TOKENS = ["--status-clear", "--status-caution", "--status-avoid", "--status-dnt", "--status-unknown", "--status-official"];
+
+  for (const name of ["light", "dark"] as const) {
+    const theme = THEMES[name];
+
+    it(`${name}: banner text passes on the glass panel at every scrim stop, over the worst photo pixel`, () => {
+      for (const [color, alpha] of scrim(name)) {
+        const behind = over(color, alpha, WORST[name]);
+        const surface = layer(theme, "--glass-panel-strong", behind);
+        expect(contrast(hex(theme, "--foreground"), surface)).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+
+    it(`${name}: severity badge text passes on the tinted glass over the backdrop and the page surfaces`, () => {
+      const unders = [...backdrops(name), hex(theme, "--background"), hex(theme, "--card")];
+      for (const under of unders)
+        for (const token of LEVEL_TOKENS) {
+          const panel = layer(theme, "--glass-panel", under);
+          const tinted = over(hex(theme, token), 0.15, panel);
+          expect(contrast(hex(theme, "--foreground"), tinted), token).toBeGreaterThanOrEqual(4.5);
+        }
+    });
+
+    it(`${name}: status colours stay at 3:1 as icons and edges on glass`, () => {
+      for (const bg of backdrops(name)) {
+        const panel = layer(theme, "--glass-panel", bg);
+        for (const token of ["--status-clear", "--status-caution", "--status-dnt", "--status-unknown"])
+          expect(contrast(hex(theme, token), panel), token).toBeGreaterThanOrEqual(3);
+      }
+    });
+
+    it(`${name}: the selected palette row, its icon tile and the footer text pass`, () => {
+      for (const bg of backdrops(name)) {
+        const dialog = layer(theme, "--glass-panel-strong", bg);
+        const selected = layer(theme, "--glass-panel-strong", dialog);
+        for (const text of ["--foreground", "--muted-foreground", "--link"])
+          expect(contrast(hex(theme, text), selected), text).toBeGreaterThanOrEqual(4.5);
+        const tile = layer(theme, "--glass-divider", dialog);
+        expect(contrast(hex(theme, "--glass-accent-text"), tile), "icon tile").toBeGreaterThanOrEqual(3);
+        const footer = layer(theme, "--glass-panel", bg);
+        for (const text of ["--foreground", "--muted-foreground", "--link"])
+          expect(contrast(hex(theme, text), footer), `footer ${text}`).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+
+    it(`${name}: the 2px focus ring is at least 3:1 against the strong panel`, () => {
+      for (const bg of backdrops(name)) {
+        const panel = layer(theme, "--glass-panel-strong", bg);
+        expect(contrast(hex(theme, "--ring"), panel)).toBeGreaterThanOrEqual(3);
+      }
+    });
+  }
+});

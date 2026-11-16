@@ -199,10 +199,10 @@ export function FeatureSearchModal({
           <DialogDescription>{t("palette.description")}</DialogDescription>
         </DialogHeader>
 
-        <div className="relative border-b border-border p-3">
+        <div className="relative border-b border-(--glass-divider) p-3">
           <Search
             aria-hidden
-            className="pointer-events-none absolute top-1/2 left-6 size-4 -translate-y-1/2 text-muted-foreground"
+            className="pointer-events-none absolute top-1/2 left-6 z-(--z-content) size-4 -translate-y-1/2 text-muted-foreground"
           />
           <Input
             role="combobox"
@@ -276,13 +276,13 @@ export function FeatureSearchModal({
                     className={cn(
                       "flex min-h-14 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 transition-colors motion-reduce:transition-none",
                       selected
-                        ? "border-border bg-raised"
+                        ? "border-(--glass-line) bg-(--glass-panel-strong) shadow-[inset_3px_0_0_var(--glass-accent-line)]"
                         : "border-transparent",
                     )}
                   >
                     <span
                       aria-hidden
-                      className="grid size-9 shrink-0 place-items-center rounded-md bg-muted text-brand-orange"
+                      className="grid size-9 shrink-0 place-items-center rounded-xl bg-(--glass-divider) text-(--glass-accent-text)"
                     >
                       <Icon className="size-4" />
                     </span>
@@ -313,7 +313,7 @@ export function FeatureSearchModal({
 
         <div
           aria-hidden
-          className="hidden flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-4 py-2.5 text-xs text-muted-foreground sm:flex"
+          className="hidden flex-wrap items-center gap-x-4 gap-y-1 border-t border-(--glass-divider) px-4 py-2.5 text-xs text-muted-foreground sm:flex"
         >
           <span>
             <Kbd>↑</Kbd> <Kbd>↓</Kbd> {t("palette.hintNavigate")}
@@ -332,7 +332,7 @@ export function FeatureSearchModal({
 
 function Kbd({ children }: { children: ReactNode }) {
   return (
-    <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
+    <kbd className="rounded-md border border-(--glass-line) bg-(--glass-divider) px-1.5 py-0.5 font-mono text-xs text-foreground">
       {children}
     </kbd>
   );

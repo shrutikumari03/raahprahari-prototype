@@ -151,13 +151,13 @@ export function OfflineBannerView({
         </span>
       </p>
       {pendingCount > 0 ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-status-caution/50 bg-status-caution/10 px-3 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-status-caution/50 bg-status-caution/10 px-3 py-2">
           <span className="font-medium text-foreground">
             {t("offline.pending")}: {pendingCount}
           </span>
           <Link
             to="/reports"
-            className="inline-flex min-h-11 items-center rounded-md px-2 font-semibold text-foreground underline underline-offset-4 hover:bg-accent"
+            className="inline-flex min-h-11 items-center rounded-lg px-2 font-semibold text-foreground underline underline-offset-4 hover:bg-(--glass-panel-strong)"
           >
             {t("offline.viewReports")}
           </Link>
@@ -171,7 +171,8 @@ export function OfflineBannerView({
         {failedCount > 0 ? (
           <div className="flex flex-wrap gap-x-1">
             <dt>{t("offline.failed")}:</dt>
-            <dd className="m-0 font-semibold text-status-dnt">{failedCount}</dd>
+            {/* --foreground, not the red status colour: that does not keep AA on glass. */}
+            <dd className="m-0 font-semibold text-foreground">{failedCount}</dd>
           </div>
         ) : null}
       </dl>

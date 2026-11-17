@@ -208,7 +208,8 @@ describe("map glass contrast", () => {
   const advisoryDetail = read("routes/advisories.$segmentId.tsx");
 
   it("uses scoped translucent glass over bright map tiles and keeps text AA", () => {
-    expect(mapRoute).toMatch(/className="rp-map-page dark"/);
+    expect(mapRoute).toMatch(/className="rp-map-page"/);
+    expect(mapRoute).not.toMatch(/className="rp-map-page dark"/);
     expect(mapCss).not.toMatch(
       /--glass-panel(?:-strong)?:\s*var\(--glass-fallback\);/,
     );

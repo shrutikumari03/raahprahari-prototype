@@ -13,6 +13,45 @@
   color: var(--tone-e6e4dc);
   background: transparent;
 }
+
+:root:not(.dark) .rp-map-page {
+  --glass-panel: color-mix(in srgb, var(--glass-fallback) 42%, transparent);
+  --glass-panel-strong: color-mix(
+    in srgb,
+    var(--glass-fallback) 77%,
+    transparent
+  );
+  background-image:
+    radial-gradient(
+      ellipse at 88% 4%,
+      color-mix(in srgb, var(--card) 62%, var(--tone-ffae35)),
+      transparent 54%
+    ),
+    radial-gradient(
+      ellipse at 28% 12%,
+      color-mix(in srgb, var(--card) 62%, var(--status-clear)),
+      transparent 48%
+    );
+}
+
+:root:not(.dark) .rp-map-page :is(.glass, .glass-pill, .glass-strong) {
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
+}
+
+:root:not(.dark) .rp-map-page .rp-map-leaflet {
+  --glass-panel: var(--glass-panel-strong);
+}
+
+:root:not(.dark) .rp-map-page .rp-map-detail {
+  --glass-panel: color-mix(in srgb, var(--glass-fallback) 42%, transparent);
+  --glass-panel-strong: color-mix(
+    in srgb,
+    var(--glass-fallback) 42%,
+    transparent
+  );
+}
+
 /* Page tools (search + map/list view). Not navigation. */
 .rp-map-toolbar {
   z-index: var(--z-content);
@@ -143,6 +182,40 @@
   inset: 0;
   overflow: hidden;
   background: var(--tone-09202b);
+}
+
+:root:not(.dark) .rp-map-page .rp-map-canvas {
+  background:
+    radial-gradient(
+      ellipse at 90% 8%,
+      color-mix(in srgb, var(--card) 55%, var(--tone-ffae35)),
+      transparent 38%
+    ),
+    radial-gradient(
+      ellipse at 90% 92%,
+      color-mix(in srgb, var(--card) 55%, var(--status-clear)),
+      transparent 38%
+    ),
+    var(--tone-09202b);
+}
+
+:root:not(.dark) .rp-map-page .rp-map-legend {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(
+        in srgb,
+        color-mix(in srgb, var(--card) 62%, var(--tone-ffae35)) 60%,
+        transparent
+      )
+      0%,
+    transparent 48%,
+    color-mix(
+        in srgb,
+        color-mix(in srgb, var(--card) 62%, var(--status-clear)) 60%,
+        transparent
+      )
+      100%
+  );
 }
 
 /* The interactive map stops where the selected-segment panel starts (right on
@@ -421,14 +494,21 @@
   gap: 9px;
   border-radius: 8px;
   color: var(--tone-ffffff);
-  background: var(--tone-0069a6);
   font-size: 12px;
   font-weight: 600;
   text-decoration: none;
 }
 
-.rp-map-details-link:hover {
+:root.dark .rp-map-page .rp-map-details-link {
+  border: 0;
+  background: var(--tone-0069a6);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root.dark .rp-map-page .rp-map-details-link:hover {
   background: var(--tone-0a91e9);
+  translate: none;
 }
 
 .rp-map-details-link svg {

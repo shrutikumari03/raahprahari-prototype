@@ -99,7 +99,7 @@ function MapPage() {
   };
 
   return (
-    <div className="rp-map-page dark">
+    <div className="rp-map-page">
       <div
         className="rp-map-toolbar glass"
         role="search"

@@ -133,6 +133,7 @@ describe("shell breakpoints (1024px)", () => {
     expect(classes(main)).toEqual(
       expect.arrayContaining(["rp-shell-map", "flex", "min-h-0", "flex-col"]),
     );
+    expect(main).not.toHaveClass("dark");
     expect(screen.queryByRole("search")).toBeNull();
     expect(screen.queryByLabelText("Search road or place")).toBeNull();
     // The column is exactly one viewport tall so the map page fills the remainder.

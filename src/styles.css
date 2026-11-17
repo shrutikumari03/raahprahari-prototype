@@ -1772,6 +1772,16 @@ a.rp-hover-card:focus-visible {
   --hero-you-to: #fdba74;
 }
 
+/* Strong glass overlays on bright raster tiles need enough opacity for their
+   light labels to retain AA contrast, while remaining translucent. */
+.dark :is(.traveller-map-surface, .rp-map-canvas, .advisory-terrain-map) {
+  --glass-panel-strong: color-mix(
+    in srgb,
+    var(--glass-fallback) 95%,
+    transparent
+  );
+}
+
 /* The fixed background behind every page: photo, warm glows, then the
    overlay. -z-10 in the root stacking context, so it paints above the body
    colour (the canvas) and below all content. */

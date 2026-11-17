@@ -350,6 +350,7 @@ function TravellerPage() {
       {/* Stays enabled while a typed search is pending so Enter can run it immediately. */}
       <Button
         type="submit"
+        variant="report"
         className="traveller-search-submit"
         disabled={!query.trim() || searchStatus === "loading"}
       >
@@ -909,7 +910,7 @@ function TravellerMap({
           </Link>
         </div>
       ) : (
-        <p className="traveller-selected-hint">
+        <p className="traveller-selected-hint glass-pill">
           Select a road section on the map or in the list.
         </p>
       )}

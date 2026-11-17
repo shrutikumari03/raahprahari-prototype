@@ -3,8 +3,6 @@
    <main> is a flex column of bounded height, so the page grows to fit (no
    viewport-height calc() tied to a header, and the sync banner can come and go). */
 .rp-map-page {
-  --glass-panel: var(--glass-fallback);
-  --glass-panel-strong: var(--glass-fallback);
   position: relative;
   display: grid;
   flex: 1 1 0;

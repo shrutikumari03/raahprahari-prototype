@@ -554,7 +554,7 @@ function TerrainPanel({
       className="min-w-0 lg:sticky lg:top-[calc(var(--shell-bar-height)+1rem)] lg:self-start"
       aria-label="Route map and community reports"
     >
-      <div className="relative min-h-[360px] overflow-hidden rounded-xl border border-border bg-card sm:min-h-[440px] lg:min-h-[510px]">
+      <div className="advisory-terrain-map relative min-h-[360px] overflow-hidden rounded-xl border border-border bg-card sm:min-h-[440px] lg:min-h-[510px]">
         {view === "map" ? (
           <LeafletSegmentMap
             segments={corridorSegments}
@@ -655,7 +655,7 @@ function TerrainPanel({
           </button>
         </div>
       </div>
-      <LeafletMapLegend className="mt-3" />
+      <LeafletMapLegend className="mt-3 glass-strong" />
     </aside>
   );
 }

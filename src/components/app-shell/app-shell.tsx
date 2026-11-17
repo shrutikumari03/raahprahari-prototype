@@ -137,7 +137,6 @@ export function AppShell({
           aria-busy="true"
           className={cn(
             "min-w-0 flex-1 text-foreground",
-            isMap && "dark",
             isMap && "rp-shell-map flex min-h-0 flex-col",
           )}
         >

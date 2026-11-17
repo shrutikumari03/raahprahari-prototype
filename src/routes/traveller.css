@@ -1,6 +1,4 @@
 .traveller-page {
-  --glass-panel: var(--glass-fallback);
-  --glass-panel-strong: var(--glass-fallback);
   min-height: calc(100svh - var(--rp-top-h));
   width: 100%;
   max-width: 100%;
@@ -159,13 +157,7 @@
   width: 100%;
   min-height: 3rem;
   border-radius: 0.55rem;
-  background: var(--tone-087ccb);
-  color: var(--primary-foreground);
   font-weight: 600;
-}
-
-.traveller-search-submit:hover {
-  background: var(--tone-168de0);
 }
 
 .traveller-search-submit:disabled {
@@ -339,8 +331,11 @@
 }
 
 .traveller-selected-hint {
+  width: fit-content;
+  max-width: 100%;
   margin: 0.75rem 0 0;
-  color: var(--tone-a8bdc7);
+  padding: 0.55rem 0.85rem;
+  color: var(--foreground);
   font-size: 0.8rem;
 }
 
@@ -1279,15 +1274,4 @@
 
 .traveller-result-row.is-selected {
   outline-color: var(--result-accent);
-}
-
-/* Searching is the page's main action, so it uses the brand orange. */
-.traveller-search-submit {
-  background: var(--brand-orange) !important;
-  color: var(--text-on-ivory) !important;
-  font-weight: 600;
-}
-
-.traveller-search-submit:hover:not(:disabled) {
-  filter: brightness(1.08);
 }

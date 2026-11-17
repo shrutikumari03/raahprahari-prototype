@@ -204,22 +204,34 @@ describe("contrast: text inside glass panels", () => {
 describe("map glass contrast", () => {
   const mapRoute = read("routes/map.tsx");
   const mapCss = read("routes/map.css");
+  const travellerCss = read("routes/traveller.css");
+  const advisoryDetail = read("routes/advisories.$segmentId.tsx");
 
-  it("uses the dark glass treatment for map panels in both themes and keeps links AA over bright tiles", () => {
-    expect(mapRoute).toMatch(/className="rp-map-page dark"/);
-    expect(mapCss).toMatch(/--glass-panel:\s*var\(--glass-fallback\);/);
-    expect(mapCss).toMatch(/--glass-panel-strong:\s*var\(--glass-fallback\);/);
+  it("uses scoped translucent glass over bright map tiles and keeps text AA", () => {
+    expect(mapRoute).toMatch(/className="rp-map-page"/);
+    expect(mapRoute).not.toMatch(/className="rp-map-page dark"/);
+    expect(mapCss).not.toMatch(
+      /--glass-panel(?:-strong)?:\s*var\(--glass-fallback\);/,
+    );
+    expect(travellerCss).not.toMatch(/\.traveller-page\s*\{[^}]*--glass-panel/);
+    expect(advisoryDetail).toMatch(/advisory-terrain-map/);
+    expect(styles).toMatch(
+      /\.dark\s*:is\(\.traveller-map-surface,\s*\.rp-map-canvas,\s*\.advisory-terrain-map\)\s*\{[^}]*--glass-panel-strong:\s*color-mix\(\s*in srgb,\s*var\(--glass-fallback\)\s*95%,\s*transparent\s*\)/,
+    );
 
-    const surface = layer(dark, "--glass-fallback", WHITE);
+    const [panel, alpha] = rgba(dark, "--glass-fallback");
+    const adjustedSurface = over(panel, alpha * 0.95, WHITE);
+    expect(alpha * 0.95).toBeLessThan(0.9);
     for (const text of [
       "--link",
       "--shell-link",
       "--foreground",
       "--muted-foreground",
     ])
-      expect(contrast(hex(dark, text), surface), text).toBeGreaterThanOrEqual(
-        4.5,
-      );
+      expect(
+        contrast(hex(dark, text), adjustedSurface),
+        `${text} over scoped map glass`,
+      ).toBeGreaterThanOrEqual(4.5);
   });
 });
 

@@ -595,7 +595,7 @@ export function MapSegmentDetail({
       <Link
         to="/advisories/$segmentId"
         params={{ segmentId: segment.id }}
-        className="rp-map-details-link"
+        className="rp-map-details-link glass-btn-frost"
       >
         {t("common.viewDetails")} <ArrowRight aria-hidden />
       </Link>

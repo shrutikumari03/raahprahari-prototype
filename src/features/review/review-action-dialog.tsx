@@ -11,14 +11,16 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { usePrefs } from "@/i18n/preferences";
 import type { TranslationKey } from "@/i18n/dictionary";
 import type { CommunityReport } from "@/lib/types";
-import type {
-  ReviewAction,
-  ReviewDecisionAdapter,
-  ReviewDecisionInput,
+import {
+  ReviewVersionConflictError,
+  type ReviewAction,
+  type ReviewDecisionAdapter,
+  type ReviewDecisionInput,
 } from "./review-decision";
 import { selectClass } from "./review-ui";
 
@@ -32,6 +34,10 @@ interface Props {
   /** The control that opened the dialog; focus goes back to it on close. */
   returnFocusRef: React.RefObject<HTMLElement | null>;
   onDone: (action: ReviewAction) => void;
+  /** The review state version the decision is based on. Sent with every action. */
+  version?: number;
+  /** Refetches the current state after a version conflict. */
+  onConflict?: () => Promise<void>;
 }
 
 export function ReviewActionDialog({ action, ...rest }: Props) {
@@ -64,6 +70,8 @@ function DialogForm({
   onSubmit,
   onClose,
   onDone,
+  version,
+  onConflict,
   busy,
 }: Props & { action: ReviewAction; busy: React.MutableRefObject<boolean> }) {
   const { t } = usePrefs();
@@ -73,6 +81,9 @@ function DialogForm({
   const [submitted, setSubmitted] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [conflict, setConflict] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const [refetchError, setRefetchError] = useState<string | null>(null);
 
   const rationaleMissing = !rationale.trim();
   const targetMissing = action === "merge" && !targetRef;
@@ -85,12 +96,15 @@ function DialogForm({
     if (busy.current) return;
     setSubmitted(true);
     if (rationaleMissing || targetMissing || reasonMissing) return;
+    // After a conflict the reviewer must explicitly confirm against the new version.
+    if (conflict && !confirmed) return;
     const input: ReviewDecisionInput = {
       ref: report.ref,
       action,
       rationale: rationale.trim(),
       ...(action === "merge" ? { targetRef } : {}),
       ...(action === "escalate" ? { reason: reason.trim() } : {}),
+      ...(version !== undefined ? { expectedVersion: version } : {}),
     };
     busy.current = true;
     setPending(true);
@@ -100,6 +114,24 @@ function DialogForm({
       busy.current = false;
       onDone(action);
     } catch (e) {
+      if (e instanceof ReviewVersionConflictError) {
+        // Never overwrite: load the current state, keep the typed text, ask again.
+        setConflict(true);
+        setConfirmed(false);
+        setRefetchError(null);
+        try {
+          await onConflict?.();
+        } catch (refetch) {
+          setRefetchError(
+            refetch instanceof Error && refetch.message
+              ? refetch.message
+              : t("review.act.errorGeneric"),
+          );
+        }
+        busy.current = false;
+        setPending(false);
+        return;
+      }
       busy.current = false;
       setPending(false);
       setError(
@@ -208,6 +240,44 @@ function DialogForm({
           </p>
         )}
       </div>
+
+      {conflict && (
+        <div
+          role="alert"
+          data-testid="review-conflict"
+          className="grid gap-3 rounded-md border border-status-caution p-3 text-sm text-foreground"
+        >
+          <p className="m-0 font-semibold">{t("review.conflict.notice")}</p>
+          {refetchError !== null && (
+            <p className="m-0">
+              {t("review.conflict.refetchFailed").replace(
+                "{message}",
+                refetchError,
+              )}
+            </p>
+          )}
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="review-act-confirm"
+              checked={confirmed}
+              disabled={pending || refetchError !== null}
+              aria-invalid={submitted && !confirmed}
+              aria-describedby={
+                submitted && !confirmed ? "review-act-confirm-error" : undefined
+              }
+              onCheckedChange={(v) => setConfirmed(v === true)}
+            />
+            <Label htmlFor="review-act-confirm">
+              {t("review.conflict.confirm")}
+            </Label>
+          </div>
+          {submitted && !confirmed && (
+            <p id="review-act-confirm-error" className={fieldError}>
+              {t("review.conflict.confirmRequired")}
+            </p>
+          )}
+        </div>
+      )}
 
       {error !== null && (
         <div

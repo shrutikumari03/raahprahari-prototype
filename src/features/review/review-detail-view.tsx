@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Info } from "lucide-react";
 import { FreshnessChip, RoadCode } from "@/components/advisory";
@@ -19,8 +19,11 @@ import {
   REVIEW_ACTIONS,
   type ReviewAction,
   type ReviewDecisionAdapter,
+  type ReviewSnapshot,
+  type ReviewSnapshotLoader,
 } from "./review-decision";
 import { ObservationEvidence } from "./review-observations";
+import { ReviewTimeline } from "./review-timeline";
 import { AssignmentBadge, ReviewStatusBadge, SeverityLabel } from "./review-ui";
 import { useReviewClaims } from "./use-review-claims";
 
@@ -67,17 +70,39 @@ function RelatedList({
 export function ReviewDetailView({
   report,
   onDecision,
+  loadSnapshot,
 }: {
   report: CommunityReport;
   onDecision?: ReviewDecisionAdapter;
+  /** Loads the current version and authorised history. Without it no history is shown and no version is sent. */
+  loadSnapshot?: ReviewSnapshotLoader;
 }) {
   const { t, stamp, ago, place } = usePrefs();
   const { segments, reports } = useAppStore();
   const { claims, claim, release } = useReviewClaims();
   const [announcement, setAnnouncement] = useState("");
   const [dialogAction, setDialogAction] = useState<ReviewAction | null>(null);
+  const [snapshot, setSnapshot] = useState<ReviewSnapshot | null>(null);
   const actionRef = useRef<HTMLButtonElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  const reportRef = report.ref;
+  const refetch = useCallback(async () => {
+    if (loadSnapshot) setSnapshot(await loadSnapshot(reportRef));
+  }, [loadSnapshot, reportRef]);
+  useEffect(() => {
+    let live = true;
+    void loadSnapshot?.(reportRef).then(
+      (next) => {
+        if (live) setSnapshot(next);
+      },
+      () => {
+        if (live) setSnapshot(null);
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [loadSnapshot, reportRef]);
   const segment = segments.find((s) => s.id === report.segmentId);
   const { assignment, assignee } = assignmentOf(
     report,
@@ -299,6 +324,13 @@ export function ReviewDetailView({
 
       <ObservationEvidence group={observationGroup} />
 
+      {snapshot && (
+        <ReviewTimeline
+          entries={snapshot.history}
+          version={snapshot.version}
+        />
+      )}
+
       <section
         aria-labelledby="review-related-title"
         className="rp-info-card glass"
@@ -326,6 +358,8 @@ export function ReviewDetailView({
           mergeTargets={related.linked}
           onSubmit={onDecision}
           returnFocusRef={returnFocusRef}
+          version={snapshot?.version}
+          onConflict={refetch}
           onClose={() => setDialogAction(null)}
           onDone={(a) => {
             setDialogAction(null);
